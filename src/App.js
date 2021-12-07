@@ -124,17 +124,19 @@ function App() {
   }
 
   const logout = async () => {
-    const response = await axios.get('/user/logout', { withCredentials: true })
-    if (response) {
-      setAuthenticated(false)
-      setLogin(false)
-      setCurrentRoom({
-        _id: -1,
-        room_name: " ",
-        color: ''
-      })
-      setRooms([])
-    }
+    // const response = await axios.get('/user/logout', { withCredentials: true })
+    // if (response) {
+    //   setAuthenticated(false)
+    //   setLogin(false)
+    //   setCurrentRoom({
+    //     _id: -1,
+    //     room_name: " ",
+    //     color: ''
+    //   })
+    //   setRooms([])
+    // }
+    console.log(Cookies.remove('userId'))
+    window.location.reload()
   }
 
   const roomManage = (room) => {
