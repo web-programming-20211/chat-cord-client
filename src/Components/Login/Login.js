@@ -14,6 +14,10 @@ const Login = ({ logIn, invalid, errorToggle }) => {
     const [haveAccount, setAccount] = useState(true)
     const [hover, setHover] = useState(false)
 
+    const [verifyUser, setUserVerify] = useState({ email: '', code: '' })
+
+    const [formId, setFormId] = useState('login')
+
     const limit = useMediaQuery({ maxWidth: 1300 })
     const style = {
         textField: {
@@ -43,7 +47,7 @@ const Login = ({ logIn, invalid, errorToggle }) => {
             padding: '50px 0px 30px 0px',
             borderRadius: '10px',
             height: '450px',
-            maxWidth: haveAccount ? '350px' : 0,
+            maxWidth: '350px',
             transition: 'max-width 200ms'
         },
 
@@ -53,8 +57,8 @@ const Login = ({ logIn, invalid, errorToggle }) => {
             background: '#ffffff',
             padding: '50px 0px 30px 0px',
             borderRadius: '10px',
-            height: '450px',
-            maxWidth: haveAccount ? 0 : '350px',
+            height: '550px',
+            maxWidth: '350px',
             transition: 'max-width 200ms',
         },
 
@@ -92,6 +96,11 @@ const Login = ({ logIn, invalid, errorToggle }) => {
             justifyContent: 'center'
         },
 
+        alertText: {
+            color: 'red',
+            fontWeight: 'bold',
+        },
+
         alert: {
             color: '#ff0000',
             opacity: invalid ? 1 : 0,
@@ -101,23 +110,34 @@ const Login = ({ logIn, invalid, errorToggle }) => {
 
     const registation = async () => {
         const result = await axios.post('/auth/register', user)
-        if (result.data.msg === 'User created')
-            logIn(user)
+        if (result.status === 200) {
+            setFormId('verify')
+        } else {
+            setError(true)
+        }
+    }
+
+    const verify = async () => {
+        const result = await axios.post('/auth/verify', verifyUser)
+        if (result.status === 200) {
+            setFormId('login')
+        }
     }
 
     return (
         <div style={style.div}>
             <Intro />
             <div style={style.forms}>
-                <form autoComplete='off' noValidate style={style.loginForm}>
+                {/* Login Form */}
+                {formId === 'login' && <form autoComplete='off' noValidate style={style.loginForm}>
                     <h1 style={style.header}>LOGIN</h1>
                     <TextField
                         required
-                        value={user.username}
+                        value={user.email}
                         id='input-with-icon-textfield'
                         style={style.textField}
-                        onChange={(e) => setUser({ ...user, username: e.target.value })}
-                        placeholder='username'
+                        onChange={(e) => setUser({ ...user, email: e.target.value })}
+                        placeholder='email'
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
@@ -163,11 +183,69 @@ const Login = ({ logIn, invalid, errorToggle }) => {
                             e.preventDefault()
                             setUser({ username: '', password: '' })
                             setAccount(false)
-                            errorToggle(false)
+                            setFormId('signup')
+                            // errorToggle(false)
                         }}
                     >Create account ?</p>
-                </form>
-                <form autoComplete='off' noValidate style={style.signupForm}>
+                </form>}
+
+
+                {/* verify */}
+                {formId === 'verify' && <form autoComplete='off' noValidate style={style.loginForm}>
+                    <h1 style={style.header}>Verify</h1>
+                    <TextField
+                        required
+                        value={verifyUser.email}
+                        id='input-with-icon-textfield'
+                        style={style.textField}
+                        onChange={(e) => setUserVerify({ ...verifyUser, email: e.target.value })}
+                        placeholder='email'
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <PersonIcon />
+                                </InputAdornment>
+                            ),
+                        }}
+                    ></TextField>
+
+                    <TextField
+                        required
+                        id='standard-basic'
+                        style={style.textField}
+                        onChange={(e) => setUserVerify({ ...verifyUser, code: e.target.value })}
+                        placeholder='verify code'
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <LockOutlinedIcon />
+                                </InputAdornment>
+                            )
+                        }}
+                    ></TextField>
+
+                    {error ? <h4 style={style.alert}>Something went wrong</h4> : null}
+                    <div style={style.buttons}>
+                        <Button style={style.button} variant='contained' color='primary' onClick={(e) => {
+                            e.preventDefault()
+                            verify()
+                        }}>Confirm</Button>
+                    </div>
+
+                    {/* <p style={style.createAccount}
+                        onMouseEnter={() => setHover(true)}
+                        onMouseLeave={() => setHover(false)}
+                        onClick={e => {
+                            e.preventDefault()
+                            setUser({ username: '', password: '' })
+                            setAccount(false)
+                            errorToggle(false)
+                        }}
+                    >Create account ?</p> */}
+                </form>}
+
+                {/* create account */}
+                {formId === 'signup' && <form autoComplete='off' noValidate style={style.signupForm}>
                     <h1 style={style.header}>Create account</h1>
 
                     <TextField
@@ -262,15 +340,15 @@ const Login = ({ logIn, invalid, errorToggle }) => {
                         <Button style={style.button} variant='contained' color='primary' onClick={(e) => {
                             e.preventDefault()
                             registation()
-                        }}>Done</Button>
+                            setUserVerify({ email: user.email })
+                        }}>Create Account</Button>
                         <Button style={{ background: '#ffffff', color: '#000000', border: '3px solid black' }} variant='contained' color='primary' onClick={(e) => {
                             e.preventDefault()
-                            setUser({ username: '', password: '' })
-                            setAccount(true)
-                            errorToggle(false)
+                            setFormId('login')
                         }}>Back</Button>
                     </div>
-                </form>
+                </form>}
+
             </div>
         </div>
     )
