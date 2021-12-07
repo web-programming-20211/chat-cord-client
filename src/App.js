@@ -59,15 +59,15 @@ function App() {
   }
 
   const logIn = async (user) => {
-    const result = await axios.post('/user/login', user, { withCredentials: true })
-    setAuthenticated(result.data._id !== undefined)
-    setError(result.data._id === undefined)
-    setUser(result.data)
+    const result = await axios.post('/auth/login', user, { withCredentials: true })
+    setAuthenticated(result.data.user._id !== undefined)
+    setError(result.data.user._id === undefined)
+    setUser(result.data.user)
 
-    const listOfRooom = await axios.get('/room/retrieve', { withCredentials: true })
-    setRooms(listOfRooom.data)
-    if (listOfRooom.data.length !== 0)
-      setCurrentRoom(listOfRooom.data[0])
+    // const listOfRooom = await axios.get('/room/retrieve', { withCredentials: true })
+    // setRooms(listOfRooom.data)
+    // if (listOfRooom.data.length !== 0)
+    //   setCurrentRoom(listOfRooom.data[0])
   }
 
   const leaveRoom = async (id) => {
