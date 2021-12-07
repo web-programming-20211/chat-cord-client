@@ -8,14 +8,13 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import Intro from '../Intro/Intro'
 import { useMediaQuery } from 'react-responsive';
 
-const Login = ({logIn, invalid, errorToggle}) => {
+const Login = ({ logIn, invalid, errorToggle }) => {
     const [error, setError] = useState(false)
-    const [user, setUser] = useState({username: '', password: ''})
+    const [user, setUser] = useState({ email: '', fullname: '', username: '', password: '' })
     const [haveAccount, setAccount] = useState(true)
     const [hover, setHover] = useState(false)
 
-    const limit = useMediaQuery({maxWidth: 1300})
-
+    const limit = useMediaQuery({ maxWidth: 1300 })
     const style = {
         textField: {
             display: 'block',
@@ -101,8 +100,8 @@ const Login = ({logIn, invalid, errorToggle}) => {
     }
 
     const registation = async () => {
-        const result = await axios.post('/user/signin', user)
-        if(result.data.valid)
+        const result = await axios.post('/auth/register', user)
+        if (result.data.msg === 'User created')
             logIn(user)
     }
 
@@ -117,7 +116,7 @@ const Login = ({logIn, invalid, errorToggle}) => {
                         value={user.username}
                         id='input-with-icon-textfield'
                         style={style.textField}
-                        onChange={(e) => setUser({...user, username: e.target.value})}
+                        onChange={(e) => setUser({ ...user, username: e.target.value })}
                         placeholder='username'
                         InputProps={{
                             startAdornment: (
@@ -125,18 +124,17 @@ const Login = ({logIn, invalid, errorToggle}) => {
                                     <PersonIcon />
                                 </InputAdornment>
                             ),
-                        }}    
+                        }}
                     ></TextField>
 
-                    <TextField 
-                        required 
+                    <TextField
+                        required
                         value={user.password}
-                        id='standard-basic' 
-                        style={style.textField} 
-                        onChange={(e) => setUser({...user, password: e.target.value})}
+                        id='standard-basic'
+                        style={style.textField}
+                        onChange={(e) => setUser({ ...user, password: e.target.value })}
                         onKeyUp={(e) => {
-                            if(e.key === 'Enter')
-                            {
+                            if (e.key === 'Enter') {
                                 logIn(user)
                             }
                         }}
@@ -163,7 +161,7 @@ const Login = ({logIn, invalid, errorToggle}) => {
                         onMouseLeave={() => setHover(false)}
                         onClick={e => {
                             e.preventDefault()
-                            setUser({username: '', password: ''})
+                            setUser({ username: '', password: '' })
                             setAccount(false)
                             errorToggle(false)
                         }}
@@ -171,12 +169,45 @@ const Login = ({logIn, invalid, errorToggle}) => {
                 </form>
                 <form autoComplete='off' noValidate style={style.signupForm}>
                     <h1 style={style.header}>Create account</h1>
-                    <TextField 
+
+                    <TextField
                         required
-                        value={user.username} 
-                        id='standard-basic' 
-                        style={style.textField} 
-                        onChange={(e) => setUser(user => ({...user, username: e.target.value}))} 
+                        value={user.email}
+                        id='standard-basic'
+                        style={style.textField}
+                        onChange={(e) => setUser(user => ({ ...user, email: e.target.value }))}
+                        placeholder='email'
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <PersonIcon />
+                                </InputAdornment>
+                            ),
+                        }}
+                    ></TextField>
+
+                    <TextField
+                        required
+                        value={user.fullname}
+                        id='standard-basic'
+                        style={style.textField}
+                        onChange={(e) => setUser(user => ({ ...user, fullname: e.target.value }))}
+                        placeholder='fullname'
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <PersonIcon />
+                                </InputAdornment>
+                            ),
+                        }}
+                    ></TextField>
+
+                    <TextField
+                        required
+                        value={user.username}
+                        id='standard-basic'
+                        style={style.textField}
+                        onChange={(e) => setUser(user => ({ ...user, username: e.target.value }))}
                         placeholder='username'
                         InputProps={{
                             startAdornment: (
@@ -184,16 +215,16 @@ const Login = ({logIn, invalid, errorToggle}) => {
                                     <PersonIcon />
                                 </InputAdornment>
                             ),
-                        }} 
+                        }}
                     ></TextField>
 
-                    <TextField 
-                        required 
+                    <TextField
+                        required
                         value={user.password}
-                        id='standard-basic' 
-                        style={style.textField} 
+                        id='standard-basic'
+                        style={style.textField}
                         type='password'
-                        onChange={(e) => setUser(user => ({...user, password: e.target.value}))} 
+                        onChange={(e) => setUser(user => ({ ...user, password: e.target.value }))}
                         placeholder='password'
                         InputProps={{
                             startAdornment: (
@@ -204,18 +235,17 @@ const Login = ({logIn, invalid, errorToggle}) => {
                         }}
                     ></TextField>
 
-                    <TextField 
+                    <TextField
                         required
                         error={error}
                         id={error ? 'standard-error-helper-text' : 'standard-basic'}
-                        style={style.textField} 
+                        style={style.textField}
                         type='password'
                         onChange={(e) => {
                             setError(e.target.value !== user.password)
-                        }} 
+                        }}
                         onKeyUp={(e) => {
-                            if(e.key === 'Enter')
-                            {
+                            if (e.key === 'Enter') {
                                 registation()
                             }
                         }}
@@ -229,16 +259,16 @@ const Login = ({logIn, invalid, errorToggle}) => {
                         }}
                     ></TextField>
                     <div style={style.buttons}>
-                    <Button style={style.button} variant='contained' color='primary' onClick={(e) => {
-                        e.preventDefault()
-                        registation()
-                    }}>Done</Button>
-                    <Button style={{background: '#ffffff', color: '#000000', border: '3px solid black'}} variant='contained' color='primary' onClick={(e) => {
-                        e.preventDefault()
-                        setUser({username: '', password: ''})
-                        setAccount(true)
-                        errorToggle(false)
-                    }}>Back</Button>
+                        <Button style={style.button} variant='contained' color='primary' onClick={(e) => {
+                            e.preventDefault()
+                            registation()
+                        }}>Done</Button>
+                        <Button style={{ background: '#ffffff', color: '#000000', border: '3px solid black' }} variant='contained' color='primary' onClick={(e) => {
+                            e.preventDefault()
+                            setUser({ username: '', password: '' })
+                            setAccount(true)
+                            errorToggle(false)
+                        }}>Back</Button>
                     </div>
                 </form>
             </div>
