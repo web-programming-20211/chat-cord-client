@@ -15,7 +15,6 @@ const Login = ({ logIn, invalid, errorToggle }) => {
     const [hover, setHover] = useState(false)
 
     const limit = useMediaQuery({ maxWidth: 1300 })
-
     const style = {
         textField: {
             display: 'block',
