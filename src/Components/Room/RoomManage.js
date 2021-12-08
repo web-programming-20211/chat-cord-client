@@ -3,7 +3,7 @@ import Members from "./Member"
 import { TextField, FormControl } from "@material-ui/core"
 
 const RoomManage = ({room, manageToggle, setPanel}) => {
-    const [tmp_roomName, setRoomName] = useState(room?.room_name)
+    const [tmp_roomName, setRoomName] = useState(room?.name)
     const style = {
         overlay: {
             width: '100%',
@@ -41,7 +41,7 @@ const RoomManage = ({room, manageToggle, setPanel}) => {
 
 
     useEffect(() => {
-        setRoomName(room.room_name)
+        setRoomName(room?.name)
     }, [room])
 
     return manageToggle ? (
