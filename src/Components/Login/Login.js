@@ -7,7 +7,7 @@ import { useState } from 'react';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Intro from '../Intro/Intro'
 import { useMediaQuery } from 'react-responsive';
-import { ToastContainer, toast } from 'react-toastify'
+import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 toast.configure({
@@ -16,7 +16,7 @@ toast.configure({
     position: toast.POSITION.BOTTOM_RIGHT
   })
 
-const Login = ({ logIn, invalid, errorToggle }) => {
+const Login = ({ logIn, invalid, errorToggle, message }) => {
     const [error, setError] = useState(false)
     const [user, setUser] = useState({ email: '', fullname: '', username: '', password: '' })
     const [haveAccount, setAccount] = useState(true)
@@ -123,8 +123,8 @@ const Login = ({ logIn, invalid, errorToggle }) => {
                     toast.success(`${result.data.msg}`)
                     setFormId('verify')
                 }
-                 else {
-                setError(true)
+                else {
+                    setError(true)
                 }
              })
              .catch(error => {
