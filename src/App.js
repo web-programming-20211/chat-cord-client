@@ -10,6 +10,7 @@ import UserArea from "./Components/UserInformation/UserArea";
 import FindRoom from "./Components/Rooms/FindRoom";
 import RoomManage from "./Components/Room/RoomManage";
 import RoomsList from "./Components/Rooms/RoomsList";
+import RoomsHeader from "./Components/Rooms/RoomsHeader";
 import { useMediaQuery } from 'react-responsive'
 
 const socket = io.connect('/')
@@ -23,7 +24,7 @@ function App() {
   const [roomPanel, setPanel] = useState(false)
   const [currentRoom, setCurrentRoom] = useState({
     _id: -1,
-    room_name: " ",
+    name: " ",
     color: ''
   })
   const [rooms, setRooms] = useState([])
@@ -88,7 +89,7 @@ function App() {
         else
           setCurrentRoom({
             _id: -1,
-            room_name: " ",
+            name: " ",
             color: ''
           })
       }
@@ -108,16 +109,16 @@ function App() {
   const joinRoom = async (room) => {
     if (room) {
       const response = await axios.post('/room/create', room, { withCredentials: true })
-      if (response) {
-        setRooms([response.data.room, ...rooms])
-        setCurrentRoom(response.data.room)
+      if (response.status === 200) {
+        setRooms([response.data.msg, ...rooms])
+        setCurrentRoom(response.data.msg)
       }
     }
   }
 
   const switchRoom = (newRoom) => {
-    if (newRoom._id !== currentRoom._id) {
-      socket.emit('leaveRoom', currentRoom._id, newRoom._id)
+    if (newRoom?._id !== currentRoom?._id) {
+      socket.emit('leaveRoom', currentRoom?._id, newRoom?._id)
       setCurrentRoom(newRoom)
     }
     setCurrentRoom(newRoom)
@@ -130,7 +131,7 @@ function App() {
     //   setLogin(false)
     //   setCurrentRoom({
     //     _id: -1,
-    //     room_name: " ",
+    //     name: " ",
     //     color: ''
     //   })
     //   setRooms([])
@@ -173,6 +174,7 @@ function App() {
           <div style={{ height: '100%', display: 'flex' }}>
             <div style={style.left}>
               <UserArea user={user} logout={logout}></UserArea>
+              <RoomsHeader joinRoom={joinRoom}></RoomsHeader>
               <RoomsList currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} />
               <FindRoom roomId={roomId} setRoomId={setRoomId} findRoom={findRoom}></FindRoom>
             </div>

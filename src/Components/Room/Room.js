@@ -55,7 +55,7 @@ const Room = ({room, onClick, leaveHandle, roomManage, choosen}) => {
             fontSize: 'xx-large',
             marginRight: '20px',
             marginLeft: '20px',
-            background: '#' + room.color,
+            background: '#' + room?.color,
         },
 
         button: {
@@ -94,8 +94,8 @@ const Room = ({room, onClick, leaveHandle, roomManage, choosen}) => {
             <div style={style.room}>
                 <div style={style.roomInfo} onClick={() => onClick(room)}>
                     <div style={{display: 'flex', flexDirection: limit ? 'column' : 'row', justifyItems: 'center'}}>
-                        <Avatar style={style.avatar} className={limit ? classes.small : classes.large}>{room.room_name[0].toUpperCase()}</Avatar>
-                        <p style={{marginTop: limit ? 10 : 20}}>{room.room_name}</p>
+                        <Avatar style={style.avatar} className={limit ? classes.small : classes.large}>{room?.name[0].toUpperCase()}</Avatar>
+                        <p style={{marginTop: limit ? 10 : 20}}>{room?.name}</p>
                     </div>
                     <ArrowRightIcon style={style.button} onClick={() => setOption(!option)}></ArrowRightIcon>
                 </div>
