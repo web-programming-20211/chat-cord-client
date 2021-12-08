@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from 'react';
 import '../src/App.css';
 import io from 'socket.io-client';
@@ -12,6 +13,7 @@ import RoomManage from "./Components/Room/RoomManage";
 import RoomsList from "./Components/Rooms/RoomsList";
 import RoomsHeader from "./Components/Rooms/RoomsHeader";
 import { useMediaQuery } from 'react-responsive'
+import { toast } from 'react-toastify'
 
 const socket = io.connect('/')
 
@@ -31,6 +33,8 @@ function App() {
   const [login, setLogin] = useState(false)
 
   const limit = useMediaQuery({ maxWidth: 1300 })
+
+  const [message, setMessage] = useState('')
 
   const style = {
     left: {
@@ -60,11 +64,15 @@ function App() {
   }
 
   const logIn = async (user) => {
-    const result = await axios.post('/auth/login', user, { withCredentials: true })
-    setAuthenticated(result.data.user._id !== undefined)
-    setError(result.data.user._id === undefined)
-    setUser(result.data.user)
-
+    try {
+      const result = await axios.post('/auth/login', user, { withCredentials: true })
+      toast.success('Logged in successfully')
+      setAuthenticated(result.data.user._id !== undefined)
+      setError(result.data.user._id === undefined)
+      setUser(result.data.user)
+    } catch (err) {
+      toast.error(`${err.response.data.msg}`)
+    } 
     // const listOfRooom = await axios.get('/room/retrieve', { withCredentials: true })
     // setRooms(listOfRooom.data)
     // if (listOfRooom.data.length !== 0)
@@ -183,7 +191,7 @@ function App() {
             </div>
           </div>
           <RoomManage room={currentRoom} manageToggle={roomPanel} setPanel={setPanel}></RoomManage>
-        </div> : <Login logIn={logIn} invalid={error} errorToggle={setError}></Login>)}
+        </div> : <Login message={message} logIn={logIn} invalid={error} errorToggle={setError}></Login>)}
     </div>
   );
 }

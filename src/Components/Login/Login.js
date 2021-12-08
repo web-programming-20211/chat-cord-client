@@ -7,8 +7,16 @@ import { useState } from 'react';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Intro from '../Intro/Intro'
 import { useMediaQuery } from 'react-responsive';
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
-const Login = ({ logIn, invalid, errorToggle }) => {
+toast.configure({
+    autoClose: 2000,
+    draggable: false,
+    position: toast.POSITION.BOTTOM_RIGHT
+  })
+
+const Login = ({ logIn, invalid, errorToggle, message }) => {
     const [error, setError] = useState(false)
     const [user, setUser] = useState({ email: '', fullname: '', username: '', password: '' })
     // const [haveAccount, setAccount] = useState(true)
@@ -109,19 +117,33 @@ const Login = ({ logIn, invalid, errorToggle }) => {
     }
 
     const registation = async () => {
-        const result = await axios.post('/auth/register', user)
-        if (result.status === 200) {
-            setFormId('verify')
-        } else {
-            setError(true)
-        }
+            const result = await axios.post('/auth/register', user).
+            then (result => {
+                if (result.status === 200) {
+                    toast.success(`${result.data.msg}`)
+                    setFormId('verify')
+                }
+                else {
+                    setError(true)
+                }
+             })
+             .catch(error => {
+                toast.error(`${error.response.data.msg}`)
+             })
+
     }
 
     const verify = async () => {
         const result = await axios.post('/auth/verify', verifyUser)
+        .then (result => {
         if (result.status === 200) {
+            toast.success(`${result.data.msg}`)
             setFormId('login')
-        }
+        }})
+        .catch(error => {
+            toast.error(`${error.response.data.msg}`,)
+         })
+
     }
 
     return (
