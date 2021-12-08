@@ -34,8 +34,8 @@ const Intro = () => {
 
     return (
         <div style={style.container}>
-            <p className='intro-text'>EzyTalk</p>
-            <p style={style.text}>...for a world without boring</p>
+            <p className='intro-text'>Chatcord</p>
+            <p style={style.text}>...connect people around the world</p>
         </div>
     )
 }
