@@ -41,7 +41,7 @@ const RoomManage = ({room, manageToggle, setPanel}) => {
 
 
     useEffect(() => {
-        setRoomName(room.room_name)
+        setRoomName(room?.room_name)
     }, [room])
 
     return manageToggle ? (
