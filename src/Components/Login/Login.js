@@ -19,7 +19,7 @@ toast.configure({
 const Login = ({ logIn, invalid, errorToggle, message }) => {
     const [error, setError] = useState(false)
     const [user, setUser] = useState({ email: '', fullname: '', username: '', password: '' })
-    const [haveAccount, setAccount] = useState(true)
+    // const [haveAccount, setAccount] = useState(true)
     const [hover, setHover] = useState(false)
 
     const [verifyUser, setUserVerify] = useState({ email: '', code: '' })
@@ -54,7 +54,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
             background: '#ffffff',
             padding: '50px 0px 30px 0px',
             borderRadius: '10px',
-            height: '450px',
+            height: '550px',
             maxWidth: '350px',
             transition: 'max-width 200ms'
         },
@@ -65,7 +65,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
             background: '#ffffff',
             padding: '50px 0px 30px 0px',
             borderRadius: '10px',
-            height: '550px',
+            height: '650px',
             maxWidth: '350px',
             transition: 'max-width 200ms',
         },
@@ -203,8 +203,8 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                         onMouseLeave={() => setHover(false)}
                         onClick={e => {
                             e.preventDefault()
-                            setUser({ username: '', password: '' })
-                            setAccount(false)
+                            setUser({ email: '', password: '' })
+                            // setAccount(false)
                             setFormId('signup')
                             // errorToggle(false)
                         }}

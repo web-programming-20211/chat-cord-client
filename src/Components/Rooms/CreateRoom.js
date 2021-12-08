@@ -5,7 +5,7 @@ import { useMediaQuery } from 'react-responsive'
 
 const CreateRoom = ({joinRoom}) => {
     const [roomClick, setRoomClick] = useState(false)
-    const [room, setRoom] = useState({room_name: ' '})
+    const [room, setRoom] = useState({name: ' '})
 
     const limit = useMediaQuery({maxWidth: 1300})
 
@@ -105,15 +105,15 @@ const CreateRoom = ({joinRoom}) => {
           <FormControl fullWidth sx={{m:1}}>
             <TextField
               placeholder="Room name"
-              value={room.room_name}
+              value={room.name}
               onKeyUp={e => {
                 if(e.key === "Enter")
                 {
                   joinRoom(room)
-                  setRoom({...room, room_name: ''})
+                  setRoom({...room, name: ''})
                 }
               }}
-              onChange={e => setRoom({...room, room_name: e.target.value})}
+              onChange={e => setRoom({...room, name: e.target.value})}
             ></TextField>
           </FormControl>
         </div>

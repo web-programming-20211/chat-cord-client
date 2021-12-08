@@ -11,10 +11,10 @@ const RoomsList = ({rooms, joinRoom, leaveRoom, switchRoom, roomManage, currentR
 
     return (
         <div style={style.roomList}>
-          <CreateRoom joinRoom={joinRoom}></CreateRoom>
+          {/* <CreateRoom joinRoom={joinRoom}></CreateRoom> */}
           {rooms.map((room) => {
             return (
-              <Room key={room._id} choosen={currentRoom._id === room._id} room={room} leaveHandle={leaveRoom} onClick={switchRoom} roomManage={roomManage}></Room>
+              <Room key={room?._id} choosen={currentRoom?._id === room?._id} room={room} leaveHandle={leaveRoom} onClick={switchRoom} roomManage={roomManage}></Room>
             )
           })}
         </div>
