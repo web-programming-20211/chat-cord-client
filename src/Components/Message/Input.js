@@ -1,6 +1,7 @@
 import SendIcon from '@material-ui/icons/Send';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import ImageIcon from '@mui/icons-material/Image';
+import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import { useState } from 'react';
 import { useMediaQuery } from 'react-responsive'
 import { TextField, FormControl, InputAdornment } from "@material-ui/core"
@@ -47,6 +48,12 @@ const Input = ({setDialogs}) => {
             position: 'absolute',
             right: 90,
             cursor: 'pointer',
+        },
+
+        icons : {
+            position: 'absolute',
+            left: -40,
+            cursor: 'pointer',
         }
     }
 
@@ -74,6 +81,12 @@ const Input = ({setDialogs}) => {
                     InputProps={{
                         endAdornment: (
                           <InputAdornment position='end'>
+                            <InsertEmoticonIcon
+                                 color='primary'
+                                 fontSize='large'
+                                 style={style.icons}
+                            />
+
                             <SendIcon
                               onClick={() => {
                                 sendMessage()

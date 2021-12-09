@@ -27,6 +27,7 @@ const ChatWindow = ({socket, room, leave}) => {
             background: '#E3F6FC',
             margin: '25px',
             marginTop: '100px',
+            borderRadius: '10px',
         }
     }
 
