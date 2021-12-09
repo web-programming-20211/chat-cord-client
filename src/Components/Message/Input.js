@@ -1,4 +1,7 @@
 import SendIcon from '@material-ui/icons/Send';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import ImageIcon from '@mui/icons-material/Image';
+import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import { useState } from 'react';
 import { useMediaQuery } from 'react-responsive'
 import { TextField, FormControl, InputAdornment } from "@material-ui/core"
@@ -11,7 +14,7 @@ const Input = ({setDialogs}) => {
         input: {
             position: 'fixed',
             bottom: 10,
-            width: '75%',
+            width: '80%',
             height: '10%',
             borderSizing: 'border-box',
         },
@@ -26,13 +29,31 @@ const Input = ({setDialogs}) => {
             marginTop: '0px',
             marginLeft: '30px',
             backgroundColor: 'transparent',
-            color: '#000000',
+            color: '#FDFDFD',
         },
 
-        button: {
-            top: 25,
-            right: 20,
-            position: 'absolute'
+        send: {
+            position: 'absolute',
+            right: 10,
+            cursor: 'pointer',
+        },
+
+        attach: {
+            position: 'absolute',
+            right: 50,
+            cursor: 'pointer',
+        },
+
+        image : {
+            position: 'absolute',
+            right: 90,
+            cursor: 'pointer',
+        },
+
+        icons : {
+            position: 'absolute',
+            left: -40,
+            cursor: 'pointer',
         }
     }
 
@@ -55,11 +76,17 @@ const Input = ({setDialogs}) => {
                     }}
                     id="outlined-basic"
                     variant="outlined"
-                    placeholder='...'
+                    placeholder='Type a new message...'
                     onChange={(e) => setMessage(e.target.value)}
                     InputProps={{
                         endAdornment: (
                           <InputAdornment position='end'>
+                            <InsertEmoticonIcon
+                                 color='primary'
+                                 fontSize='large'
+                                 style={style.icons}
+                            />
+
                             <SendIcon
                               onClick={() => {
                                 sendMessage()
@@ -67,8 +94,23 @@ const Input = ({setDialogs}) => {
                               }}
                               color='primary'
                               fontSize='large'
+                              style={style.send}
                             />
+
+                            <AttachFileIcon
+                               color='primary'
+                              fontSize='large'
+                              style={style.attach}
+                            />
+
+                            <ImageIcon
+                               color='primary'
+                              fontSize='large'
+                              style={style.image}
+                            />
+
                           </InputAdornment>
+                          
                         )
                       }}
                 />

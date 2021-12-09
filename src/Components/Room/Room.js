@@ -26,36 +26,64 @@ const Room = ({room, onClick, leaveHandle, roomManage, choosen}) => {
     const style = {
         room_container: {
             position: 'relative',
+            marginTop: '18px',
         },
 
         room: {
             position: 'relative',
             width: limit ? '12em' : '90%',
             margin: 'auto',
-            background: choosen ? '#656565' : '#848484',
+            background: (choosen || hover) ? '#6588DE' : '#E3F6FC',
             padding: '10px',
-            borderRadius: '10px',
-            border: (choosen || hover) ? '3px solid #ffffff' : '3px solid transparent',
+            borderRadius: '14px',
+            boxShadow: (choosen || hover) ? '0px 8px 40px rgba(0, 72, 251, 0.3)' : 'none',
+            // border: (choosen || hover) ? '3px solid #ffffff' : '3px solid transparent',
             overflow: 'hidden',
             marginBottom: 10,
             maxHeight: option ? limit ? '250px' : '220px' : '100px',
             transition: 'max-height 250ms, border 250ms, background 250ms',
+            height: '74px',
         },
 
         roomInfo: {
-            marginTop: '0.5em',
-            marginBottom: '1em',
+            margin: '0px',
+            padding: '0px',
             display: 'flex',
-            alignItems: 'center',
-            fontSize: 'x-large',
             cursor: 'pointer',
+            alignItems: 'center',
+            alignContent: 'center',
+            flexDirection: 'row',
+            gap: '10px',
         },
 
         avatar: {
-            fontSize: 'xx-large',
-            marginRight: '20px',
-            marginLeft: '20px',
+            fontSize: '20px',
+            // marginRight: '20px',
+            // marginLeft: '20px',
             background: '#' + room?.color,
+        },
+
+        roomMessage: {
+            flexGrow : '1',
+        },
+
+        roomMessageName : {
+            margin: '0px',
+            padding: '0px',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            color: (choosen || hover) ? '#FDFDFE' : '#52585D',
+        },
+
+        roomMessageLastMessage : {
+            margin: '0px',
+            padding: '0px',
+            fontSize: '12px',
+            color: (choosen || hover) ? '#F2F6F7' : '#96A9BA',
+        },
+
+        messageTime : {
+            color: (choosen || hover) ? '#FDFDFE' : '#96A9BA',
         },
 
         button: {
@@ -93,14 +121,19 @@ const Room = ({room, onClick, leaveHandle, roomManage, choosen}) => {
         <div style={style.room_container} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             <div style={style.room}>
                 <div style={style.roomInfo} onClick={() => onClick(room)}>
-                    <div style={{display: 'flex', flexDirection: limit ? 'column' : 'row', justifyItems: 'center'}}>
-                        <Avatar style={style.avatar} className={limit ? classes.small : classes.large}>{room?.name[0].toUpperCase()}</Avatar>
-                        <p style={{marginTop: limit ? 10 : 20}}>{room?.name}</p>
-                    </div>
-                    <ArrowRightIcon style={style.button} onClick={() => setOption(!option)}></ArrowRightIcon>
+                    {/* <div style={{display: 'flex', flexDirection: limit ? 'column' : 'row', justifyItems: 'center'}}> */}
+                        {/* <Avatar style={style.avatar} className={limit ? classes.small : classes.large} sx={{ width: 44, height: 44 }}>{room?.name[0].toUpperCase()}</Avatar> */}
+                        <Avatar sx={{ width: 99, height: 99 }}  style={style.avatar} >{room?.name[0].toUpperCase()}</Avatar>
+                        <div style={style.roomMessage}>
+                        <p style={style.roomMessageName}>{room?.name}</p>
+                        <p style={style.roomMessageLastMessage}>{room?.description}</p>
+                        </div>
+                        <span style={style.messageTime}>11:10 </span>
+                    {/* </div> */}
+                    {/* <ArrowRightIcon style={style.button} onClick={() => setOption(!option)}></ArrowRightIcon> */}
                 </div>
 
-                <div>
+                {/* <div>
                     <div style={style.roomOption}>
                         <p
                             style={{padding: '10px 0px'}}
@@ -110,7 +143,7 @@ const Room = ({room, onClick, leaveHandle, roomManage, choosen}) => {
                     <div style={style.roomOption} onClick={() => leaveHandle(room._id)}>
                         <p style={{color: 'red', padding: '10px 0px'}}>Leave</p>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     )

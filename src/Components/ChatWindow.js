@@ -20,10 +20,14 @@ const ChatWindow = ({socket, room, leave}) => {
         container: {
             position: 'absolute',
             background: 'transparent',
-            height: '100%',
-            width: '100%',
+            height: '96%',
+            width: '97%',
             margin: 0,
             bottom: 0,
+            background: '#E3F6FC',
+            margin: '25px',
+            marginTop: '100px',
+            borderRadius: '10px',
         }
     }
 
@@ -75,14 +79,11 @@ const ChatWindow = ({socket, room, leave}) => {
             temp.every((d, index) => {
                 if(d._id === id)
                 {
-                    
                     temp.splice(index, 1)
                     return false
                 }
-
                 return true
             })
-
             setDialogs([...temp])
         })
 
