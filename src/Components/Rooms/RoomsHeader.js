@@ -4,9 +4,12 @@ import { useState } from 'react';
 
 
 const RoomsHeader = ({ joinRoom }) => {
-    const [visible, setVisible] = useState(false)
+    const [visibleCreate, setVisibleCreate] = useState(false)
+    const [visibleJoin, setVisibleJoin] = useState(false)
     const [isPrivate, setIsPrivate] = useState(false)
     const [room, setRoom] = useState({ name: '', description: '', isPrivate: false })
+
+    const [shortId, setShortId] = useState('')
 
 
     const style = {
@@ -47,36 +50,47 @@ const RoomsHeader = ({ joinRoom }) => {
     }
 
     const showModalCreate = () => {
-        setVisible(true);
+        setVisibleCreate(true);
     }
 
-    const hideModal = () => {
-        setVisible(false);
+    const hideModalCreate = () => {
+        setVisibleCreate(false);
     }
-
-    const [form] = Form.useForm();
 
     const creatRoom = () => {
         joinRoom(room)
-        hideModal()
+        hideModalCreate()
     }
+
+    const showModalJoin = () => {
+        setVisibleJoin(true);
+    }
+
+    const hideModalJoin = () => {
+        setVisibleJoin(false);
+    }
+
+    const joinWithRoomId = () => {
+
+    }
+
 
     return (
         <>
             <div style={style.roomHeaderContainer}>
                 <input style={style.input} type='text' placeholder='Type a room...' />
                 <Icon style={style.add} icon="akar-icons:chat-add" onClick={showModalCreate} />
-                <Icon style={style.join} icon="fluent:chat-arrow-back-16-regular" />
+                <Icon style={style.join} icon="fluent:chat-arrow-back-16-regular" onClick={showModalJoin} />
             </div>
-            <Modal title="Create room" visible={visible} footer={[
-                <Button onClick={hideModal}>
+            <Modal title="Create room" closable={false} visible={visibleCreate} footer={[
+                <Button onClick={hideModalCreate}>
                     Cancel
                 </Button>,
                 <Button key="submit" type="primary" onClick={creatRoom} >
                     Create
                 </Button>,
             ]}>
-                <Form form={form} name="control-hooks">
+                <Form name="control-hooks">
                     <Form.Item label="Room name" name="roomName" rules={[{ required: true }]} onChange={(e) => setRoom(room => ({ ...room, name: e.target.value }))}
                     >
                         <Input />
@@ -87,6 +101,23 @@ const RoomsHeader = ({ joinRoom }) => {
                     </Form.Item>
 
                     <Switch checkedChildren="Private" unCheckedChildren="Public" onChange={(e) => setRoom(room => ({ ...room, isPrivate: !isPrivate }))} />
+
+                </Form>
+            </Modal>
+
+            <Modal title="Join room" closable={false} visible={visibleJoin} footer={[
+                <Button onClick={hideModalJoin}>
+                    Cancel
+                </Button>,
+                <Button key="submit" type="primary" onClick={joinWithRoomId} >
+                    Join
+                </Button>,
+            ]}>
+                <Form name="control-hooks">
+                    <Form.Item label="Room ID" name="roomShortId" rules={[{ required: true }]} onChange={(e) => setRoom( (shortId) => ({shortId: e.target.value }))}
+                    >
+                        <Input />
+                    </Form.Item>
 
                 </Form>
             </Modal>

@@ -1,8 +1,10 @@
-import Avatar from '@material-ui/core/Avatar';
+// import Avatar from '@material-ui/core/Avatar';
 import { makeStyles } from '@material-ui/core';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import { useEffect, useState } from 'react';
 import { useMediaQuery } from 'react-responsive'
+
+import { Avatar } from 'antd';
 
 const useStyles = makeStyles((theme) => ({
     large: {
@@ -58,6 +60,7 @@ const Room = ({room, onClick, leaveHandle, roomManage, choosen}) => {
 
         avatar: {
             fontSize: '20px',
+            flexShrink: 0,
             // marginRight: '20px',
             // marginLeft: '20px',
             background: '#' + room?.color,
@@ -73,6 +76,13 @@ const Room = ({room, onClick, leaveHandle, roomManage, choosen}) => {
             fontSize: '18px',
             fontWeight: 'bold',
             color: (choosen || hover) ? '#FDFDFE' : '#52585D',
+            display:'-webkit-box',
+            WebkitLineClamp: 1,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            width: '150px',
+            workBreak: 'break-word',
         },
 
         roomMessageLastMessage : {
@@ -80,6 +90,13 @@ const Room = ({room, onClick, leaveHandle, roomManage, choosen}) => {
             padding: '0px',
             fontSize: '12px',
             color: (choosen || hover) ? '#F2F6F7' : '#96A9BA',
+            display:'-webkit-box',
+            WebkitLineClamp: 1,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            width: '150px',
+            workBreak: 'break-word',
         },
 
         messageTime : {
@@ -123,7 +140,8 @@ const Room = ({room, onClick, leaveHandle, roomManage, choosen}) => {
                 <div style={style.roomInfo} onClick={() => onClick(room)}>
                     {/* <div style={{display: 'flex', flexDirection: limit ? 'column' : 'row', justifyItems: 'center'}}> */}
                         {/* <Avatar style={style.avatar} className={limit ? classes.small : classes.large} sx={{ width: 44, height: 44 }}>{room?.name[0].toUpperCase()}</Avatar> */}
-                        <Avatar sx={{ width: 99, height: 99 }}  style={style.avatar} >{room?.name[0].toUpperCase()}</Avatar>
+                        {/* <Avatar sx={{ width: 100, height: 200 }}  style={style.avatar} >{room?.name[0].toUpperCase()}</Avatar> */}
+                        <Avatar size={56}  style={style.avatar}>{room?.name[0].toUpperCase()}</Avatar>
                         <div style={style.roomMessage}>
                         <p style={style.roomMessageName}>{room?.name}</p>
                         <p style={style.roomMessageLastMessage}>{room?.description}</p>

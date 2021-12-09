@@ -78,6 +78,7 @@ const Input = ({setDialogs}) => {
                     variant="outlined"
                     placeholder='Type a new message...'
                     onChange={(e) => setMessage(e.target.value)}
+                    autoComplete="off"
                     InputProps={{
                         endAdornment: (
                           <InputAdornment position='end'>
