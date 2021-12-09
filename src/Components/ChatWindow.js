@@ -66,7 +66,6 @@ const ChatWindow = ({socket, room, leave}) => {
         if(room?._id !== -1)
             axios.get('/message/room/' + room?._id, {withCredentials: true}).then(response => {
                 setDialogs(response.data.msg)
-                console.log(response.data.msg)
             })
     }, [room])
 
