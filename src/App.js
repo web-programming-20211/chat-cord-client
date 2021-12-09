@@ -75,7 +75,7 @@ function App() {
       toast.error(`${err.response.data.msg}`)
     }
     const listOfRooom = await axios.get('/room/retrieve', { withCredentials: true })
-    setRooms(listOfRooom.data)
+    setRooms(listOfRooom.data.msg)
     if (listOfRooom.data.length !== 0)
       setCurrentRoom(listOfRooom.data[0])
   }

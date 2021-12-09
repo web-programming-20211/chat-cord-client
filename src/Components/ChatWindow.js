@@ -64,8 +64,9 @@ const ChatWindow = ({socket, room, leave}) => {
     useEffect(() => {
         setRoom(room)
         if(room?._id !== -1)
-            axios.get('/message/room/' + room?.id, {withCredentials: true}).then(response => {
+            axios.get('/message/room/' + room?._id, {withCredentials: true}).then(response => {
                 setDialogs(response.data.msg)
+                console.log(response.data.msg)
             })
     }, [room])
 
