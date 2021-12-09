@@ -6,12 +6,13 @@ import { useEffect, useState } from "react"
 import Cookies from "js-cookie"
 import Snackbar from '@material-ui/core/Snackbar'
 import MuiAlert from '@material-ui/lab/Alert'
+import { toast } from "react-toastify"
 
 const Alert = (props) => {
     return <MuiAlert elevation={6} variant='filled' {...props} />
 }
 
-const ChatWindow = ({socket, room, leave}) => {
+const ChatWindow = ({ socket, room, rooms, setRooms, leave }) => {
     const [dialogs, setDialogs] = useState([])
     const [currentRoom, setRoom] = useState(room)
     const [newMessage, setNewMessage] = useState(null)
@@ -32,20 +33,18 @@ const ChatWindow = ({socket, room, leave}) => {
         }
     }
 
-    const dialogsUpdate = (new_dialog) => {
-        socket.emit('chat', new_dialog, Cookies.get('userId'), room._id)
+    const dialogsUpdate = (message) => {
+        socket.emit('chat', message, Cookies.get('userId'), room._id)
     }
 
     const deleteMessage = (dialog) => {
         const cookie = Cookies.get('userId')
         const index = cookie.indexOf('"')
-        if(dialog.from.userId === cookie.slice(index + 1, cookie.length - 1))
-        {
+        if (dialog.from.userId === cookie.slice(index + 1, cookie.length - 1)) {
             const temp = [...dialogs]
 
             temp.every((d, index) => {
-                if(d._id === dialog._id)
-                {
+                if (d._id === dialog._id) {
                     temp.splice(index, 1)
                     return false
                 }
@@ -54,17 +53,17 @@ const ChatWindow = ({socket, room, leave}) => {
             })
 
             setDialogs([...temp])
-        
+
             socket.emit('delete', dialog._id, room)
         }
-        
+
         setError(cookie.slice(index + 1, cookie.length - 1) !== dialog.from.userId)
     }
 
     useEffect(() => {
         setRoom(room)
-        if(room?._id !== -1)
-            axios.get('/message/room/' + room?._id, {withCredentials: true}).then(response => {
+        if (room?._id !== -1)
+            axios.get('/message/room/' + room?._id, { withCredentials: true }).then(response => {
                 setDialogs(response.data.msg)
             })
     }, [room])
@@ -75,11 +74,9 @@ const ChatWindow = ({socket, room, leave}) => {
         })
 
         socket.on('dialog-deleted', (id) => {
-            console.log(dialogs)
             const temp = [...dialogs]
             temp.every((d, index) => {
-                if(d._id === id)
-                {
+                if (d._id === id) {
                     temp.splice(index, 1)
                     return false
                 }
@@ -95,25 +92,26 @@ const ChatWindow = ({socket, room, leave}) => {
     }, [dialogs, socket])
 
     useEffect(() => {
-        if(newMessage)
+        if (newMessage) {
             setDialogs([...dialogs, newMessage])
-            
+        }
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [newMessage])
 
     return (
         <div style={style.container}>
-            <ChatHeader room={room} leave={leave}/>
+            <ChatHeader room={room} />
 
             <Snackbar
                 open={error}
                 autoHideDuration={2000}
                 onClose={() => setError(false)}
-                anchorOrigin={{vertical: 'top', horizontal: 'center'}}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-            <Alert onClose={() => setError(false)} severity='error'>
-                You can not delete other's comment!
-            </Alert>
+                <Alert onClose={() => setError(false)} severity='error'>
+                    You can not delete other's comment!
+                </Alert>
             </Snackbar>
             <Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage}></Dialogs>
             <Input room={currentRoom} setDialogs={dialogsUpdate} socket={socket}></Input>

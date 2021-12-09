@@ -106,12 +106,16 @@ function App() {
 
   }
 
-  const findRoom = async () => {
-    const index = rooms.findIndex(room => room.short_id === roomId)
+  const findRoom = async (shortId) => {
+    const index = rooms.findIndex(room => room.shortId === shortId)
     if (index === -1) {
-      axios.post('/room/find', { id: roomId }, { withCredentials: true }).then(reponse => {
-        setRooms([reponse.data, ...rooms])
-      })
+      try {
+        const res =  axios.post('/room/' + shortId + '/attend', { withCredentials: true })
+        setRooms([res.data.msg, ...rooms])
+      }
+      catch (err) {
+       toast.error(`${err.res.data.msg}`)
+      }
     }
   }
 
@@ -126,7 +130,6 @@ function App() {
   }
 
   const switchRoom = (newRoom) => {
-    console.log(newRoom)
     if (newRoom?._id !== currentRoom?._id) {
       socket.emit('leaveRoom', currentRoom?._id, newRoom?._id)
       setCurrentRoom(newRoom)
@@ -146,7 +149,6 @@ function App() {
     //   })
     //   setRooms([])
     // }
-    console.log(Cookies.remove('userId'))
     window.location.reload()
   }
 
@@ -184,15 +186,15 @@ function App() {
           <div style={{ height: '100%', display: 'flex' }}>
             <div style={style.left}>
               <UserArea user={user} logout={logout}></UserArea>
-              <RoomsHeader joinRoom={joinRoom}></RoomsHeader>
+              <RoomsHeader joinRoom={joinRoom} findRoom={findRoom}></RoomsHeader>
               <RoomsList currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} />
-              <FindRoom roomId={roomId} setRoomId={setRoomId} findRoom={findRoom}></FindRoom>
+              {/* <FindRoom roomId={roomId} setRoomId={setRoomId} findRoom={findRoom}></FindRoom> */}
             </div>
             <div style={style.right}>
-              <ChatWindow socket={socket} room={currentRoom} leave={leaveRoom}></ChatWindow>
+              <ChatWindow socket={socket} room={currentRoom} rooms={rooms} setRooms={setRooms} leave={leaveRoom}></ChatWindow>
             </div>
           </div>
-          <RoomManage room={currentRoom} manageToggle={roomPanel} setPanel={setPanel}></RoomManage>
+          {/* <RoomManage room={currentRoom} manageToggle={roomPanel} setPanel={setPanel}></RoomManage> */}
         </div> : <Login message={message} logIn={logIn} invalid={error} errorToggle={setError}></Login>)}
     </div>
   );

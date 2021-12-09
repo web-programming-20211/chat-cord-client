@@ -5,11 +5,12 @@ import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import { useState } from 'react';
 import { useMediaQuery } from 'react-responsive'
 import { TextField, FormControl, InputAdornment } from "@material-ui/core"
+import { MessageSharp } from '@material-ui/icons';
 
-const Input = ({setDialogs}) => {
+const Input = ({ setDialogs }) => {
     const [message, setMessage] = useState('')
-    const limit = useMediaQuery({maxWidth: 900})
-    const limit2 = useMediaQuery({maxWidth: 600})
+    const limit = useMediaQuery({ maxWidth: 900 })
+    const limit2 = useMediaQuery({ maxWidth: 600 })
     const style = {
         input: {
             position: 'fixed',
@@ -44,13 +45,13 @@ const Input = ({setDialogs}) => {
             cursor: 'pointer',
         },
 
-        image : {
+        image: {
             position: 'absolute',
             right: 90,
             cursor: 'pointer',
         },
 
-        icons : {
+        icons: {
             position: 'absolute',
             left: -40,
             cursor: 'pointer',
@@ -58,18 +59,19 @@ const Input = ({setDialogs}) => {
     }
 
     const sendMessage = () => {
-        setDialogs(message)
+        if (message.length > 0) {
+            setDialogs(message)
+        }
     }
 
     return (
         <div style={style.input}>
-            <FormControl fullWidth sx={{m:1}}>
+            <FormControl fullWidth sx={{ m: 1 }}>
                 <TextField
                     style={style.textField}
                     value={message}
                     onKeyUp={(e) => {
-                        if(e.key === 'Enter')
-                        {
+                        if (e.key === 'Enter') {
                             sendMessage()
                             setMessage('')
                         }
@@ -81,39 +83,39 @@ const Input = ({setDialogs}) => {
                     autoComplete="off"
                     InputProps={{
                         endAdornment: (
-                          <InputAdornment position='end'>
-                            <InsertEmoticonIcon
-                                 color='primary'
-                                 fontSize='large'
-                                 style={style.icons}
-                            />
+                            <InputAdornment position='end'>
+                                <InsertEmoticonIcon
+                                    color='primary'
+                                    fontSize='large'
+                                    style={style.icons}
+                                />
 
-                            <SendIcon
-                              onClick={() => {
-                                sendMessage()
-                                setMessage('')
-                              }}
-                              color='primary'
-                              fontSize='large'
-                              style={style.send}
-                            />
+                                <SendIcon
+                                    onClick={() => {
+                                        sendMessage()
+                                        setMessage('')
+                                    }}
+                                    color='primary'
+                                    fontSize='large'
+                                    style={style.send}
+                                />
 
-                            <AttachFileIcon
-                               color='primary'
-                              fontSize='large'
-                              style={style.attach}
-                            />
+                                <AttachFileIcon
+                                    color='primary'
+                                    fontSize='large'
+                                    style={style.attach}
+                                />
 
-                            <ImageIcon
-                               color='primary'
-                              fontSize='large'
-                              style={style.image}
-                            />
+                                <ImageIcon
+                                    color='primary'
+                                    fontSize='large'
+                                    style={style.image}
+                                />
 
-                          </InputAdornment>
-                          
+                            </InputAdornment>
+
                         )
-                      }}
+                    }}
                 />
             </FormControl>
         </div>
