@@ -38,7 +38,7 @@ function App() {
 
   const style = {
     left: {
-      width: limit ? '15em' : '30%',
+      width: limit ? '15em' : '25%',
       float: 'left',
       height: '100%',
       boxSizing: 'border-box',

@@ -1,5 +1,6 @@
 import Input from "./Message/Input"
 import Dialogs from "./Message/Dialogs"
+import ChatHeader from "./ChatHeader"
 import axios from 'axios'
 import { useEffect, useState } from "react"
 import Cookies from "js-cookie"
@@ -102,6 +103,8 @@ const ChatWindow = ({socket, room, leave}) => {
 
     return (
         <div style={style.container}>
+            <ChatHeader room={room} leave={leave}/>
+
             <Snackbar
                 open={error}
                 autoHideDuration={2000}
