@@ -3,7 +3,7 @@ import { Modal, Button, Form, Input, Switch } from 'antd';
 import { useState } from 'react';
 
 
-const RoomsHeader = ({ joinRoom }) => {
+const RoomsHeader = ({ joinRoom, findRoom }) => {
     const [visibleCreate, setVisibleCreate] = useState(false)
     const [visibleJoin, setVisibleJoin] = useState(false)
     const [isPrivate, setIsPrivate] = useState(false)
@@ -71,7 +71,8 @@ const RoomsHeader = ({ joinRoom }) => {
     }
 
     const joinWithRoomId = () => {
-
+        findRoom(shortId)
+        hideModalJoin()
     }
 
 
@@ -114,8 +115,8 @@ const RoomsHeader = ({ joinRoom }) => {
                 </Button>,
             ]}>
                 <Form name="control-hooks">
-                    <Form.Item label="Room ID" name="roomShortId" rules={[{ required: true }]} onChange={(e) => setRoom( (shortId) => ({shortId: e.target.value }))}
-                    >
+                    <Form.Item label="Room ID" name="roomShortId" rules={[{ required: true }]} onChange={(e) => setShortId(e.target.value)}>
+                    
                         <Input />
                     </Form.Item>
 

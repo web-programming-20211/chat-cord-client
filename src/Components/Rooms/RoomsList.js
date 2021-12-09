@@ -5,7 +5,7 @@ const RoomsList = ({rooms, joinRoom, leaveRoom, switchRoom, roomManage, currentR
     const style = {
         roomList: {
             overflow: 'auto',
-            height: '70%',
+            height: '77%',
             backgroundColor: '#E3F6FC',
             borderRadius: '14px',
             marginLeft: '10px',
