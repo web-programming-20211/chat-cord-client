@@ -21,9 +21,12 @@ const UserArea = ({ user, logout }) => {
       alignItems: 'center',
       alignContent: 'flex-start',
       justifyContent: 'flex-end',
-      borderBottom: '2px solid #4a336e',
-      height: '15%',
-      marginBottom: '10px',
+      height: '100px',
+      width: '100%',
+      backgroundColor: '#E3F6FC',
+      borderRadius: '14px',
+      margin: '10px',
+      marginLeft: '10px',
     },
     avatar: {
       fontSize: 'xx-large',
@@ -38,18 +41,31 @@ const UserArea = ({ user, logout }) => {
       alignItems: 'start',
     },
     fullname: {
+      fontFamily: 'Poppins',
+      fontStyle: 'normal',
+      fontWeight: '600',
+      fontSize: '20px',
+      /* identical to box height */
+      color: '#52585D',
       margin: '0px',
-      fontSize: '25px',
-      fontWeight: 'bold',
-      paddingBottom: '5px',
     },
+    username: {
+      fontStyle: 'normal',
+      fontFamily: 'Poppins',
+      padding: '5px 10px',
+      backgroundColor: '#6588DE',
+      borderRadius: '14px',
+      color: '#FFFFFF',
+      fontSize: '10px',
+
+    }
   }
 
   return (
     <div style={style.userInformation}>
       <Avatar style={style.avatar} className={classes.large}>{user.fullname.toUpperCase()[0]}</Avatar>
       <div style={style.info}>
-        <p style={{ margin: '0px', fontSize: '25px', fontWeight: 'bold', paddingBottom: '5px', display: limit ? 'none' : 'block' }}>{user.fullname}</p>
+        <p style={style.fullname}>{user.fullname}</p>
         <p style={style.username}>{user.username}</p>
       </div>
       <Icon icon="ion:log-out-outline" style={{ fontSize: '30px', marginRight: '20px', marginLeft: '20px', cursor: 'pointer' }} onClick={logout} />

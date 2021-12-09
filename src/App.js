@@ -38,19 +38,20 @@ function App() {
 
   const style = {
     left: {
-      width: limit ? '15em' : '25%',
+      width: limit ? '15em' : '30%',
       float: 'left',
-      background: 'transparent',
       height: '100%',
       boxSizing: 'border-box',
-      borderRight: '2px solid #4a336e'
+      background: '#E5E5E5',
+      // borderRight: '2px solid #4a336e'
     },
 
     right: {
-      width: '75%',
+      width: '100%',
       height: '100%',
       float: 'left',
       position: 'relative',
+      flexGrow: 1,
     },
 
     userInformation: {
@@ -72,11 +73,11 @@ function App() {
       setUser(result.data.user)
     } catch (err) {
       toast.error(`${err.response.data.msg}`)
-    } 
-    // const listOfRooom = await axios.get('/room/retrieve', { withCredentials: true })
-    // setRooms(listOfRooom.data)
-    // if (listOfRooom.data.length !== 0)
-    //   setCurrentRoom(listOfRooom.data[0])
+    }
+    const listOfRooom = await axios.get('/room/retrieve', { withCredentials: true })
+    setRooms(listOfRooom.data)
+    if (listOfRooom.data.length !== 0)
+      setCurrentRoom(listOfRooom.data[0])
   }
 
   const leaveRoom = async (id) => {
@@ -125,6 +126,7 @@ function App() {
   }
 
   const switchRoom = (newRoom) => {
+    console.log(newRoom)
     if (newRoom?._id !== currentRoom?._id) {
       socket.emit('leaveRoom', currentRoom?._id, newRoom?._id)
       setCurrentRoom(newRoom)
