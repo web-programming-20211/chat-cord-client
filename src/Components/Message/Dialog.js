@@ -51,14 +51,18 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
             flexDirection: self ? 'row-reverse' : 'row',
             marginLeft: '20px',
             marginRight: '20px',
-            alignItems: 'center',
+            alignItems: 'flex-start',
+            padding: '0px',
+            '& .ant-avatar-string': {
+                fontSize: '50px',
+              }
         },
 
         bubble: {
             backgroundColor: self ? '#32a6b8' : '#c27f67',
             color: '#ffffff',
-            padding: '10px',
-            margin: '10px 0px 20px 0px',
+            padding: '5px 10px',
+            margin: '10px 0px 25px 0px',
             borderRadius: '25px',
             maxWidth: '90%',
             position: 'relative',
@@ -66,7 +70,9 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
 
         avatar: {
             position: 'relative',
-            margin: '10px',
+            marginLeft: self ? '10px' : '0px', 
+            marginRight: self ? '0px' : '10px',                     
+            marginTop: '5px',
             background: `#${dialog.from.color}`
         },
 
@@ -107,6 +113,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
             flexDirection: self ? 'row-reverse' : 'flex',
             alignItems: 'baseline',
             width: '100%',
+            marginBottom: '-10px',
         },
         dialogDivInfoName: {
             fontFamily: 'Poppins',
