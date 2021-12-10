@@ -1,12 +1,16 @@
-import Avatar from '@material-ui/core/Avatar'
+// import Avatar from '@material-ui/core/Avatar'
 import { useState, useEffect } from 'react'
 import Emoji from '../Emoji/Emoji';
 import EmojiIcon from '../Emoji/EmojiIcon';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Cookies from 'js-cookie';
 import axios from 'axios'
+import moment from 'moment';
 
-const Icons = ({reactions, self}) => {
+import { Avatar } from 'antd';
+
+
+const Icons = ({ reactions, self }) => {
     const style = {
         icons: {
             position: 'absolute',
@@ -19,12 +23,11 @@ const Icons = ({reactions, self}) => {
             paddingRight: 5,
         }
     }
-    
+
     return (
         <div style={style.icons}>
             {reactions.map((reaction) => {
-                if(reaction.from.length !== 0)
-                {
+                if (reaction.from.length !== 0) {
                     return <EmojiIcon key={reaction.reaction_type} emojiIndex={reaction.reaction_type}></EmojiIcon>
                 }
                 return null
@@ -34,7 +37,7 @@ const Icons = ({reactions, self}) => {
 }
 
 
-const Dialog = ({dialog, onDelete, room, socket}) => {
+const Dialog = ({ dialog, onDelete, room, socket }) => {
     const [widget, setWidget] = useState(false)
     const [enter, setEnter] = useState(false)
     const [reactions, setReaction] = useState([])
@@ -44,8 +47,11 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
         dialogDiv: {
             width: '95%',
             position: 'relative',
+            display: 'flex',
+            flexDirection: self ? 'row-reverse' : 'row',
             marginLeft: '20px',
             marginRight: '20px',
+            alignItems: 'center',
         },
 
         bubble: {
@@ -89,12 +95,37 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
 
         container: {
             display: 'flex',
-            flexDirection: self ? 'row-reverse' : 'flex',
-            width: '100%',
+            flexDirection: 'column',
+            alignItems: self ? 'flex-end' : 'flex-start',
         },
 
         reply: {
             display: 'block',
+        },
+        dialogDivInfoNameTime: {
+            display: 'flex',
+            flexDirection: self ? 'row-reverse' : 'flex',
+            alignItems: 'baseline',
+            width: '100%',
+        },
+        dialogDivInfoName: {
+            fontFamily: 'Poppins',
+            color: '#52585D',
+            fontSize: '20px',
+            fontWeight: '600',
+            marginLeft: self ? '10px' : '0px',
+        },
+        dialogDivInfoTime: {
+            fontFamily: 'Poppins',
+            color: '#52585D',
+            fontSize: '16px',
+            marginLeft: self ? '0px' : '10px',
+        },
+
+        dialogDivInfoMessage : {
+            display: 'flex',
+            flexDirection: self ? 'row-reverse' : 'row',
+            margin: '0xp',
         }
     }
 
@@ -109,8 +140,7 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
 
         tmp.every(react => {
             const index = react.from.findIndex(user => user.userId === new_cookie)
-            if(index !== -1)
-            {
+            if (index !== -1) {
                 react.from.splice(index, 1)
                 pre_react = react.reaction_type
                 return false
@@ -118,13 +148,11 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
             return true
         })
 
-        if(pre_react !== reaction_id)
-        {
+        if (pre_react !== reaction_id) {
             const index = tmp.findIndex(react => react.reaction_type === reaction_id)
-            if(index !== -1)
-            {
-                tmp[index].from.push({userId: new_cookie, username: ' '})
-            }else{
+            if (index !== -1) {
+                tmp[index].from.push({ userId: new_cookie, username: ' ' })
+            } else {
                 tmp.push({
                     reaction_type: reaction_id,
                     from: [{
@@ -142,14 +170,12 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
 
     useEffect(() => {
         socket.on('return-reaction', (return_dialog) => {
-            if(dialog._id === return_dialog._id)
-            {
+            if (dialog._id === return_dialog._id) {
                 setReaction(return_dialog.data)
             }
         })
-        
-        if(self === null)
-        {
+
+        if (self === null) {
             const cookie = Cookies.get('userId')
             const index = cookie.indexOf('"')
             setSelf(cookie.slice(index + 1, cookie.length - 1) === dialog.from.userId)
@@ -163,7 +189,7 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
     }, [dialog])
 
     useEffect(() => {
-        axios.post('/reaction/retrieve', {id: dialog._id}, {withCredentials: true}).then(result => {
+        axios.post('/reaction/retrieve', { id: dialog._id }, { withCredentials: true }).then(result => {
             setReaction(result.data.data)
         })
 
@@ -172,20 +198,56 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
 
     return (
         <div style={style.dialogDiv}>
+            {/* <div style={style.dialogDivInfo}>
+                {self && <div style={style.dialogDivInfoNameTime}>
+                    <div style={style.dialogDivInfoName}>{dialog.from.fullname}</div>
+                    <div style={style.dialogDivInfoTime}>{moment(dialog.createdAt).calendar()}</div>
+                </div>}
+                {!self && <div style={style.dialogDivInfoNameTime}>
+                    <div style={style.dialogDivInfoName}>{dialog.from.fullname}</div>
+                    <div style={style.dialogDivInfoTime}>{moment(dialog.createdAt).calendar()}</div>
+                </div>}
+                <div style={style.container} onMouseEnter={() => setWidget(true)} onMouseLeave={() => setWidget(false)}>
+                    {!self && <Avatar style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
+                    {self && <Avatar style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
+                    <p style={style.bubble}>{dialog.content}</p>
+                    <Icons reactions={reactions} self={self} />
+                    <div style={style.widget}>
+                        <Emoji dialog={dialog} react={react}></Emoji>
+                        <DeleteIcon
+                            style={style.deleteIcon}
+                            onMouseEnter={() => setEnter(true)}
+                            onMouseLeave={() => setEnter(false)}
+                            onClick={() => onDelete(dialog)}
+                        >
+                        </DeleteIcon>
+                    </div>
+                </div>
+            </div> */}
+            {!self && <Avatar size={60}style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
+            {self && <Avatar size={60}style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
             <div style={style.container} onMouseEnter={() => setWidget(true)} onMouseLeave={() => setWidget(false)}>
-                {!self && <Avatar style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
-                {self && <Avatar style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
-                <p style={style.bubble}>{dialog.content}</p>
-                <Icons reactions={reactions} self={self}/>
-                <div style={style.widget}>
-                    <Emoji dialog={dialog} react={react}></Emoji>
-                    <DeleteIcon
-                        style={style.deleteIcon}
-                        onMouseEnter={() => setEnter(true)}
-                        onMouseLeave={() => setEnter(false)}
-                        onClick={() => onDelete(dialog)}
-                    >
-                    </DeleteIcon>
+                {self && <div style={style.dialogDivInfoNameTime}>
+                    <div style={style.dialogDivInfoName}>{dialog.from.fullname}</div>
+                    <div style={style.dialogDivInfoTime}>{moment(dialog.createdAt).calendar()}</div>
+                </div>}
+                {!self && <div style={style.dialogDivInfoNameTime}>
+                    <div style={style.dialogDivInfoName}>{dialog.from.fullname}</div>
+                    <div style={style.dialogDivInfoTime}>{moment(dialog.createdAt).calendar()}</div>
+                </div>}
+                <div style={style.dialogDivInfoMessage}>
+                    <p style={style.bubble}>{dialog.content}</p>
+                    <Icons reactions={reactions} self={self} />
+                    <div style={style.widget}>
+                        <Emoji dialog={dialog} react={react}></Emoji>
+                        <DeleteIcon
+                            style={style.deleteIcon}
+                            onMouseEnter={() => setEnter(true)}
+                            onMouseLeave={() => setEnter(false)}
+                            onClick={() => onDelete(dialog)}
+                        >
+                        </DeleteIcon>
+                    </div>
                 </div>
             </div>
         </div>
