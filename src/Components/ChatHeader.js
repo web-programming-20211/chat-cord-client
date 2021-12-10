@@ -2,9 +2,9 @@ import { Input, Select, Space, Cascader } from 'antd';
 import { Icon } from '@iconify/react';
 import TuneIcon from '@mui/icons-material/Tune';
 import axios from 'axios';
-import { useEffect,useState } from 'react';
+import { useEffect, useState } from 'react';
 
-const ChatHeader = (room) => {
+const ChatHeader = ({ room }) => {
     const [users, setUsers] = useState([])
     const [currentRoom, setRoom] = useState(room)
 
@@ -62,16 +62,13 @@ const ChatHeader = (room) => {
         </Select>
     );
 
-    // useEffect(() => {
-    //     setRoom(room)
-    //     if (room?._id !== -1) {
-    //         console.log(room._id)
-    //         const res = axios.get('/room/' + room?._id + '/members', { withCredentials: true })
-    //         if (res.status === 200) {
-    //             setUsers(res.data.msg);
-    //         }
-    //     }
-    // }, [room])
+    useEffect(() => {
+        setRoom(room)
+        if (room?._id !== -1)
+            axios.get('/room/' + room?._id + '/members', { withCredentials: true }).then(res => {
+                setUsers(res.data.msg);
+            })
+    }, [room])
 
     return (
         <>

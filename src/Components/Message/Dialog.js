@@ -6,6 +6,34 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import Cookies from 'js-cookie';
 import axios from 'axios'
 
+const Icons = ({reactions, self}) => {
+    const style = {
+        icons: {
+            position: 'absolute',
+            right: self && 60,
+            left: !self && 60,
+            bottom: 5,
+            borderRadius: '25px',
+            backgroundColor: '#aaa',
+            paddingLeft: 5,
+            paddingRight: 5,
+        }
+    }
+    
+    return (
+        <div style={style.icons}>
+            {reactions.map((reaction) => {
+                if(reaction.from.length !== 0)
+                {
+                    return <EmojiIcon key={reaction.reaction_type} emojiIndex={reaction.reaction_type}></EmojiIcon>
+                }
+                return null
+            })}
+        </div>
+    )
+}
+
+
 const Dialog = ({dialog, onDelete, room, socket}) => {
     const [widget, setWidget] = useState(false)
     const [enter, setEnter] = useState(false)
@@ -26,7 +54,7 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
             padding: '10px',
             margin: '10px 0px 20px 0px',
             borderRadius: '25px',
-            maxWidth: '30%',
+            maxWidth: '90%',
             position: 'relative',
         },
 
@@ -145,8 +173,8 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
     return (
         <div style={style.dialogDiv}>
             <div style={style.container} onMouseEnter={() => setWidget(true)} onMouseLeave={() => setWidget(false)}>
-                {!self && <Avatar style={style.avatar}>{dialog.from.username.toUpperCase()[0]}</Avatar>}
-                {self && <Avatar style={style.avatar}>{dialog.from.username.toUpperCase()[0]}</Avatar>}
+                {!self && <Avatar style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
+                {self && <Avatar style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
                 <p style={style.bubble}>{dialog.content}</p>
                 <Icons reactions={reactions} self={self}/>
                 <div style={style.widget}>
@@ -160,33 +188,6 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
                     </DeleteIcon>
                 </div>
             </div>
-        </div>
-    )
-}
-
-const Icons = ({reactions, self}) => {
-    const style = {
-        icons: {
-            position: 'absolute',
-            right: self && 60,
-            left: !self && 60,
-            bottom: 5,
-            borderRadius: '25px',
-            backgroundColor: '#aaa',
-            paddingLeft: 5,
-            paddingRight: 5,
-        }
-    }
-    
-    return (
-        <div style={style.icons}>
-            {reactions.map((reaction) => {
-                if(reaction.from.length !== 0)
-                {
-                    return <EmojiIcon key={reaction.reaction_type} emojiIndex={reaction.reaction_type}></EmojiIcon>
-                }
-                return null
-            })}
         </div>
     )
 }
