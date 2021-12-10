@@ -6,7 +6,6 @@ import { useEffect, useState } from "react"
 import Cookies from "js-cookie"
 import Snackbar from '@material-ui/core/Snackbar'
 import MuiAlert from '@material-ui/lab/Alert'
-import { toast } from "react-toastify"
 
 const Alert = (props) => {
     return <MuiAlert elevation={6} variant='filled' {...props} />
@@ -20,17 +19,13 @@ const ChatWindow = ({ socket, room, rooms, setRooms, leave }) => {
 
     const style = {
         container: {
-            position: 'absolute',
-            background: 'transparent',
-            height: '96%',
-            width: '97%',
-            margin: 0,
-            bottom: 0,
+            height: '100vh',
+            width: '90%',
             background: '#E3F6FC',
-            margin: '25px',
-            marginTop: '100px',
             borderRadius: '10px',
-        }
+            margin: '50px 50px 50px 30px'
+        },
+
     }
 
     const dialogsUpdate = (message) => {
@@ -100,21 +95,23 @@ const ChatWindow = ({ socket, room, rooms, setRooms, leave }) => {
     }, [newMessage])
 
     return (
-        <div style={style.container}>
+        <div>
             <ChatHeader room={room} />
+            <div>
 
-            <Snackbar
-                open={error}
-                autoHideDuration={2000}
-                onClose={() => setError(false)}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-            >
-                <Alert onClose={() => setError(false)} severity='error'>
-                    You can not delete other's comment!
-                </Alert>
-            </Snackbar>
-            <Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage}></Dialogs>
-            <Input room={currentRoom} setDialogs={dialogsUpdate} socket={socket}></Input>
+                <Snackbar
+                    open={error}
+                    autoHideDuration={2000}
+                    onClose={() => setError(false)}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                >
+                    <Alert onClose={() => setError(false)} severity='error'>
+                        You can not delete other's comment!
+                    </Alert>
+                </Snackbar>
+                <Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage}></Dialogs>
+                <Input room={currentRoom} setDialogs={dialogsUpdate} socket={socket}></Input>
+            </div>
         </div>
     )
 }
