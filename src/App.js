@@ -15,6 +15,7 @@ import RoomsHeader from "./Components/Rooms/RoomsHeader";
 import Guide from './Components/Guide/Guide';
 import { useMediaQuery } from 'react-responsive'
 import { toast } from 'react-toastify'
+import SearchRoom from './Components/List/SearchRoom';
 
 const socket = io.connect('/')
 
@@ -39,6 +40,7 @@ function App() {
   const limit = useMediaQuery({ maxWidth: 1300 })
 
   const [message, setMessage] = useState('')
+  const [showSearchRoom, setShowSearchRoom] = useState(false)
 
   const style = {
     left: {
@@ -142,6 +144,7 @@ function App() {
       setCurrentRoom(newRoom)
     }
     setCurrentRoom(newRoom)
+    setShowSearchRoom(false)
   }
 
   const logout = async () => {
@@ -187,6 +190,8 @@ function App() {
     }
   }, [currentRoom])
 
+  // setShowSearchRoom(!showSearchRoom)
+
   return (
     <div className="App">
       {!connected ? <Loading></Loading> : (((authenticated || login) && user) ?
@@ -194,8 +199,11 @@ function App() {
           <div style={{ height: '100%', display: 'flex' }}>
             <div style={style.left}>
               <UserArea user={user} logout={logout}></UserArea>
-              <RoomsHeader joinRoom={joinRoom} findRoom={findRoom}></RoomsHeader>
-              <RoomsList currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} lastMsgRoomId={lastMsgRoomId} setLastMsgRoomId={setLastMsgRoomId} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} />
+              {showSearchRoom && <SearchRoom currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} handleSearchRoom={setShowSearchRoom} />}
+              {!showSearchRoom && <RoomsHeader joinRoom={joinRoom} findRoom={findRoom} handleSearchRoom={setShowSearchRoom}></RoomsHeader>}
+              {!showSearchRoom && <RoomsList currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} lastMsgRoomId={lastMsgRoomId} setLastMsgRoomId={setLastMsgRoomId} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} />}
+              
+              
               {/* <FindRoom roomId={roomId} setRoomId={setRoomId} findRoom={findRoom}></FindRoom> */}
             </div>
             {currentRoom ? <div style={style.right}>

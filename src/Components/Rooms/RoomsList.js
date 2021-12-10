@@ -1,13 +1,13 @@
 import CreateRoom from "./CreateRoom"
 import Room from "../Room/Room"
 
-const RoomsList = ({rooms, lastMsgRoomId, setLastMsgRoomId,  joinRoom, leaveRoom, switchRoom, roomManage, currentRoom}) => {
+const RoomsList = ({rooms, joinRoom, leaveRoom, switchRoom, roomManage, currentRoom, lastMsgRoomId, setLastMsgRoomId}) => {
     const style = {
         roomList: {
             overflow: 'auto',
             height: '77%',
             backgroundColor: '#E3F6FC',
-            borderRadius: '14px',
+            borderRadius: '5px',
             marginLeft: '10px',
             width: '100%',
         },
