@@ -13,10 +13,12 @@ const ChatHeader = ({ room }) => {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            padding: '10px',
+            padding: '50px',
             backgroundColor: '#6588DE',
-            height: '90px',
             borderRadius: '14px',
+            height: '20px',
+            width: '98%',
+            margin: '10px 5px auto 20px'
         },
 
         chatInfo: {

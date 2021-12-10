@@ -8,10 +8,11 @@ import ChatWindow from "./Components/ChatWindow";
 import Login from './Components/Login/Login';
 import Loading from './Components/Loading';
 import UserArea from "./Components/UserInformation/UserArea";
-import FindRoom from "./Components/Rooms/FindRoom";
-import RoomManage from "./Components/Room/RoomManage";
+// import FindRoom from "./Components/Rooms/FindRoom";
+// import RoomManage from "./Components/Room/RoomManage";
 import RoomsList from "./Components/Rooms/RoomsList";
 import RoomsHeader from "./Components/Rooms/RoomsHeader";
+import Guide from './Components/Guide/Guide';
 import { useMediaQuery } from 'react-responsive'
 import { toast } from 'react-toastify'
 
@@ -49,7 +50,7 @@ function App() {
     right: {
       width: '100%',
       height: '100%',
-      float: 'left',
+      float: 'right',
       position: 'relative',
       flexGrow: 1,
     },
@@ -152,6 +153,7 @@ function App() {
     //   })
     //   setRooms([])
     // }
+    Cookies.remove('userId')
     window.location.reload()
   }
 
@@ -193,9 +195,9 @@ function App() {
               <RoomsList currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} />
               {/* <FindRoom roomId={roomId} setRoomId={setRoomId} findRoom={findRoom}></FindRoom> */}
             </div>
-            <div style={style.right}>
+            {currentRoom ? <div style={style.right}>
               <ChatWindow socket={socket} room={currentRoom} rooms={rooms} setRooms={setRooms} leave={leaveRoom}></ChatWindow>
-            </div>
+            </div> : <Guide></Guide>}
           </div>
           {/* <RoomManage room={currentRoom} manageToggle={roomPanel} setPanel={setPanel}></RoomManage> */}
         </div> : <Login message={message} logIn={logIn} invalid={error} errorToggle={setError}></Login>)}

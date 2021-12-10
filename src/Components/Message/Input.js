@@ -13,11 +13,12 @@ const Input = ({ setDialogs }) => {
     const limit2 = useMediaQuery({ maxWidth: 600 })
     const style = {
         input: {
-            position: 'fixed',
-            bottom: 10,
-            width: '80%',
-            height: '10%',
+            display: 'block',
+            position: 'relative',
+            right: '-16px',
+            bottom: '16px',
             borderSizing: 'border-box',
+            width: '105%',
         },
 
         textField: {
@@ -27,7 +28,6 @@ const Input = ({ setDialogs }) => {
             paddingLeft: '20px',
             paddingBottom: '10px',
             paddingTop: '10px',
-            marginTop: '0px',
             marginLeft: '30px',
             backgroundColor: 'transparent',
             color: '#FDFDFD',
