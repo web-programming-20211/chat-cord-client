@@ -20,12 +20,13 @@ const Emoji = ({dialog, react}) => {
 
         emojiList: {
             position: 'absolute',
-            top: 0,
+            bottom: 45,
+            // top: 0,
         },
 
         emojiItem: {
             cursor: 'pointer',
-            fontSize: 'medium',
+            fontSize: '28px',
             paddingRight: 5,
         }
     }
@@ -47,7 +48,7 @@ const Emoji = ({dialog, react}) => {
                 show && <div style={style.emojiList}>
                 <ThumbUpIcon style={style.emojiItem}  color='primary' onClick={() => reaction(1)}></ThumbUpIcon>
                 <ThumbDownAltIcon style={style.emojiItem} color='primary' onClick={() => reaction(2)}></ThumbDownAltIcon>
-                <FavoriteIcon style={{paddingRight: 5, fontSize: 'medium', cursor: 'pointer'}} color='secondary' onClick={() => reaction(3)}></FavoriteIcon>
+                <FavoriteIcon style={{paddingRight: 5, fontSize: '28px', cursor: 'pointer'}} color='secondary' onClick={() => reaction(3)}></FavoriteIcon>
                 </div>
             }
             <EmojiEmotionsOutlinedIcon 

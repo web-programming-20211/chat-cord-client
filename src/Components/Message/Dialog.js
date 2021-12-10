@@ -1,30 +1,33 @@
-import Avatar from '@material-ui/core/Avatar'
+// import Avatar from '@material-ui/core/Avatar'
 import { useState, useEffect } from 'react'
 import Emoji from '../Emoji/Emoji';
 import EmojiIcon from '../Emoji/EmojiIcon';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Cookies from 'js-cookie';
 import axios from 'axios'
+import moment from 'moment';
 
-const Icons = ({reactions, self}) => {
+import { Avatar } from 'antd';
+
+
+const Icons = ({ reactions, self }) => {
     const style = {
         icons: {
             position: 'absolute',
-            right: self && 60,
-            left: !self && 60,
-            bottom: 5,
+            right: self && 70,
+            left: !self && 70,
+            bottom: 15,
             borderRadius: '25px',
             backgroundColor: '#aaa',
             paddingLeft: 5,
             paddingRight: 5,
         }
     }
-    
+
     return (
         <div style={style.icons}>
             {reactions.map((reaction) => {
-                if(reaction.from.length !== 0)
-                {
+                if (reaction.from.length !== 0) {
                     return <EmojiIcon key={reaction.reaction_type} emojiIndex={reaction.reaction_type}></EmojiIcon>
                 }
                 return null
@@ -34,7 +37,7 @@ const Icons = ({reactions, self}) => {
 }
 
 
-const Dialog = ({dialog, onDelete, room, socket}) => {
+const Dialog = ({ dialog, onDelete, room, socket }) => {
     const [widget, setWidget] = useState(false)
     const [enter, setEnter] = useState(false)
     const [reactions, setReaction] = useState([])
@@ -44,15 +47,22 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
         dialogDiv: {
             width: '95%',
             position: 'relative',
+            display: 'flex',
+            flexDirection: self ? 'row-reverse' : 'row',
             marginLeft: '20px',
             marginRight: '20px',
+            alignItems: 'flex-start',
+            padding: '0px',
+            '& .ant-avatar-string': {
+                fontSize: '50px',
+              }
         },
 
         bubble: {
             backgroundColor: self ? '#32a6b8' : '#c27f67',
             color: '#ffffff',
-            padding: '10px',
-            margin: '10px 0px 20px 0px',
+            padding: '5px 10px',
+            margin: '10px 0px 25px 0px',
             borderRadius: '25px',
             maxWidth: '90%',
             position: 'relative',
@@ -60,13 +70,15 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
 
         avatar: {
             position: 'relative',
-            margin: '10px',
+            marginLeft: self ? '10px' : '0px', 
+            marginRight: self ? '0px' : '10px',                     
+            marginTop: '5px',
             background: `#${dialog.from.color}`
         },
 
         widget: {
             padding: '10px',
-            margin: '10px 0px 10px 0px',
+            margin: '10px 0px 15px 0px',
             opacity: widget ? 1 : 0,
             transition: 'opacity 250ms',
             display: 'flex',
@@ -89,12 +101,38 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
 
         container: {
             display: 'flex',
-            flexDirection: self ? 'row-reverse' : 'flex',
-            width: '100%',
+            flexDirection: 'column',
+            alignItems: self ? 'flex-end' : 'flex-start',
         },
 
         reply: {
             display: 'block',
+        },
+        dialogDivInfoNameTime: {
+            display: 'flex',
+            flexDirection: self ? 'row-reverse' : 'flex',
+            alignItems: 'baseline',
+            width: '100%',
+            marginBottom: '-10px',
+        },
+        dialogDivInfoName: {
+            fontFamily: 'Poppins',
+            color: '#52585D',
+            fontSize: '20px',
+            fontWeight: '600',
+            marginLeft: self ? '10px' : '0px',
+        },
+        dialogDivInfoTime: {
+            fontFamily: 'Poppins',
+            color: '#52585D',
+            fontSize: '16px',
+            marginLeft: self ? '0px' : '10px',
+        },
+
+        dialogDivInfoMessage : {
+            display: 'flex',
+            flexDirection: self ? 'row-reverse' : 'row',
+            margin: '0xp',
         }
     }
 
@@ -109,8 +147,7 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
 
         tmp.every(react => {
             const index = react.from.findIndex(user => user.userId === new_cookie)
-            if(index !== -1)
-            {
+            if (index !== -1) {
                 react.from.splice(index, 1)
                 pre_react = react.reaction_type
                 return false
@@ -118,13 +155,11 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
             return true
         })
 
-        if(pre_react !== reaction_id)
-        {
+        if (pre_react !== reaction_id) {
             const index = tmp.findIndex(react => react.reaction_type === reaction_id)
-            if(index !== -1)
-            {
-                tmp[index].from.push({userId: new_cookie, username: ' '})
-            }else{
+            if (index !== -1) {
+                tmp[index].from.push({ userId: new_cookie, username: ' ' })
+            } else {
                 tmp.push({
                     reaction_type: reaction_id,
                     from: [{
@@ -142,14 +177,12 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
 
     useEffect(() => {
         socket.on('return-reaction', (return_dialog) => {
-            if(dialog._id === return_dialog._id)
-            {
+            if (dialog._id === return_dialog._id) {
                 setReaction(return_dialog.data)
             }
         })
-        
-        if(self === null)
-        {
+
+        if (self === null) {
             const cookie = Cookies.get('userId')
             const index = cookie.indexOf('"')
             setSelf(cookie.slice(index + 1, cookie.length - 1) === dialog.from.userId)
@@ -163,7 +196,7 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
     }, [dialog])
 
     useEffect(() => {
-        axios.post('/reaction/retrieve', {id: dialog._id}, {withCredentials: true}).then(result => {
+        axios.post('/reaction/retrieve', { id: dialog._id }, { withCredentials: true }).then(result => {
             setReaction(result.data.data)
         })
 
@@ -172,20 +205,30 @@ const Dialog = ({dialog, onDelete, room, socket}) => {
 
     return (
         <div style={style.dialogDiv}>
+            {!self && <Avatar size={60}style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
+            {self && <Avatar size={60}style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
             <div style={style.container} onMouseEnter={() => setWidget(true)} onMouseLeave={() => setWidget(false)}>
-                {!self && <Avatar style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
-                {self && <Avatar style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
-                <p style={style.bubble}>{dialog.content}</p>
-                <Icons reactions={reactions} self={self}/>
-                <div style={style.widget}>
-                    <Emoji dialog={dialog} react={react}></Emoji>
-                    <DeleteIcon
-                        style={style.deleteIcon}
-                        onMouseEnter={() => setEnter(true)}
-                        onMouseLeave={() => setEnter(false)}
-                        onClick={() => onDelete(dialog)}
-                    >
-                    </DeleteIcon>
+                {self && <div style={style.dialogDivInfoNameTime}>
+                    <div style={style.dialogDivInfoName}>{dialog.from.fullname}</div>
+                    <div style={style.dialogDivInfoTime}>{moment(dialog.createdAt).calendar()}</div>
+                </div>}
+                {!self && <div style={style.dialogDivInfoNameTime}>
+                    <div style={style.dialogDivInfoName}>{dialog.from.fullname}</div>
+                    <div style={style.dialogDivInfoTime}>{moment(dialog.createdAt).calendar()}</div>
+                </div>}
+                <div style={style.dialogDivInfoMessage}>
+                    <p style={style.bubble}>{dialog.content}</p>
+                    <Icons reactions={reactions} self={self} />
+                    <div style={style.widget}>
+                        <Emoji dialog={dialog} react={react}></Emoji>
+                        <DeleteIcon
+                            style={style.deleteIcon}
+                            onMouseEnter={() => setEnter(true)}
+                            onMouseLeave={() => setEnter(false)}
+                            onClick={() => onDelete(dialog)}
+                        >
+                        </DeleteIcon>
+                    </div>
                 </div>
             </div>
         </div>
