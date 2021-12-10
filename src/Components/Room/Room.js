@@ -3,27 +3,31 @@ import { makeStyles } from '@material-ui/core';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import { useEffect, useState } from 'react';
 import { useMediaQuery } from 'react-responsive'
+import moment from 'moment';
 
 import { Avatar } from 'antd';
+import axios from 'axios';
 
 const useStyles = makeStyles((theme) => ({
     large: {
-      width: theme.spacing(10),
-      height: theme.spacing(10)
+        width: theme.spacing(10),
+        height: theme.spacing(10)
     },
 
     small: {
         width: theme.spacing(6),
         height: theme.spacing(6)
     }
-  }))
+}))
 
-const Room = ({room, onClick, leaveHandle, roomManage, choosen}) => {
+const Room = ({ room, onClick, lastMsgRoomId, setLastMsgRoomId, leaveHandle, roomManage, choosen }) => {
     const classes = useStyles()
     const [option, setOption] = useState(false)
     const [hover, setHover] = useState(false)
-
-    const limit = useMediaQuery({maxWidth: 1300})
+    const [lastMsg, setLastMsg] = useState('')
+    const [lastMsgTime, setLastMsgTime] = useState(null)
+    const [updateMsg, setUpdateMsg] = useState(false)
+    const limit = useMediaQuery({ maxWidth: 1300 })
 
     const style = {
         room_container: {
@@ -67,16 +71,16 @@ const Room = ({room, onClick, leaveHandle, roomManage, choosen}) => {
         },
 
         roomMessage: {
-            flexGrow : '1',
+            flexGrow: '1',
         },
 
-        roomMessageName : {
+        roomMessageName: {
             margin: '0px',
             padding: '0px',
             fontSize: '18px',
             fontWeight: 'bold',
             color: (choosen || hover) ? '#FDFDFE' : '#52585D',
-            display:'-webkit-box',
+            display: '-webkit-box',
             WebkitLineClamp: 1,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
@@ -85,12 +89,12 @@ const Room = ({room, onClick, leaveHandle, roomManage, choosen}) => {
             workBreak: 'break-word',
         },
 
-        roomMessageLastMessage : {
+        roomMessageLastMessage: {
             margin: '0px',
             padding: '0px',
             fontSize: '12px',
             color: (choosen || hover) ? '#F2F6F7' : '#96A9BA',
-            display:'-webkit-box',
+            display: '-webkit-box',
             WebkitLineClamp: 1,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
@@ -99,7 +103,7 @@ const Room = ({room, onClick, leaveHandle, roomManage, choosen}) => {
             workBreak: 'break-word',
         },
 
-        messageTime : {
+        messageTime: {
             color: (choosen || hover) ? '#FDFDFE' : '#96A9BA',
         },
 
@@ -113,7 +117,7 @@ const Room = ({room, onClick, leaveHandle, roomManage, choosen}) => {
             transform: option ? 'rotate(90deg)' : 'none',
             transition: 'transform 200ms'
         },
-        
+
         roomOption: {
             background: '#c4c4c4',
             fontSize: 'large',
@@ -125,28 +129,32 @@ const Room = ({room, onClick, leaveHandle, roomManage, choosen}) => {
         }
     }
 
-    useEffect(() => {
-        if(option && !choosen)
-        {
+    useEffect(async () => {
+        if (option && !choosen) {
             setOption(false)
         }
-
+        if (room?._id === lastMsgRoomId) {
+            let res = await axios.get('/room/' + lastMsgRoomId, { withCredentials: true })
+            setLastMsg(res.data.msg.lastMessage)
+            setLastMsgTime(res.data.msg.lastMessageDate)
+            setUpdateMsg(true)
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [choosen])
+    }, [choosen, lastMsgRoomId])
 
     return (
         <div style={style.room_container} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             <div style={style.room}>
                 <div style={style.roomInfo} onClick={() => onClick(room)}>
                     {/* <div style={{display: 'flex', flexDirection: limit ? 'column' : 'row', justifyItems: 'center'}}> */}
-                        {/* <Avatar style={style.avatar} className={limit ? classes.small : classes.large} sx={{ width: 44, height: 44 }}>{room?.name[0].toUpperCase()}</Avatar> */}
-                        {/* <Avatar sx={{ width: 100, height: 200 }}  style={style.avatar} >{room?.name[0].toUpperCase()}</Avatar> */}
-                        <Avatar size={56}  style={style.avatar}>{room?.name[0].toUpperCase()}</Avatar>
-                        <div style={style.roomMessage}>
+                    {/* <Avatar style={style.avatar} className={limit ? classes.small : classes.large} sx={{ width: 44, height: 44 }}>{room?.name[0].toUpperCase()}</Avatar> */}
+                    {/* <Avatar sx={{ width: 100, height: 200 }}  style={style.avatar} >{room?.name[0].toUpperCase()}</Avatar> */}
+                    <Avatar size={56} style={style.avatar}>{room?.name[0].toUpperCase()}</Avatar>
+                    <div style={style.roomMessage}>
                         <p style={style.roomMessageName}>{room?.name}</p>
-                        <p style={style.roomMessageLastMessage}>{room?.description}</p>
-                        </div>
-                        <span style={style.messageTime}>11:10 </span>
+                        <p style={style.roomMessageLastMessage}>{updateMsg ? lastMsg : room?.lastMessage}</p>
+                    </div>
+                    <span style={style.messageTime}>{moment(`${updateMsg ? lastMsgTime : room?.lastMessageDate}`).fromNow()}</span>
                     {/* </div> */}
                     {/* <ArrowRightIcon style={style.button} onClick={() => setOption(!option)}></ArrowRightIcon> */}
                 </div>
