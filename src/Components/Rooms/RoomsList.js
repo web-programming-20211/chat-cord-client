@@ -1,7 +1,7 @@
 import CreateRoom from "./CreateRoom"
 import Room from "../Room/Room"
 
-const RoomsList = ({rooms, joinRoom, leaveRoom, switchRoom, roomManage, currentRoom}) => {
+const RoomsList = ({rooms, lastMsgRoomId, setLastMsgRoomId,  joinRoom, leaveRoom, switchRoom, roomManage, currentRoom}) => {
     const style = {
         roomList: {
             overflow: 'auto',
@@ -18,7 +18,7 @@ const RoomsList = ({rooms, joinRoom, leaveRoom, switchRoom, roomManage, currentR
           {/* <CreateRoom joinRoom={joinRoom}></CreateRoom> */}
           {rooms?.map((room) => {
             return (
-              <Room key={room?._id} choosen={currentRoom?._id === room?._id} room={room} leaveHandle={leaveRoom} onClick={switchRoom} roomManage={roomManage}></Room>
+              <Room key={room?._id} choosen={currentRoom?._id === room?._id} room={room} lastMsgRoomId={lastMsgRoomId} setLastMsgRoomId={setLastMsgRoomId} leaveHandle={leaveRoom} onClick={switchRoom} roomManage={roomManage}></Room>
             )
           })}
         </div>

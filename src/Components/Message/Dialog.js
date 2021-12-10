@@ -54,9 +54,6 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
             marginRight: '20px',
             alignItems: 'flex-start',
             padding: '0px',
-            '& .ant-avatar-string': {
-                fontSize: '50px',
-              }
         },
 
         bubble: {

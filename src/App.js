@@ -30,6 +30,9 @@ function App() {
     name: " ",
     color: ''
   })
+
+  const [lastMsgRoomId, setLastMsgRoomId] = useState('')
+
   const [rooms, setRooms] = useState([])
   const [login, setLogin] = useState(false)
 
@@ -192,11 +195,11 @@ function App() {
             <div style={style.left}>
               <UserArea user={user} logout={logout}></UserArea>
               <RoomsHeader joinRoom={joinRoom} findRoom={findRoom}></RoomsHeader>
-              <RoomsList currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} />
+              <RoomsList currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} lastMsgRoomId={lastMsgRoomId} setLastMsgRoomId={setLastMsgRoomId} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} />
               {/* <FindRoom roomId={roomId} setRoomId={setRoomId} findRoom={findRoom}></FindRoom> */}
             </div>
             {currentRoom ? <div style={style.right}>
-              <ChatWindow socket={socket} room={currentRoom} rooms={rooms} setRooms={setRooms} leave={leaveRoom}></ChatWindow>
+              <ChatWindow socket={socket} room={currentRoom} rooms={rooms} setRooms={setRooms} setLastMsgRoomId={setLastMsgRoomId} leave={leaveRoom}></ChatWindow>
             </div> : <Guide></Guide>}
           </div>
           {/* <RoomManage room={currentRoom} manageToggle={roomPanel} setPanel={setPanel}></RoomManage> */}

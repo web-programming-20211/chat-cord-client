@@ -11,7 +11,7 @@ const Alert = (props) => {
     return <MuiAlert elevation={6} variant='filled' {...props} />
 }
 
-const ChatWindow = ({ socket, room, rooms, setRooms, leave }) => {
+const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) => {
     const [dialogs, setDialogs] = useState([])
     const [currentRoom, setRoom] = useState(room)
     const [newMessage, setNewMessage] = useState(null)
@@ -64,10 +64,12 @@ const ChatWindow = ({ socket, room, rooms, setRooms, leave }) => {
     }, [room])
 
     useEffect(() => {
-        socket.on('your_new_message', (dialog) => {
-            setNewMessage(dialog)
+        socket.on('your_new_message', (dialog, ctRoom) => {
+            setLastMsgRoomId(ctRoom)
+            setLastMsgRoomId('')
+            if(ctRoom === room?._id)
+                setNewMessage(dialog)
         })
-
         socket.on('dialog-deleted', (id) => {
             const temp = [...dialogs]
             temp.every((d, index) => {
