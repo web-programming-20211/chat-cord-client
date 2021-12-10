@@ -3,7 +3,7 @@ import { Modal, Button, Form, Input, Switch } from 'antd';
 import { useState } from 'react';
 
 
-const RoomsHeader = ({ joinRoom, findRoom }) => {
+const RoomsHeader = ({ joinRoom, findRoom, handleSearchRoom }) => {
     const [visibleCreate, setVisibleCreate] = useState(false)
     const [visibleJoin, setVisibleJoin] = useState(false)
     const [isPrivate, setIsPrivate] = useState(false)
@@ -34,7 +34,6 @@ const RoomsHeader = ({ joinRoom, findRoom }) => {
             margin: '5px',
             marginLeft: '15px',
         },
-
         add: {
             color: '#6588DE',
             fontSize: '60px',
@@ -79,7 +78,7 @@ const RoomsHeader = ({ joinRoom, findRoom }) => {
     return (
         <>
             <div style={style.roomHeaderContainer}>
-                <input style={style.input} type='text' placeholder='Type a room...' />
+                <Icon style={style.add} icon="akar-icons:search" onClick={handleSearchRoom} />
                 <Icon style={style.add} icon="akar-icons:chat-add" onClick={showModalCreate} />
                 <Icon style={style.join} icon="fluent:chat-arrow-back-16-regular" onClick={showModalJoin} />
             </div>
