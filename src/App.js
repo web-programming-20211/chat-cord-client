@@ -109,12 +109,15 @@ function App() {
   const findRoom = async (shortId) => {
     const index = rooms.findIndex(room => room.shortId === shortId)
     if (index === -1) {
-      try {
-        const res =  axios.post('/room/' + shortId + '/attend', { withCredentials: true })
+      const res = await axios.post('/room/' + shortId + '/attend', { withCredentials: true })
+      if (res.status === 200) {
         setRooms([res.data.msg, ...rooms])
-      }
-      catch (err) {
-       toast.error(`${err.res.data.msg}`)
+        setCurrentRoom(res.data.msg)
+
+      } else if (res.status === 400) {
+        setCurrentRoom(res.data.msg)
+      } else {
+        toast.error(`${res.data.msg}`)
       }
     }
   }
