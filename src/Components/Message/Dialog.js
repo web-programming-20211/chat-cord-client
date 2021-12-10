@@ -14,9 +14,9 @@ const Icons = ({ reactions, self }) => {
     const style = {
         icons: {
             position: 'absolute',
-            right: self && 60,
-            left: !self && 60,
-            bottom: 5,
+            right: self && 70,
+            left: !self && 70,
+            bottom: 15,
             borderRadius: '25px',
             backgroundColor: '#aaa',
             paddingLeft: 5,
@@ -78,7 +78,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
 
         widget: {
             padding: '10px',
-            margin: '10px 0px 10px 0px',
+            margin: '10px 0px 15px 0px',
             opacity: widget ? 1 : 0,
             transition: 'opacity 250ms',
             display: 'flex',
@@ -205,32 +205,6 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
 
     return (
         <div style={style.dialogDiv}>
-            {/* <div style={style.dialogDivInfo}>
-                {self && <div style={style.dialogDivInfoNameTime}>
-                    <div style={style.dialogDivInfoName}>{dialog.from.fullname}</div>
-                    <div style={style.dialogDivInfoTime}>{moment(dialog.createdAt).calendar()}</div>
-                </div>}
-                {!self && <div style={style.dialogDivInfoNameTime}>
-                    <div style={style.dialogDivInfoName}>{dialog.from.fullname}</div>
-                    <div style={style.dialogDivInfoTime}>{moment(dialog.createdAt).calendar()}</div>
-                </div>}
-                <div style={style.container} onMouseEnter={() => setWidget(true)} onMouseLeave={() => setWidget(false)}>
-                    {!self && <Avatar style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
-                    {self && <Avatar style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
-                    <p style={style.bubble}>{dialog.content}</p>
-                    <Icons reactions={reactions} self={self} />
-                    <div style={style.widget}>
-                        <Emoji dialog={dialog} react={react}></Emoji>
-                        <DeleteIcon
-                            style={style.deleteIcon}
-                            onMouseEnter={() => setEnter(true)}
-                            onMouseLeave={() => setEnter(false)}
-                            onClick={() => onDelete(dialog)}
-                        >
-                        </DeleteIcon>
-                    </div>
-                </div>
-            </div> */}
             {!self && <Avatar size={60}style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
             {self && <Avatar size={60}style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
             <div style={style.container} onMouseEnter={() => setWidget(true)} onMouseLeave={() => setWidget(false)}>
