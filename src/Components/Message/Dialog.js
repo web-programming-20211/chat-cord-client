@@ -42,6 +42,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
     const [enter, setEnter] = useState(false)
     const [reactions, setReaction] = useState([])
     const [self, setSelf] = useState(null)
+    const [showTime, setShowTime] = useState(false)
 
     const style = {
         dialogDiv: {
@@ -124,6 +125,8 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
         },
         dialogDivInfoTime: {
             fontFamily: 'Poppins',
+            opacity: showTime ? 1 : 0,
+            transition: 'opacity 250ms',
             color: '#52585D',
             fontSize: '16px',
             marginLeft: self ? '0px' : '10px',
@@ -204,7 +207,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
     }, [])
 
     return (
-        <div style={style.dialogDiv}>
+        <div style={style.dialogDiv}  onMouseEnter={() => setShowTime(true)} onMouseLeave={() => setShowTime(false)}>
             {!self && <Avatar size={60}style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
             {self && <Avatar size={60}style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
             <div style={style.container} onMouseEnter={() => setWidget(true)} onMouseLeave={() => setWidget(false)}>
