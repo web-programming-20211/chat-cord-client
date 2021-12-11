@@ -4,9 +4,20 @@ import TuneIcon from '@mui/icons-material/Tune';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
+import { Drawer, Button } from 'antd';
+
+
 const ChatHeader = ({ room }) => {
     const [users, setUsers] = useState([])
     const [currentRoom, setRoom] = useState(room)
+
+    const [visible, setVisible] = useState(false);
+    const showDrawer = () => {
+        setVisible(true);
+    };
+    const onClose = () => {
+        setVisible(false);
+    };
 
     const style = {
         chatHeader: {
@@ -26,6 +37,7 @@ const ChatHeader = ({ room }) => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'flex-start',
+            cursor: 'pointer',
         },
 
         chatName: {
@@ -52,6 +64,12 @@ const ChatHeader = ({ room }) => {
         tuneIcon: {
             cursor: 'pointer',
         },
+
+        roomInfo : {
+            "& .antDrawerBody": {
+                backgroundColor: '#F2F6F7',
+            },
+        }
     }
 
 
@@ -75,7 +93,7 @@ const ChatHeader = ({ room }) => {
     return (
         <>
             <div style={style.chatHeader}>
-                <div style={style.chatInfo}>
+                <div style={style.chatInfo} onClick={showDrawer}>
                     <p style={style.chatName}>{room?.name}</p>
                     <p style={style.numberOfUser}>{users?.length + ' members'}</p>
                 </div>
@@ -83,7 +101,17 @@ const ChatHeader = ({ room }) => {
                     <Input style={style.input} autoComplete='off' addonBefore={selectBefore} placeholder="Type user or a message you what to search..." />
                     <div><TuneIcon style={style.tuneIcon} color='red' /></div>
                 </div>
+                
+
+                <Drawer title="Room Info" style={style.roomInfo} placement="right" onClose={onClose} visible={visible}>
+                    <p>Some contents...</p>
+                    <p>Some contents...</p>
+                    <p>Some contents...</p>
+                </Drawer>
+
             </div>
+
+            
         </>
     )
 }

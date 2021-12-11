@@ -29,3 +29,21 @@
   background: #888; 
   border-radius: 5px;
 }
+
+.ant-modal-header {
+  background-color: #1890ff;
+}
+
+.ant-modal-title {
+  color: #FDFDFE;
+  font: 30px Poppins;
+  font-weight: 600;
+}
+
+.ant-drawer-header {
+  background-color: #E3F6FC;
+}
+
+.ant-drawer-body{
+  background-color: #E3F6FC;
+}
