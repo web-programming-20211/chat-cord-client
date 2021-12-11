@@ -34,6 +34,22 @@
   background-color: #1890ff;
 }
 
+.ant-modal-body  {
+  background-color: #E3F6FC;
+}
+
+.ant-modal-footer  {
+  background-color: #E3F6FC;
+}
+
+.ant-input-group-wrapper .ant-input-group-addon {
+  border-radius: 14px 0px 0px 14px;
+}
+
+.ant-input-group-wrapper .ant-input {
+  border-radius: 0px 14px 14px 0px;
+}
+
 .ant-modal-title {
   color: #FDFDFE;
   font: 30px Poppins;

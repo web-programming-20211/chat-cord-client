@@ -1,6 +1,4 @@
 import { Input, Select, Space, Cascader } from 'antd';
-import { Icon } from '@iconify/react';
-import TuneIcon from '@mui/icons-material/Tune';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
@@ -63,9 +61,10 @@ const ChatHeader = ({ room }) => {
 
         tuneIcon: {
             cursor: 'pointer',
+            fontSize: '20px',
         },
 
-        roomInfo : {
+        roomInfo: {
             "& .antDrawerBody": {
                 backgroundColor: '#F2F6F7',
             },
@@ -99,10 +98,7 @@ const ChatHeader = ({ room }) => {
                 </div>
                 <div style={style.chatTool}>
                     <Input style={style.input} autoComplete='off' addonBefore={selectBefore} placeholder="Type user or a message you what to search..." />
-                    <div><TuneIcon style={style.tuneIcon} color='red' /></div>
                 </div>
-                
-
                 <Drawer title="Room Info" style={style.roomInfo} placement="right" onClose={onClose} visible={visible}>
                     <p>Some contents...</p>
                     <p>Some contents...</p>
@@ -111,7 +107,7 @@ const ChatHeader = ({ room }) => {
 
             </div>
 
-            
+
         </>
     )
 }
