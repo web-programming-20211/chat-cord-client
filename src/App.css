@@ -34,11 +34,7 @@
   background-color: #1890ff;
 }
 
-.ant-modal-body  {
-  background-color: #E3F6FC;
-}
-
-.ant-modal-footer  {
+.ant-modal-body, .ant-modal-footer, .ant-drawer-header, .ant-drawer-body{
   background-color: #E3F6FC;
 }
 
@@ -54,12 +50,4 @@
   color: #FDFDFE;
   font: 30px Poppins;
   font-weight: 600;
-}
-
-.ant-drawer-header {
-  background-color: #E3F6FC;
-}
-
-.ant-drawer-body{
-  background-color: #E3F6FC;
 }
