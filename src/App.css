@@ -29,3 +29,25 @@
   background: #888; 
   border-radius: 5px;
 }
+
+.ant-modal-header {
+  background-color: #1890ff;
+}
+
+.ant-modal-body, .ant-modal-footer, .ant-drawer-header, .ant-drawer-body{
+  background-color: #E3F6FC;
+}
+
+.ant-input-group-wrapper .ant-input-group-addon {
+  border-radius: 14px 0px 0px 14px;
+}
+
+.ant-input-group-wrapper .ant-input {
+  border-radius: 0px 14px 14px 0px;
+}
+
+.ant-modal-title {
+  color: #FDFDFE;
+  font: 30px Poppins;
+  font-weight: 600;
+}
