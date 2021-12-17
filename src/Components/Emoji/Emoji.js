@@ -1,10 +1,7 @@
 import EmojiEmotionsOutlinedIcon from '@material-ui/icons/EmojiEmotionsOutlined';
-import ThumbUpIcon from '@material-ui/icons/ThumbUp';
-import ThumbDownAltIcon from '@material-ui/icons/ThumbDownAlt';
-import FavoriteIcon from '@material-ui/icons/Favorite';
 import { useState } from 'react'
 
-const Emoji = ({dialog, react}) => {
+const Emoji = ({ dialog, react, self }) => {
     const [enter, setEnter] = useState(false)
     const [show, setShow] = useState(false)
 
@@ -14,25 +11,24 @@ const Emoji = ({dialog, react}) => {
             borderRadius: '50%',
             padding: '1px',
             cursor: 'pointer',
-            transition: 'background 300ms',
-            marginRight: '5px',
+            transition: 'background 300ms ease-out',
         },
 
-        emojiList: {
+        emojiList: {  
+            display: 'flex',
             position: 'absolute',
-            bottom: 45,
-            // top: 0,
+            bottom: '25px',
+            right: self ? '-5px' : 'none',
+            flexDirection: self ? 'row' : 'row-reverse',
         },
 
-        emojiItem: {
-            cursor: 'pointer',
-            fontSize: '28px',
-            paddingRight: 5,
+        allEmoji: { 
+            position: 'relative',   
         }
     }
 
     const setEmoji = () => {
-        if(show)
+        if (show)
             setShow(false)
         else
             setShow(true)
@@ -43,20 +39,29 @@ const Emoji = ({dialog, react}) => {
     }
 
     return (
-        <div className="emoji" onMouseLeave={() => setShow(false)}>
+        <div  style={style.allEmoji} onMouseLeave={() => setShow(false)}>
             {
                 show && <div style={style.emojiList}>
-                <ThumbUpIcon style={style.emojiItem}  color='primary' onClick={() => reaction(1)}></ThumbUpIcon>
-                <ThumbDownAltIcon style={style.emojiItem} color='primary' onClick={() => reaction(2)}></ThumbDownAltIcon>
-                <FavoriteIcon style={{paddingRight: 5, fontSize: '28px', cursor: 'pointer'}} color='secondary' onClick={() => reaction(3)}></FavoriteIcon>
+                    <div style={{fontSize: '20px', cursor:'pointer'}} onClick={() => reaction(1)}>❤️</div>
+                    <div style={{fontSize: '20px', cursor:'pointer'}} onClick={() => reaction(2)}>😂</div>
+                    <div style={{fontSize: '20px', cursor:'pointer'}} onClick={() => reaction(3)}>😮</div>
+                    <div style={{fontSize: '20px', cursor:'pointer'}} onClick={() => reaction(4)}>😢</div>
+                    <div style={{fontSize: '20px', cursor:'pointer'}} onClick={() => reaction(5)}>😠</div>
+                    <div style={{fontSize: '20px', cursor:'pointer'}} onClick={() => reaction(6)}>👍</div>
                 </div>
             }
-            <EmojiEmotionsOutlinedIcon 
-                style={style.emoji} 
+            <div style={style.emoji}
+                onMouseEnter={() => setEnter(true)}
+                onMouseLeave={() => setEnter(false)}
+                onClick={() => setEmoji()}>
+
+            </div>
+            {/* <EmojiEmotionsOutlinedIcon
+                style={style.emoji}
                 onMouseEnter={() => setEnter(true)}
                 onMouseLeave={() => setEnter(false)}
                 onClick={() => setEmoji()}
-            ></EmojiEmotionsOutlinedIcon>
+            ></EmojiEmotionsOutlinedIcon> */}
         </div>
     )
 }

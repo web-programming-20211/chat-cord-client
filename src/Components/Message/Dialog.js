@@ -16,7 +16,7 @@ const Icons = ({ reactions, self }) => {
             position: 'absolute',
             right: self && 70,
             left: !self && 70,
-            bottom: 15,
+            top: 59,
             borderRadius: '25px',
             backgroundColor: '#aaa',
             paddingLeft: 5,
@@ -68,10 +68,11 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
 
         avatar: {
             position: 'relative',
-            marginLeft: self ? '10px' : '0px', 
-            marginRight: self ? '0px' : '10px',                     
+            marginLeft: self ? '10px' : '0px',
+            marginRight: self ? '0px' : '10px',
             marginTop: '5px',
-            background: `#${dialog.from.color}`
+            background: `#${dialog.from.color}`,
+            flexShrink: 0,
         },
 
         widget: {
@@ -129,10 +130,21 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
             marginLeft: self ? '0px' : '10px',
         },
 
-        dialogDivInfoMessage : {
+        // dialogDivInfoMessageAndFiles : {
+        //     display: 'flex',
+        //     flexDirection: 'row',
+        // },
+
+        dialogDivInfoMessage: {
             display: 'flex',
             flexDirection: self ? 'row-reverse' : 'row',
             margin: '0xp',
+        },
+
+        dialogDivInfoFiles: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: self ? 'flex-end' : 'flex-start',
         }
     }
 
@@ -204,9 +216,9 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
     }, [])
 
     return (
-        <div style={style.dialogDiv}  onMouseEnter={() => setShowTime(true)} onMouseLeave={() => setShowTime(false)}>
-            {!self && <Avatar size={60}style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
-            {self && <Avatar size={60}style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
+        <div style={style.dialogDiv} onMouseEnter={() => setShowTime(true)} onMouseLeave={() => setShowTime(false)}>
+            {!self && <Avatar size={60} style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
+            {self && <Avatar size={60} style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
             <div style={style.container} onMouseEnter={() => setWidget(true)} onMouseLeave={() => setWidget(false)}>
                 {self && <div style={style.dialogDivInfoNameTime}>
                     <div style={style.dialogDivInfoName}>{dialog.from.fullname}</div>
@@ -216,11 +228,13 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
                     <div style={style.dialogDivInfoName}>{dialog.from.fullname}</div>
                     <div style={style.dialogDivInfoTime}>{moment(dialog.createdAt).calendar()}</div>
                 </div>}
+                {/* <div style={style.dialogDivInfoMessageAndFiles}> */}
+
                 <div style={style.dialogDivInfoMessage}>
                     <p style={style.bubble}>{dialog.content}</p>
                     <Icons reactions={reactions} self={self} />
                     <div style={style.widget}>
-                        <Emoji dialog={dialog} react={react}></Emoji>
+                        <Emoji dialog={dialog} react={react} self={self}></Emoji>
                         <DeleteIcon
                             style={style.deleteIcon}
                             onMouseEnter={() => setEnter(true)}
@@ -229,6 +243,38 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
                         >
                         </DeleteIcon>
                     </div>
+                </div>
+
+                <div style={style.dialogDivInfoFiles}>
+                    {
+                        dialog.urls.length > 0 && dialog.urls.map((url, index) => {
+                            let format = url.split('.').pop().split('?')[0]
+                            if (format === 'mp4') {
+                                return(
+                                <video key={index} style={{ width: '30%', marginBottom: '10px' }} controls>
+                                    <source src={url} type="video/mp4" />
+                                </video>
+                                )
+                            } else if (format === 'pdf') {
+                                return(
+                                    <a style={{display:'flex', justifyContent:'flex-end', alignItems:'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
+                                        <img src='pdf_file_icon.png' style={{ width: '5%', marginBottom: '10px', marginRight: '10px' }} />
+                                        <p>{url.split('%2F').pop().split('?')[0]}</p>
+                                    </a>
+                                )
+                            } else if (format === 'docx') {
+                                return(
+                                    <a style={{display:'flex' , justifyContent:'flex-end', alignItems:'center'}} key={index} href={url} target="_blank" rel="noopener noreferrer">
+                                        <img src='docx_file_icon.png' style={{ width: '9%', marginBottom: '10px', marginRight: '10px' }} />
+                                        <p>{url.split('%2F').pop().split('?')[0]}</p>
+                                    </a>
+                                )
+                            }
+                            else if (format === 'jpg' || format === 'png' || format === 'jpeg') {
+                                return <img key={index} src={url} style={{ width: '30%', marginBottom: '10px' }} />
+                            }
+                        })
+                    }
                 </div>
             </div>
         </div>
