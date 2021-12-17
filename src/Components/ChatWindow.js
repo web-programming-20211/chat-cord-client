@@ -28,8 +28,11 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
 
     }
 
-    const dialogsUpdate = (message) => {
-        socket.emit('chat', message, Cookies.get('userId'), room._id)
+    const dialogsUpdate = (message, urls) => {
+        console.log(urls)        
+        console.log(message)
+
+        socket.emit('chat', message, urls, Cookies.get('userId'), room._id)
     }
 
     const deleteMessage = (dialog) => {

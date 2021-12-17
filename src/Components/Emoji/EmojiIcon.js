@@ -1,7 +1,3 @@
-import ThumbUpIcon from '@material-ui/icons/ThumbUp';
-import ThumbDownAltIcon from '@material-ui/icons/ThumbDownAlt';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-
 const EmojiIcon = ({emojiIndex}) => {
     const style = {
         marginRight: '2px',
@@ -12,13 +8,17 @@ const EmojiIcon = ({emojiIndex}) => {
         switch (emojiIndex)
         {
             case 1:
-                return <ThumbUpIcon style={style} color='primary'></ThumbUpIcon>
-            
+                return <div style={style}>❤️</div>
             case 2:
-                return <ThumbDownAltIcon style={style} color='primary'></ThumbDownAltIcon>
-
-            default:
-                return <FavoriteIcon style={style} color='secondary'></FavoriteIcon>
+                return <div style={style}>😂</div>
+            case 3:
+                return <div style={style}>😮</div>
+            case 4:
+                return <div style={style}>😢</div>
+            case 5:
+                return <div style={style}>😠</div>
+            case 6:
+                return <div style={style}>👍</div>
         }
     }
     return (
