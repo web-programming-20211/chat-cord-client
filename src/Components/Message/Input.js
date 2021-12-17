@@ -60,8 +60,9 @@ const Input = ({ setDialogs }) => {
         },
 
         icons: {
+            fontSize: '30px',
             position: 'absolute',
-            left: -40,
+            left: -50,
             cursor: 'pointer',
         }
     }
@@ -96,47 +97,8 @@ const Input = ({ setDialogs }) => {
             Promise.all(promises).then((urls) => {
                 setUrls((prevState) => [...prevState, urls])
                 setDialogs(message, urls)
-                // setFiles([])
-                // setMessage('')
-                // setShowEmoji(false)
-                // setDialogs((prevState) => [...prevState, { message, urls, self: true }])
             })
         }
-        //         const uploadTask = storage.ref(`files/${file.name}`).put(file)
-        //         promises.push(uploadTask)
-        //         uploadTask.on(
-        //             "state_changed",
-        //             (snapshot) => {},
-        //             (error) => {
-        //                 console.log(error)
-        //             },
-        //             async () => {
-        //                 const url = await storage.ref("files").child(file.name).getDownloadURL()
-        //                 setUrls((prevState) => [...prevState, url])
-        //             }
-        //             // async () => {
-        //             //     await storage
-        //             //         .ref("files/")
-        //             //         .child(file.name)
-        //             //         .getDownloadURL()
-        //             //         .then((url) => {
-        //             //             setUrls((prevState) => [...prevState, url]);
-        //             //         })
-        //             // }
-        //         )
-        //     })
-
-        //     Promise.all(promises)
-        //         .then(async () => {
-        //             console.log(urls)
-        //             await setDialogs(message, urls)
-        //             // setMessage('')
-        //             // setUrls([])
-        //             // setFiles([])
-        //         })
-        //         .catch((err) => console.log(err));
-        // }
-
     }
 
     return (
@@ -159,15 +121,7 @@ const Input = ({ setDialogs }) => {
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position='end'>
-                                <InsertEmoticonIcon
-                                    color='primary'
-                                    fontSize='large'
-                                    style={style.icons}
-                                    onClick={() => {
-                                        setShowEmoji(!showEmoji)
-                                    }}
-                                />
-
+                                <div style={style.icons} onClick={() => {setShowEmoji(!showEmoji)}}>😂</div>
                                 <SendIcon
                                     onClick={() => {
                                         sendMessage()
@@ -177,17 +131,7 @@ const Input = ({ setDialogs }) => {
                                     fontSize='large'
                                     style={style.send}
                                 />
-
                                 <input type="file" multiple onChange={handleChange} />
-
-                                {/*  <AttachFileIcon
-                                        type="file"
-                                        multiple
-                                        color='primary'
-                                        fontSize='large'
-                                        style={style.attach}
-                                    /> */}
-
                                 {showEmoji && (
                                     <div>
                                         <Picker
@@ -195,10 +139,7 @@ const Input = ({ setDialogs }) => {
                                             emojiSize={20} />
                                     </div>
                                 )}
-
-
                             </InputAdornment>
-
                         )
                     }}
                 />
