@@ -78,7 +78,7 @@ const Input = ({ setDialogs }) => {
     }
 
     const sendMessage = () => {
-        if (message.length > 0) {
+        if (message.length > 0 || files.length > 0) {
             const promises = []
             files.map((file) => {
                 const promise = new Promise((resolve, reject) => {
