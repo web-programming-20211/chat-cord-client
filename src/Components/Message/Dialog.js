@@ -13,10 +13,12 @@ import { Avatar } from 'antd';
 const Icons = ({ reactions, self }) => {
     const style = {
         icons: {
+            display: 'flex',
+
             position: 'absolute',
-            right: self && 70,
-            left: !self && 70,
-            top: 59,
+            right: self && 0,
+            left: !self && 0,
+            bottom: -9,
             borderRadius: '25px',
             backgroundColor: '#aaa',
             paddingLeft: 5,
@@ -54,15 +56,17 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
             marginRight: '20px',
             alignItems: 'flex-start',
             padding: '0px',
+            marginBottom: '30px',
         },
 
         bubble: {
             backgroundColor: self ? '#32a6b8' : '#c27f67',
             color: '#ffffff',
             padding: '5px 10px',
-            margin: '10px 0px 25px 0px',
+            margin: '0px',
+            // margin: '10px 0px 25px 0px',
             borderRadius: '25px',
-            maxWidth: '90%',
+            maxWidth: '100%',
             position: 'relative',
         },
 
@@ -76,12 +80,12 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
         },
 
         widget: {
-            padding: '10px',
-            margin: '10px 0px 15px 0px',
-            opacity: widget ? 1 : 0,
+            flexShrink: 0,
+            // opacity: widget ? 1 : 0,
             transition: 'opacity 250ms',
             display: 'flex',
             flexDirection: self ? 'row-reverse' : 'flex',
+            flexShrink: 0,
         },
 
         widgetItem: {
@@ -102,11 +106,13 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: self ? 'flex-end' : 'flex-start',
+            rowGap: '1em',
         },
 
         reply: {
             display: 'block',
         },
+
         dialogDivInfoNameTime: {
             display: 'flex',
             flexDirection: self ? 'row-reverse' : 'flex',
@@ -130,14 +136,16 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
             marginLeft: self ? '0px' : '10px',
         },
 
-        // dialogDivInfoMessageAndFiles : {
-        //     display: 'flex',
-        //     flexDirection: 'row',
-        // },
+        dialogDivInfoMessageWidget: {
+            display: 'flex',
+            flexDirection: self ? 'row-reverse' : 'flex',
+        },
 
         dialogDivInfoMessage: {
+            position: 'relative',
             display: 'flex',
-            flexDirection: self ? 'row-reverse' : 'row',
+            flexDirection: 'column',
+            alignItems: self ? 'flex-end' : 'flex-start',
             margin: '0xp',
         },
 
@@ -228,11 +236,45 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
                     <div style={style.dialogDivInfoName}>{dialog.from.fullname}</div>
                     <div style={style.dialogDivInfoTime}>{moment(dialog.createdAt).calendar()}</div>
                 </div>}
-                {/* <div style={style.dialogDivInfoMessageAndFiles}> */}
 
-                <div style={style.dialogDivInfoMessage}>
-                    <p style={style.bubble}>{dialog.content}</p>
-                    <Icons reactions={reactions} self={self} />
+                <div style={style.dialogDivInfoMessageWidget}>
+
+                    <div style={style.dialogDivInfoMessage}>
+                        {dialog.content && <p style={style.bubble}>{dialog.content}</p>}
+                        <Icons reactions={reactions} self={self} />
+                        <div style={style.dialogDivInfoFiles}>
+                            {
+                                dialog.urls.length > 0 && dialog.urls.map((url, index) => {
+                                    let format = url.split('.').pop().split('?')[0]
+                                    if (format === 'mp4') {
+                                        return (
+                                            <video key={index} style={{ width: '500px', marginBottom: '10px' }} controls>
+                                                <source src={url} type="video/mp4" />
+                                            </video>
+                                        )
+                                    } else if (format === 'pdf') {
+                                        return (
+                                            <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
+                                                <img src='pdf_file_icon.png' style={{ width: '50px', marginBottom: '10px', marginRight: '10px' }} />
+                                                <p>{url.split('%2F').pop().split('?')[0]}</p>
+                                            </a>
+                                        )
+                                    } else if (format === 'docx') {
+                                        return (
+                                            <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
+                                                <img src='docx_file_icon.png' style={{ width: '50px', marginBottom: '10px', marginRight: '10px' }} />
+                                                <p>{url.split('%2F').pop().split('?')[0]}</p>
+                                            </a>
+                                        )
+                                    }
+                                    else if (format === 'jpg' || format === 'png' || format === 'jpeg') {
+                                        return <img key={index} src={url} style={{ width: '500px', marginBottom: '10px' }} />
+                                    }
+                                })
+                            }
+                        </div>
+                    </div>
+
                     <div style={style.widget}>
                         <Emoji dialog={dialog} react={react} self={self}></Emoji>
                         <DeleteIcon
@@ -245,37 +287,6 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
                     </div>
                 </div>
 
-                <div style={style.dialogDivInfoFiles}>
-                    {
-                        dialog.urls.length > 0 && dialog.urls.map((url, index) => {
-                            let format = url.split('.').pop().split('?')[0]
-                            if (format === 'mp4') {
-                                return(
-                                <video key={index} style={{ width: '30%', marginBottom: '10px' }} controls>
-                                    <source src={url} type="video/mp4" />
-                                </video>
-                                )
-                            } else if (format === 'pdf') {
-                                return(
-                                    <a style={{display:'flex', justifyContent:'flex-end', alignItems:'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                        <img src='pdf_file_icon.png' style={{ width: '5%', marginBottom: '10px', marginRight: '10px' }} />
-                                        <p>{url.split('%2F').pop().split('?')[0]}</p>
-                                    </a>
-                                )
-                            } else if (format === 'docx') {
-                                return(
-                                    <a style={{display:'flex' , justifyContent:'flex-end', alignItems:'center'}} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                        <img src='docx_file_icon.png' style={{ width: '9%', marginBottom: '10px', marginRight: '10px' }} />
-                                        <p>{url.split('%2F').pop().split('?')[0]}</p>
-                                    </a>
-                                )
-                            }
-                            else if (format === 'jpg' || format === 'png' || format === 'jpeg') {
-                                return <img key={index} src={url} style={{ width: '30%', marginBottom: '10px' }} />
-                            }
-                        })
-                    }
-                </div>
             </div>
         </div>
     )
