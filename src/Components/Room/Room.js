@@ -1,10 +1,8 @@
 // import Avatar from '@material-ui/core/Avatar';
 import { makeStyles } from '@material-ui/core';
-import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import { useEffect, useState } from 'react';
 import { useMediaQuery } from 'react-responsive'
 import moment from 'moment';
-
 import { Avatar } from 'antd';
 import axios from 'axios';
 
