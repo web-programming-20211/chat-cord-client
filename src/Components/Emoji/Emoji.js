@@ -19,7 +19,7 @@ const Emoji = ({ dialog, react, self }) => {
             position: 'absolute',
             top: -16,
             right: self ? 2 : 'none',
-            flexDirection: self ? 'row' : 'row-reverse',
+            flexDirection: self ? 'row-reverse' : 'row',
         },
 
         allEmoji: { 
@@ -41,7 +41,7 @@ const Emoji = ({ dialog, react, self }) => {
     return (
         <div  style={style.allEmoji} onMouseLeave={() => setShow(false)}>
             {
-                true && <div style={style.emojiList}>
+                show && <div style={style.emojiList}>
                     <div style={{fontSize: '15px', cursor:'pointer'}} onClick={() => reaction(1)}>❤️</div>
                     <div style={{fontSize: '15px', cursor:'pointer'}} onClick={() => reaction(2)}>😂</div>
                     <div style={{fontSize: '15px', cursor:'pointer'}} onClick={() => reaction(3)}>😮</div>
