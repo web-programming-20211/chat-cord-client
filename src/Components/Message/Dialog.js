@@ -242,12 +242,12 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
                         {dialog.content && <p style={style.bubble}>{dialog.content}</p>}
                         <Icons reactions={reactions} self={self} />
                         <div style={style.dialogDivInfoFiles}>
-                            {
+                            {                                
                                 dialog.urls.length > 0 && dialog.urls.map((url, index) => {
                                     let format = url.split('.').pop().split('?')[0]
                                     if (format === 'mp4') {
                                         return (
-                                            <video key={index} style={{ width: '500px', marginBottom: '10px' }} controls>
+                                            <video key={index} onClick={(e) => {e.target.classList.toggle("zoom")}} style={{ width: '500px', marginBottom: '10px', transition:'1s' }} controls>
                                                 <source src={url} type="video/mp4" />
                                             </video>
                                         )
@@ -261,13 +261,13 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
                                     } else if (format === 'docx') {
                                         return (
                                             <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                <img src='docx_file_icon.png' style={{ width: '50px', marginBottom: '10px', marginRight: '10px' }} />
+                                                <img src='docx_file_icon.png' style={{ width: '50px', marginBottom: '10px', marginRight: '10px', }} />
                                                 <p>{url.split('%2F').pop().split('?')[0]}</p>
                                             </a>
                                         )
                                     }
                                     else if (format === 'jpg' || format === 'png' || format === 'jpeg') {
-                                        return <img key={index} src={url} style={{ width: '500px', marginBottom: '10px' }} />
+                                        return <img key={index} onClick={(e) => {e.target.classList.toggle("zoom")}} src={url} style={{ width: '500px', marginBottom: '10px', transition:'1s' }} />
                                     }
                                 })
                             }
