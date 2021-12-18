@@ -11,10 +11,10 @@ import { Avatar } from 'antd';
 
 
 const Icons = ({ reactions, self }) => {
+
     const style = {
         icons: {
             display: 'flex',
-
             position: 'absolute',
             right: self && 0,
             left: !self && 0,
@@ -27,13 +27,15 @@ const Icons = ({ reactions, self }) => {
     }
 
     return (
-        <div style={style.icons}>
-            {reactions.map((reaction) => {
-                if (reaction.from.length !== 0) {
-                    return <EmojiIcon key={reaction.reaction_type} emojiIndex={reaction.reaction_type}></EmojiIcon>
-                }
-                return null
-            })}
+        <div style={style.iconsInfo}>
+            <div style={style.icons}>
+                {reactions.map((reaction) => {
+                    if (reaction.from.length !== 0) {
+                        return <EmojiIcon key={reaction.reaction_type} emojiIndex={reaction.reaction_type}></EmojiIcon>
+                    }
+                    return null
+                })}
+            </div>
         </div>
     )
 }
@@ -45,6 +47,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
     const [reactions, setReaction] = useState([])
     const [self, setSelf] = useState(null)
     const [showTime, setShowTime] = useState(false)
+    const [selfAndCreator, setSelfAndCreator] = useState(null)
 
     const style = {
         dialogDiv: {
@@ -64,7 +67,6 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
             color: '#ffffff',
             padding: '5px 10px',
             margin: '0px',
-            // margin: '10px 0px 25px 0px',
             borderRadius: '25px',
             maxWidth: '100%',
             position: 'relative',
@@ -81,7 +83,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
 
         widget: {
             flexShrink: 0,
-            // opacity: widget ? 1 : 0,
+            opacity: widget ? 1 : 0,
             transition: 'opacity 250ms',
             display: 'flex',
             flexDirection: self ? 'row-reverse' : 'flex',
@@ -161,7 +163,6 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
         const index = cookie.indexOf('"')
         const new_cookie = cookie.slice(index + 1, cookie.length - 1)
 
-        //edit reactions array
         const tmp = [...reactions]
         let pre_react = 0
 
@@ -206,21 +207,20 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
             const cookie = Cookies.get('userId')
             const index = cookie.indexOf('"')
             setSelf(cookie.slice(index + 1, cookie.length - 1) === dialog.from.userId)
+            if (cookie.slice(index + 1, cookie.length - 1) === room.creator)
+                setSelfAndCreator(true)
         }
 
         return () => {
             socket.off('return-reaction')
         }
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dialog])
+
 
     useEffect(() => {
         axios.post('/reaction/retrieve', { id: dialog._id }, { withCredentials: true }).then(result => {
             setReaction(result.data.data)
         })
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (
@@ -238,7 +238,6 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
                 </div>}
 
                 <div style={style.dialogDivInfoMessageWidget}>
-
                     <div style={style.dialogDivInfoMessage}>
                         {dialog.content && <p style={style.bubble}>{dialog.content}</p>}
                         <Icons reactions={reactions} self={self} />
@@ -277,16 +276,17 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
 
                     <div style={style.widget}>
                         <Emoji dialog={dialog} react={react} self={self}></Emoji>
-                        <DeleteIcon
-                            style={style.deleteIcon}
-                            onMouseEnter={() => setEnter(true)}
-                            onMouseLeave={() => setEnter(false)}
-                            onClick={() => onDelete(dialog)}
-                        >
-                        </DeleteIcon>
+                        {(self || selfAndCreator) &&
+                            <DeleteIcon
+                                style={style.deleteIcon}
+                                onMouseEnter={() => setEnter(true)}
+                                onMouseLeave={() => setEnter(false)}
+                                onClick={() => onDelete(dialog, room.creator)}
+                            >
+                            </DeleteIcon>
+                        }
                     </div>
                 </div>
-
             </div>
         </div>
     )
