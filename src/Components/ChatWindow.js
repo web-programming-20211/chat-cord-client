@@ -15,6 +15,7 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
     const [dialogs, setDialogs] = useState([])
     const [currentRoom, setRoom] = useState(room)
     const [newMessage, setNewMessage] = useState(null)
+    const [userOnlines, setUserOnlines] = useState([])
 
     const style = {
         container: {
@@ -75,8 +76,8 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
             })
             setDialogs([...temp])
         })
-
         return () => {
+            // socket.off('logged')
             socket.off('your_new_message')
             socket.off('dialog-deleted')
         }
@@ -88,9 +89,25 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
         }
     }, [newMessage])
 
+    useEffect(() => {
+        socket.on('loggedIn', (users) => {
+            setUserOnlines([...users])
+        })
+
+        socket.on('loggedOut', (users) => {
+            setUserOnlines([...users])
+        })
+
+        return () => {
+            socket.off('loggedIn')
+            socket.off('loggedOut')
+        }
+
+    }, [userOnlines,socket])
+
     return (
         <div>
-            <ChatHeader room={room} dialogs={dialogs} />
+            <ChatHeader userOnlines={userOnlines} room={room} dialogs={dialogs} />
             <div>
                 <Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage} ></Dialogs>
                 <Input room={currentRoom} setDialogs={dialogsUpdate} socket={socket}></Input>
