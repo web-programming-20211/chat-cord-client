@@ -8,7 +8,7 @@ import { Icon } from '@iconify/react';
 const { TabPane } = Tabs;
 
 
-const ChatHeader = ({ room, dialogs }) => {
+const ChatHeader = ({ userOnlines, room, dialogs }) => {
     const [users, setUsers] = useState([])
     const [currentRoom, setRoom] = useState(room)
     const [visible, setVisible] = useState(false);
@@ -150,6 +150,7 @@ const ChatHeader = ({ room, dialogs }) => {
             gap: '10px',
         },
 
+
         leaveRoom: {
             display: 'flex',
             flexDirection: 'row',
@@ -177,6 +178,20 @@ const ChatHeader = ({ room, dialogs }) => {
             lineHeight: '18px',
             color: '#6588DE'
         },
+
+        avatar : {
+            position: 'relative',
+        },
+
+        dot : {
+            position: 'absolute',
+            bottom: '6px',
+            right: '3px',
+            height: '8px',
+            width: '8px',
+            borderRadius: '50%',
+            backgroundColor: '#46D362',
+        }
     }
 
 
@@ -288,13 +303,17 @@ const ChatHeader = ({ room, dialogs }) => {
                                     users?.map((user, index) => {
                                         return (
                                             <div key={index} style={style.member}>
-                                                <Avatar style={{ backgroundColor: '#' + user.color }} size={50}>{user.fullname?.toUpperCase()[0]}</Avatar>
+                                                <div style={style.avatar}>
+                                                    <Avatar style={{ backgroundColor: '#' + user.color }} size={50}>{user.fullname?.toUpperCase()[0]}</Avatar>
+                                                    {userOnlines.includes(user._id) && <span style={style.dot}></span>}
+                                                </div>
                                                 <p style={{ fontSize: '16px' }}>{user.fullname}</p>
                                             </div>
                                         )
                                     })
                                 }
                             </div>
+
                         </TabPane>
                     </Tabs>
                     <div style={style.leaveRoom}>
