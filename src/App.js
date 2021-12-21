@@ -42,9 +42,9 @@ function App() {
     left: {
       width: limit ? '15em' : '25%',
       float: 'left',
-      height: '100%',
+      // height: '100%',
       boxSizing: 'border-box',
-      background: '#E5E5E5',
+      // background: '#E5E5E5',
       // borderRight: '2px solid #4a336e'
     },
 
@@ -169,7 +169,7 @@ function App() {
     setPanel(true)
   }
 
-  useEffect( async () => {
+  useEffect(() => {
     const cookie = Cookies.get('userId')
     setLogin(cookie !== undefined)
     if (cookie !== undefined && !authenticated) {
@@ -185,7 +185,7 @@ function App() {
       setAuthenticated(true)
       let index = cookie.indexOf('"')
       let new_cookie = cookie.slice(index + 1, cookie.length - 1)
-      await socket.emit('login', new_cookie)
+      socket.emit('login', new_cookie)
     }
     socket.once('connected', () => setConnect(true))
   }, [user, rooms, authenticated])
@@ -208,15 +208,11 @@ function App() {
               {showSearchRoom && <SearchRoom currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} handleSearchRoom={setShowSearchRoom} />}
               {!showSearchRoom && <RoomsHeader joinRoom={joinRoom} findRoom={findRoom} handleSearchRoom={setShowSearchRoom}></RoomsHeader>}
               {!showSearchRoom && <RoomsList currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} lastMsgRoomId={lastMsgRoomId} setLastMsgRoomId={setLastMsgRoomId} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} />}
-
-
-              {/* <FindRoom roomId={roomId} setRoomId={setRoomId} findRoom={findRoom}></FindRoom> */}
             </div>
             {currentRoom ? <div style={style.right}>
               <ChatWindow socket={socket} room={currentRoom} rooms={rooms} setRooms={setRooms} setLastMsgRoomId={setLastMsgRoomId} leave={leaveRoom}></ChatWindow>
             </div> : <Guide></Guide>}
           </div>
-          {/* <RoomManage room={currentRoom} manageToggle={roomPanel} setPanel={setPanel}></RoomManage> */}
         </div> : <Login message={message} logIn={logIn} invalid={error} errorToggle={setError}></Login>)}
     </div>
   );

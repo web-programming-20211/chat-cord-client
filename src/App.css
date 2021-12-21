@@ -2,10 +2,10 @@
   width: 100%;
   height: 100%;
   /* background: linear-gradient(225deg, rgba(231,189,110,1) 0%, rgba(84,143,198,0.46) 100%); */
-  background: #E5E5E5;
+  /* background: #E5E5E5; */
   overflow-y: hidden;
   overflow-x: hidden;
-  padding: 10px;
+  /* padding: 10px; */
   font-family: Poppins;
 }
 

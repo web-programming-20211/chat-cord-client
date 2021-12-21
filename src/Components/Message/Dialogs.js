@@ -1,16 +1,16 @@
 import Dialog from './Dialog'
 import { useEffect, useRef } from 'react'
-import { padding } from '@mui/system'
+// import { padding } from '@mui/system'
 
 const Dialogs = ({socket, room, dialogs, deleteMessage}) => {
     const style = {
         display: 'block',
-        width: '98%',
+        width: '100%',
         height: '77vh',
-        backgroundColor: 'rgb(227, 246, 252)',
-        borderRadius: '14px',
+        // backgroundColor: 'rgb(227, 246, 252)',
+        // borderRadius: '14px',
         overflow: 'auto',
-        margin: '10px 20px',
+        margin: '10px 0px 0px 10px',
     }
 
     const MessEnding = useRef(null)

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { Icon } from '@iconify/react';
 import { Modal, Button, Form, Input, Switch } from 'antd';
 import { useState } from 'react';
@@ -16,11 +17,14 @@ const RoomsHeader = ({ joinRoom, findRoom, handleSearchRoom }) => {
     const style = {
         roomHeaderContainer: {
             display: 'flex',
+            justifyContent: 'space-around',
             alignItems: 'center',
             backgroundColor: '#E3F6FC',
-            borderRadius: '14px',
-            marginBottom: '10px',
-            marginLeft: '10px',
+            // borderRadius: '14px',
+            // marginBottom: '10px',
+            // marginLeft: '10px',
+            height: '10%',
+            padding: '10px',
             width: '100%',
         },
         input: {
