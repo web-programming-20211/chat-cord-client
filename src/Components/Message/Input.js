@@ -1,7 +1,9 @@
+/* eslint-disable array-callback-return */
+/* eslint-disable no-unused-vars */
 import SendIcon from '@material-ui/icons/Send'
-import AttachFileIcon from '@mui/icons-material/AttachFile'
-import ImageIcon from '@mui/icons-material/Image'
-import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon'
+// import AttachFileIcon from '@mui/icons-material/AttachFile'
+// import ImageIcon from '@mui/icons-material/Image'
+// import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon'
 import { useState } from 'react'
 import { useMediaQuery } from 'react-responsive'
 import { TextField, FormControl, InputAdornment } from "@material-ui/core"
@@ -10,6 +12,7 @@ import 'emoji-mart/css/emoji-mart.css'
 import { Picker } from 'emoji-mart'
 
 import { storage } from "../../firebase/index"
+import { Icon } from '@iconify/react'
 
 const Input = ({ setDialogs }) => {
     const [message, setMessage] = useState('')
@@ -23,10 +26,12 @@ const Input = ({ setDialogs }) => {
         input: {
             display: 'block',
             position: 'relative',
-            right: '-16px',
-            bottom: '16px',
-            borderSizing: 'border-box',
-            width: '105%',
+            // right: '-16px',
+            // bottom: '16px',
+            // borderSizing: 'border-box',
+            left: '10px',
+            top: '20px',
+            width: '108%',
         },
 
         textField: {
@@ -62,8 +67,18 @@ const Input = ({ setDialogs }) => {
         icons: {
             fontSize: '30px',
             position: 'absolute',
-            left: -50,
+            left: -45,
+            color: '#6082B6',
             cursor: 'pointer',
+        },
+
+        file: {
+            color: '#6082B6',
+            fontSize: '30px',
+            position: 'absolute',
+            cursor: 'pointer',
+            right: 45,
+            bottom: 14
         }
     }
 
@@ -121,7 +136,7 @@ const Input = ({ setDialogs }) => {
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position='end'>
-                                <div style={style.icons} onClick={() => {setShowEmoji(!showEmoji)}}>😂</div>
+                                <Icon icon="fluent:emoji-24-regular" style={style.icons} onClick={() => {setShowEmoji(!showEmoji)}}></Icon>
                                 <SendIcon
                                     onClick={() => {
                                         sendMessage()
@@ -131,9 +146,10 @@ const Input = ({ setDialogs }) => {
                                     fontSize='large'
                                     style={style.send}
                                 />
-                                <input type="file" multiple onChange={handleChange} />
+                                <label for="files"><Icon style={style.file} icon="akar-icons:folder" /></label>
+                                <input id="files" style={{ visibility: "hidden" }} type="file" onChange={handleChange} />
                                 {showEmoji && (
-                                    <div>
+                                    <div style={{ position: "fixed", bottom: "80px", left: "20%"}}>
                                         <Picker
                                             onSelect={handleEmojiSelect}
                                             emojiSize={20} />

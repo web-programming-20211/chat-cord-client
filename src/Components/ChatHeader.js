@@ -1,3 +1,6 @@
+/* eslint-disable jsx-a11y/alt-text */
+/* eslint-disable array-callback-return */
+/* eslint-disable no-unused-vars */
 import { Input, Select, Avatar, Drawer, Tabs } from 'antd';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -26,10 +29,10 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
             alignItems: 'center',
             padding: '50px',
             backgroundColor: '#6588DE',
-            borderRadius: '14px',
+            // borderRadius: '14px',
             height: '20px',
-            width: '98%',
-            margin: '10px 5px auto 20px'
+            width: '100%',
+            margin: '0px 0px 0px 10px'
         },
 
         chatInfo: {
@@ -242,7 +245,7 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
                                 <div style={style.mediaGrid}>
                                     {
                                         dialogs.map(dialog => {
-                                            return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
+                                            return dialog.urls.length > 0 && dialog.urls.map((url, index) =>{
                                                 let format = url.split('.').pop().split('?')[0]
                                                 if (format === 'jpg' || format === 'png' || format === 'jpeg') {
                                                     return <img src={url} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} />

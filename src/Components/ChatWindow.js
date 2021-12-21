@@ -1,15 +1,16 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import Input from "./Message/Input"
 import Dialogs from "./Message/Dialogs"
 import ChatHeader from "./ChatHeader"
 import axios from 'axios'
 import { useEffect, useState } from "react"
 import Cookies from "js-cookie"
-import Snackbar from '@material-ui/core/Snackbar'
-import MuiAlert from '@material-ui/lab/Alert'
+// import Snackbar from '@material-ui/core/Snackbar'
+// import MuiAlert from '@material-ui/lab/Alert'
 
-const Alert = (props) => {
-    return <MuiAlert elevation={6} variant='filled' {...props} />
-}
+// const Alert = (props) => {
+//     return <MuiAlert elevation={6} variant='filled' {...props} />
+// }
 
 const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) => {
     const [dialogs, setDialogs] = useState([])
@@ -17,16 +18,16 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
     const [newMessage, setNewMessage] = useState(null)
     const [userOnlines, setUserOnlines] = useState([])
 
-    const style = {
-        container: {
-            height: '100vh',
-            width: '90%',
-            background: '#E3F6FC',
-            borderRadius: '10px',
-            margin: '50px 50px 50px 30px'
-        },
+    // const style = {
+    //     container: {
+    //         height: '100vh',
+    //         width: '90%',
+    //         background: '#E3F6FC',
+    //         borderRadius: '10px',
+    //         margin: '50px 50px 50px 30px'
+    //     },
 
-    }
+    // }
 
     const dialogsUpdate = (message, urls) => {
         socket.emit('chat', message, urls, Cookies.get('userId'), room._id)

@@ -1,6 +1,6 @@
 import Avatar from '@material-ui/core/Avatar'
 import { makeStyles } from "@material-ui/core"
-import { useMediaQuery } from 'react-responsive'
+// import { useMediaQuery } from 'react-responsive'
 import { Icon } from '@iconify/react'
 
 const useStyles = makeStyles((theme) => ({
@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
 const UserArea = ({ user, logout }) => {
   const classes = useStyles()
 
-  const limit = useMediaQuery({ maxWidth: 1300 })
+  // const limit = useMediaQuery({ maxWidth: 1300 })
 
   const style = {
     userInformation: {
@@ -24,9 +24,9 @@ const UserArea = ({ user, logout }) => {
       height: '100px',
       width: '100%',
       backgroundColor: '#E3F6FC',
-      borderRadius: '14px',
-      margin: '10px',
-      marginLeft: '10px',
+      // borderRadius: '14px',
+      marginBottom: '10px',
+      // marginLeft: '10px',
     },
     avatar: {
       fontSize: 'xx-large',
