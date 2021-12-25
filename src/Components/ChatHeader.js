@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable array-callback-return */
 /* eslint-disable no-unused-vars */
-import { Input, Select, Avatar, Drawer, Tabs } from 'antd';
+import { Input, Select, Avatar, Drawer, Tabs, Space, Form, Switch, Button } from 'antd';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import copy from 'copy-to-clipboard';
@@ -15,12 +15,48 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
     const [users, setUsers] = useState([])
     const [currentRoom, setRoom] = useState(room)
     const [visible, setVisible] = useState(false);
+    const [updateVisible, setUpdateVisible] = useState(false);
+
     const showDrawer = () => {
         setVisible(true);
     };
     const onClose = () => {
         setVisible(false);
     };
+    const handleEditInfo = () => {
+        setUpdateVisible(!updateVisible);
+    }
+    // TODO
+    const handleUpdateInfo = () => {}
+    const handleUpdateRoomAvatar = () => {}
+
+    const UpdateRoomInfo = () => {
+        return (
+           <Form
+            labelCol={{ span: 10 }}
+            wrapperCol={{ span: 20 }}
+        >
+            <Form.Item label="Room name" name="room-name">
+                <Input defaultValue={room?.name} />
+            </Form.Item>
+            <Form.Item label="Description" name="room-description">
+                <Input defaultValue={room?.description}/>
+            </Form.Item>
+            <Form.Item label="Mode" name="mode">
+                <Switch checkedChildren="Private" unCheckedChildren="Public" />
+            </Form.Item>
+            <Form.Item>
+                <Button onClick={handleEditInfo} style={style.buttonUpdateDrawer} type="primary" danger>
+                    Cancel
+                </Button>
+                <Button onClick={handleUpdateInfo} style={style.buttonUpdateDrawer} type="primary" htmlType="submit">
+                    Update
+                </Button>
+            </Form.Item>
+        </Form> 
+        )
+        
+    }
 
     const style = {
         chatHeader: {
@@ -199,6 +235,27 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
         infoIcon: {
             position: 'relative',
             top: '5px'
+        },
+
+        buttonEditDrawer: {
+            border: 'none',
+            backgroundColor: '#E3F6FC',
+            color: '#6588DE'
+        },
+
+        buttonUpdateDrawer: {
+            position: 'relative',
+            left: '50%',
+            marginRight: '5px',
+        },
+
+        roomAvatarEdit: {
+            width: 'fit-content',
+            display: 'block',
+            margin: 'auto',
+            border: '4px solid #' + room.color,
+            borderRadius: '100px',
+            cursor: 'pointer',
         }
     }
 
@@ -235,99 +292,120 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
                 <div style={style.chatTool}>
                     <Input style={style.input} autoComplete='off' addonBefore={selectBefore} placeholder="Type user or a message you what to search..." />
                 </div>
-                <Drawer placement="right" onClose={onClose} visible={visible}>
+                <Drawer 
+                    placement="right" 
+                    onClose={onClose} 
+                    visible={visible} 
+                    extra={
+                        <Space>
+                          <button onClick={handleEditInfo} style={style.buttonEditDrawer}>Edit</button>
+                        </Space>
+                      }
+                >
                     <div style={style.roomInfo}>
                         <div style={style.roomTitle}>Room Info</div>
-                        <div style={style.roomAvatar}><Avatar size={200} src="https://joeschmoe.io/api/v1/random"></Avatar></div>
+                        {!updateVisible && <div style={style.roomAvatar}><Avatar size={200} src="https://joeschmoe.io/api/v1/random"></Avatar></div>}
+                        {updateVisible &&
+                            <div>
+                                <label style={style.roomAvatarEdit} for="files"><Avatar size={200} src="https://joeschmoe.io/api/v1/random"></Avatar></label>
+                                <input id="files" style={{ visibility: "hidden" }} type="file" onChange={handleUpdateRoomAvatar} />
+                            </div>
+                        }
+                        <div style={style.roomShortId} onClick={copyToClipboard}>{room?.shortId}</div>
                         <div style={style.roomName}>{room?.name}</div>
                         <div style={style.roomDescription}>{room?.description}</div>
-                        <div style={style.roomShortId} onClick={copyToClipboard}>{room?.shortId}</div>
                         <div style={style.line}></div>
                     </div>
-                    <Tabs style={{ marginBottom: '25px' }} defaultActiveKey="1">
-                        <TabPane tab="Image" key="1">
-                            <div style={style.media}>
-                                <div style={style.mediaGrid}>
-                                    {
-                                        dialogs.map(dialog => {
-                                            return dialog.urls.length > 0 && dialog.urls.map((url, index) =>{
-                                                let format = url.split('.').pop().split('?')[0]
-                                                if (format === 'jpg' || format === 'png' || format === 'jpeg') {
-                                                    return <img src={url} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} />
-                                                }
+                    {updateVisible ? 
+                        <UpdateRoomInfo /> 
+                        : 
+                        <Tabs style={{ marginBottom: '25px' }} defaultActiveKey="1">
+                            <TabPane tab="Image" key="1">
+                                <div style={style.media}>
+                                    <div style={style.mediaGrid}>
+                                        {
+                                            dialogs.map(dialog => {
+                                                return dialog.urls.length > 0 && dialog.urls.map((url, index) =>{
+                                                    let format = url.split('.').pop().split('?')[0]
+                                                    if (format === 'jpg' || format === 'png' || format === 'jpeg') {
+                                                        return <img src={url} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} />
+                                                    }
+                                                })
                                             })
-                                        })
-                                    }
+                                        }
+                                    </div>
                                 </div>
-                            </div>
-                        </TabPane>
-                        <TabPane tab="Videos" key="2">
-                            <div style={style.media}>
-                                <div style={style.mediaGrid}>
+                            </TabPane>
+                            <TabPane tab="Videos" key="2">
+                                <div style={style.media}>
+                                    <div style={style.mediaGrid}>
+                                        {
+                                            dialogs.map(dialog => {
+                                                return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
+                                                    let format = url.split('.').pop().split('?')[0]
+                                                    if (format === 'mp4') {
+                                                        return (
+                                                            <video key={index} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} controls>
+                                                                <source src={url} type="video/mp4" />
+                                                            </video>
+                                                        )
+                                                    }
+                                                })
+                                            })
+                                        }
+                                    </div>
+                                </div>
+                            </TabPane>
+                            <TabPane tab="Files" key="3">
+                                <div style={style.file}>
                                     {
                                         dialogs.map(dialog => {
                                             return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
                                                 let format = url.split('.').pop().split('?')[0]
-                                                if (format === 'mp4') {
+                                                if (format === 'pdf') {
                                                     return (
-                                                        <video key={index} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} controls>
-                                                            <source src={url} type="video/mp4" />
-                                                        </video>
+                                                        <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
+                                                            <p>{url.split('%2F').pop().split('?')[0]}</p>
+                                                        </a>
+                                                    )
+                                                } else if (format === 'docx') {
+                                                    return (
+                                                        <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
+                                                            <p>{url.split('%2F').pop().split('?')[0]}</p>
+                                                        </a>
                                                     )
                                                 }
                                             })
                                         })
                                     }
                                 </div>
-                            </div>
-                        </TabPane>
-                        <TabPane tab="Files" key="3">
-                            <div style={style.file}>
-                                {
-                                    dialogs.map(dialog => {
-                                        return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
-                                            let format = url.split('.').pop().split('?')[0]
-                                            if (format === 'pdf') {
-                                                return (
-                                                    <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                        <p>{url.split('%2F').pop().split('?')[0]}</p>
-                                                    </a>
-                                                )
-                                            } else if (format === 'docx') {
-                                                return (
-                                                    <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                        <p>{url.split('%2F').pop().split('?')[0]}</p>
-                                                    </a>
-                                                )
-                                            }
-                                        })
-                                    })
-                                }
-                            </div>
-                        </TabPane>
-                        <TabPane tab="Members" key="4">
-                            <div style={style.members}>
-                                {
-                                    users?.map((user, index) => {
-                                        return (
-                                            <div key={index} style={style.member}>
-                                                <div style={style.avatar}>
-                                                    <Avatar style={{ backgroundColor: '#' + user.color }} size={50}>{user.fullname?.toUpperCase()[0]}</Avatar>
-                                                    {userOnlines.includes(user._id) && <span style={style.dot}></span>}
+                            </TabPane>
+                            <TabPane tab="Members" key="4">
+                                <div style={style.members}>
+                                    {
+                                        users?.map((user, index) => {
+                                            return (
+                                                <div key={index} style={style.member}>
+                                                    <div style={style.avatar}>
+                                                        <Avatar style={{ backgroundColor: '#' + user.color }} size={50}>{user.fullname?.toUpperCase()[0]}</Avatar>
+                                                        {userOnlines.includes(user._id) && <span style={style.dot}></span>}
+                                                    </div>
+                                                    <p style={{ fontSize: '16px' }}>{user.fullname}</p>
                                                 </div>
-                                                <p style={{ fontSize: '16px' }}>{user.fullname}</p>
-                                            </div>
-                                        )
-                                    })
-                                }
-                            </div>
+                                            )
+                                        })
+                                    }
+                                </div>
 
-                        </TabPane>
-                    </Tabs>
-                    <div style={style.leaveRoom}>
-                        <Icon style={style.leaveRoomIcon} icon="pepicons:leave" />
-                        <p style={style.leaveRoomText}>Leave Room</p>
-                    </div>
+                            </TabPane>
+                        </Tabs>
+                    }
+                    {!updateVisible &&
+                        <div style={style.leaveRoom}>
+                            <Icon style={style.leaveRoomIcon} icon="pepicons:leave" />
+                            <p style={style.leaveRoomText}>Leave Room</p>
+                        </div>
+                    }
                 </Drawer>
             </div>
         </>

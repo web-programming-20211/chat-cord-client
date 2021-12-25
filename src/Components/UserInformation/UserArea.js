@@ -34,11 +34,11 @@ const UserArea = ({ user, logout }) => {
     // TODO: update user info
   }
 
-  const handleUpdateAvatar = () => {
+  const handleUpdateUserAvatar = () => {
     // TODO: update user avatar
   }
 
-  const ChangePassword = () => {
+  const UpdateUserInfo = () => {
     return (
       <Form 
         labelCol={{ span: 10 }}
@@ -167,7 +167,6 @@ const UserArea = ({ user, logout }) => {
       </div>
       <Drawer 
         placement="right" 
-        size='large'
         onClose={onClose} 
         visible={visible}
         extra={
@@ -182,13 +181,13 @@ const UserArea = ({ user, logout }) => {
           {updateVisible && 
             <div>
               <label style={style.userAvatarEdit} for="files"><UserAvatar size={200} src="https://joeschmoe.io/api/v1/random"></UserAvatar></label>
-              <input id="files" style={{ visibility: "hidden" }} type="file" onChange={handleUpdateAvatar} />
+              <input id="files" style={{ visibility: "hidden" }} type="file" onChange={handleUpdateUserAvatar} />
             </div>
           }
           <p>{user.username}</p>
           <p>{user.email}</p>
           {!updateVisible && <p style={style.userName}>{user.fullname}</p>}
-          {updateVisible ? <ChangePassword style={{ margin: '0px 500px' }} /> : null}
+          {updateVisible ? <UpdateUserInfo style={{ margin: '0px 500px' }} /> : null}
         </div>
       </Drawer>
       <Icon icon="ion:log-out-outline" style={{ fontSize: '30px', marginRight: '20px', marginLeft: '20px', cursor: 'pointer' }} onClick={logout} />
