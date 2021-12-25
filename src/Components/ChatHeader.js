@@ -194,6 +194,11 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
             width: '8px',
             borderRadius: '50%',
             backgroundColor: '#46D362',
+        },
+
+        infoIcon: {
+            position: 'relative',
+            top: '5px'
         }
     }
 
@@ -224,7 +229,7 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
         <>
             <div style={style.chatHeader}>
                 <div style={style.chatInfo} onClick={showDrawer}>
-                    <p style={style.chatName}>{room?.name}</p>
+                    <p style={style.chatName}>{room?.name} <Icon style={style.infoIcon} icon="ant-design:info-circle-outlined" /></p>
                     <p style={style.numberOfUser}>{users?.length + ' members'}</p>
                 </div>
                 <div style={style.chatTool}>
@@ -233,7 +238,7 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
                 <Drawer placement="right" onClose={onClose} visible={visible}>
                     <div style={style.roomInfo}>
                         <div style={style.roomTitle}>Room Info</div>
-                        <div style={style.roomAvatar}><Avatar size={100} src="https://joeschmoe.io/api/v1/random"></Avatar></div>
+                        <div style={style.roomAvatar}><Avatar size={200} src="https://joeschmoe.io/api/v1/random"></Avatar></div>
                         <div style={style.roomName}>{room?.name}</div>
                         <div style={style.roomDescription}>{room?.description}</div>
                         <div style={style.roomShortId} onClick={copyToClipboard}>{room?.shortId}</div>
