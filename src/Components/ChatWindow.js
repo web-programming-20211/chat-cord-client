@@ -108,7 +108,7 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
 
     return (
         <div>
-            <ChatHeader userOnlines={userOnlines} room={room} dialogs={dialogs} />
+            <ChatHeader userOnlines={userOnlines} room={room} dialogs={dialogs} leave={leave} />
             <div>
                 <Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage} ></Dialogs>
                 <Input room={currentRoom} setDialogs={dialogsUpdate} socket={socket}></Input>

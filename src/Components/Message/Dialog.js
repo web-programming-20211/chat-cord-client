@@ -48,6 +48,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
     const [self, setSelf] = useState(null)
     const [showTime, setShowTime] = useState(false)
     const [selfAndCreator, setSelfAndCreator] = useState(null)
+    const [fileNumber, setFileNumber] = useState(0)
 
     const style = {
         dialogDiv: {
@@ -152,9 +153,19 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
         },
 
         dialogDivInfoFiles: {
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: self ? 'flex-end' : 'flex-start',
+            display: 'grid',
+            gridTemplateColumns: fileNumber === 1 ? 'repeat(1, 1fr)' : fileNumber == 2 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
+            gap: '10px',
+        }, 
+
+        des : {
+            display: '-webkit-box',
+            WebkitLineClamp: 1,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            width: '150px',
+            workBreak: 'break-word',
         }
     }
 
@@ -223,6 +234,10 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
         })
     }, [])
 
+    useEffect(() => {
+        setFileNumber(dialog.urls.length)
+    }, [])
+
     return (
         <div style={style.dialogDiv} onMouseEnter={() => setShowTime(true)} onMouseLeave={() => setShowTime(false)}>
             {!self && <Avatar size={60} style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
@@ -242,12 +257,12 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
                         {dialog.content && <p style={style.bubble}>{dialog.content}</p>}
                         <Icons reactions={reactions} self={self} />
                         <div style={style.dialogDivInfoFiles}>
-                            {                                
+                            {
                                 dialog.urls.length > 0 && dialog.urls.map((url, index) => {
                                     let format = url.split('.').pop().split('?')[0]
                                     if (format === 'mp4') {
                                         return (
-                                            <video key={index} onClick={(e) => {e.target.classList.toggle("zoom")}} style={{ width: '500px', marginBottom: '10px', transition:'1s' }} controls>
+                                            <video key={index} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '500px', marginBottom: '10px', transition: '1s' }} controls>
                                                 <source src={url} type="video/mp4" />
                                             </video>
                                         )
@@ -255,21 +270,24 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
                                         return (
                                             <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
                                                 <img src='pdf_file_icon.png' style={{ width: '50px', marginBottom: '10px', marginRight: '10px' }} />
-                                                <p>{url.split('%2F').pop().split('?')[0]}</p>
+                                                <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
                                             </a>
                                         )
-                                    } else if (format === 'docx') {
+                                    } else if (format === 'docx' || format === 'doc') {
                                         return (
                                             <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
                                                 <img src='docx_file_icon.png' style={{ width: '50px', marginBottom: '10px', marginRight: '10px', }} />
-                                                <p>{url.split('%2F').pop().split('?')[0]}</p>
+                                                <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
                                             </a>
                                         )
                                     }
                                     else if (format === 'jpg' || format === 'png' || format === 'jpeg') {
-                                        return <img key={index} onClick={(e) => {e.target.classList.toggle("zoom")}} src={url} style={{ width: '500px', marginBottom: '10px', transition:'1s' }} />
+                                        return (
+                                            <img key={index} onClick={(e) => { e.target.classList.toggle("zoom") }} src={url} style={{ width: '100%', height: '150px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} />
+                                        )
                                     }
                                 })
+                                
                             }
                         </div>
                     </div>

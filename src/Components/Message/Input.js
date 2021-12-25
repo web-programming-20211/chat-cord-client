@@ -147,7 +147,7 @@ const Input = ({ setDialogs }) => {
                                     style={style.send}
                                 />
                                 <label for="files"><Icon style={style.file} icon="akar-icons:folder" /></label>
-                                <input id="files" style={{ visibility: "hidden" }} type="file" onChange={handleChange} />
+                                <input id="files" style={{ visibility: "hidden" }} type="file" multiple onChange={handleChange} />
                                 {showEmoji && (
                                     <div style={{ position: "fixed", bottom: "80px", left: "20%"}}>
                                         <Picker
