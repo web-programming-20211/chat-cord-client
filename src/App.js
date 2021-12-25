@@ -86,7 +86,7 @@ function App() {
   }
 
   const leaveRoom = async (id) => {
-    axios.post('/room/leave', { id: id }, { withCredentials: true }).then(result => {
+    axios.post('/room/' + id + '/leave', { withCredentials: true }).then(result => {
       const index = rooms.findIndex(room => room._id === id)
       if (index !== -1) {
         rooms.splice(index, 1)
@@ -98,14 +98,11 @@ function App() {
           }
           return true
         })
-        if (rooms.length !== 0)
-          setCurrentRoom(rooms[0])
-        else
-          setCurrentRoom({
-            _id: -1,
-            name: " ",
-            color: ''
-          })
+        setCurrentRoom({
+          _id: -1,
+          name: " ",
+          color: ''
+        })
       }
     })
 

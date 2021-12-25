@@ -11,7 +11,7 @@ import { Icon } from '@iconify/react';
 const { TabPane } = Tabs;
 
 
-const ChatHeader = ({ userOnlines, room, dialogs }) => {
+const ChatHeader = ({ userOnlines, room, dialogs, leave }) => {
     const [users, setUsers] = useState([])
     const [currentRoom, setRoom] = useState(room)
     const [visible, setVisible] = useState(false);
@@ -182,11 +182,11 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
             color: '#6588DE'
         },
 
-        avatar : {
+        avatar: {
             position: 'relative',
         },
 
-        dot : {
+        dot: {
             position: 'absolute',
             bottom: '6px',
             right: '3px',
@@ -194,6 +194,16 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
             width: '8px',
             borderRadius: '50%',
             backgroundColor: '#46D362',
+        },
+
+        des: {
+            display: '-webkit-box',
+            WebkitLineClamp: 1,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            width: '320px',
+            workBreak: 'break-word',
         }
     }
 
@@ -240,12 +250,12 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
                         <div style={style.line}></div>
                     </div>
                     <Tabs style={{ marginBottom: '25px' }} defaultActiveKey="1">
-                        <TabPane tab="Image" key="1">
+                        <TabPane tab="Images" key="1">
                             <div style={style.media}>
                                 <div style={style.mediaGrid}>
                                     {
                                         dialogs.map(dialog => {
-                                            return dialog.urls.length > 0 && dialog.urls.map((url, index) =>{
+                                            return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
                                                 let format = url.split('.').pop().split('?')[0]
                                                 if (format === 'jpg' || format === 'png' || format === 'jpeg') {
                                                     return <img src={url} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} />
@@ -285,13 +295,13 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
                                             if (format === 'pdf') {
                                                 return (
                                                     <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                        <p>{url.split('%2F').pop().split('?')[0]}</p>
+                                                        <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
                                                     </a>
                                                 )
                                             } else if (format === 'docx') {
                                                 return (
                                                     <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                        <p>{url.split('%2F').pop().split('?')[0]}</p>
+                                                        <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
                                                     </a>
                                                 )
                                             }
@@ -321,7 +331,11 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
                     </Tabs>
                     <div style={style.leaveRoom}>
                         <Icon style={style.leaveRoomIcon} icon="pepicons:leave" />
-                        <p style={style.leaveRoomText}>Leave Room</p>
+                        <p style={style.leaveRoomText} onClick={() => {
+                            onClose()
+                            leave(room._id)
+                        }
+                        }>Leave Room</p>
                     </div>
                 </Drawer>
             </div>
