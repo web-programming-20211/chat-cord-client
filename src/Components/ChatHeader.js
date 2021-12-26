@@ -11,10 +11,14 @@ import { Icon } from '@iconify/react';
 const { TabPane } = Tabs;
 
 
-const ChatHeader = ({ userOnlines, room, dialogs, leave }) => {
+const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => {
     const [users, setUsers] = useState([])
     const [currentRoom, setRoom] = useState(room)
     const [visible, setVisible] = useState(false);
+    const [pinnedMessage, setPinnedMessage] = useState(null);
+    const [showPinnedMessage, setShowPinnedMessage] = useState(false);
+
+
     const showDrawer = () => {
         setVisible(true);
     };
@@ -29,10 +33,27 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave }) => {
             alignItems: 'center',
             padding: '50px',
             backgroundColor: '#6588DE',
-            // borderRadius: '14px',
             height: '20px',
             width: '100%',
-            margin: '0px 0px 0px 10px'
+            margin: '0px 0px 0px 10px',
+            position: 'relative',
+        },
+
+        pinMessageContainer: {
+            opacity: showPinnedMessage || room?.pinnedMessages?.length > 0 ? 1 : 0,
+            position: 'absolute',
+            backgroundColor: '#E3F6FC',
+            bottom: '-67px',
+            left: '0px',
+            zIndex: '1',
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+        },
+
+        pinMessageIcon: {
+
         },
 
         chatInfo: {
@@ -131,7 +152,6 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave }) => {
         },
 
         file: {
-            // overflow: 'auto',
             display: 'flex',
             height: '400px',
             flexDirection: 'column',
@@ -223,6 +243,21 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave }) => {
             axios.get('/room/' + room?._id + '/members', { withCredentials: true }).then(res => {
                 setUsers(res.data.msg);
             })
+    }, [room])
+
+    useEffect(() => {
+        socket.on('new-pinned-message', (dialog, roomId, r) => {
+            if (roomId === room._id) {
+                if (r.pinnedMessages.length === 0)
+                    setShowPinnedMessage(false)
+                else {
+                    setShowPinnedMessage(true)
+                    setPinnedMessage(r.pinnedMessages.at(-1))
+                }
+                setIsPin(dialog.pinned)
+                console.log(dialog.pinned)
+            }
+        })
     }, [room])
 
     const copyToClipboard = () => {
@@ -338,6 +373,19 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave }) => {
                         }>Leave Room</p>
                     </div>
                 </Drawer>
+                <div style={style.pinMessageContainer}>
+                    <Icon style={style.pinMessageIcon} icon="bi:pin-angle-fill" />
+                    <div style={style.pinMessageInfo}>
+                        <div style={style.pinMessageTitle}>Pinned message</div>
+                        <div style={style.pinMessageContent}>
+                            <Avatar style={style.pinMessageAvatar} src="https://joeschmoe.io/api/v1/random"></Avatar>
+                            <div>
+                                <p style={style.pinMessageName}>{pinnedMessage ? pinnedMessage?.username : room?.pinnedMessages?.at(-1)?.username}</p>
+                                <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </>
     )

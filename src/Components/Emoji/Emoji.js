@@ -2,12 +2,10 @@ import EmojiEmotionsOutlinedIcon from '@material-ui/icons/EmojiEmotionsOutlined'
 import { useState } from 'react'
 
 const Emoji = ({ dialog, react, self }) => {
-    const [enter, setEnter] = useState(false)
     const [show, setShow] = useState(false)
 
     const style = {
         emoji: {
-            background: enter ? '#999999' : 'none',
             borderRadius: '50%',
             padding: '1px',
             cursor: 'pointer',
@@ -52,8 +50,6 @@ const Emoji = ({ dialog, react, self }) => {
             }
             <EmojiEmotionsOutlinedIcon
                 style={style.emoji}
-                onMouseEnter={() => setEnter(true)}
-                onMouseLeave={() => setEnter(false)}
                 onClick={() => setEmoji()}
             ></EmojiEmotionsOutlinedIcon>
         </div>
