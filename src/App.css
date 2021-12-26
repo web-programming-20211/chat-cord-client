@@ -6,7 +6,7 @@
   overflow-y: hidden;
   overflow-x: hidden;
   /* padding: 10px; */
-  font-family: Poppins;
+  font-family: 'Poppins', sans-serif;
 }
 
 .input-room input {
