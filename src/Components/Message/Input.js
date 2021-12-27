@@ -13,12 +13,15 @@ import { Picker } from 'emoji-mart'
 
 import { storage } from "../../firebase/index"
 import { Icon } from '@iconify/react'
+// import FileImage from '../../public/images/file.png'
+// import PreviewFile from '../assets/file.png'
 
 const Input = ({ setDialogs }) => {
     const [message, setMessage] = useState('')
     const [showEmoji, setShowEmoji] = useState(false)
     const [files, setFiles] = useState([]);
     const [urls, setUrls] = useState([]);
+    const [previewImage, setPreviewImage] = useState([{id: null, url: null, name: null, fileUrl: null}]);
 
     const limit = useMediaQuery({ maxWidth: 900 })
     const limit2 = useMediaQuery({ maxWidth: 600 })
@@ -32,10 +35,12 @@ const Input = ({ setDialogs }) => {
             left: '10px',
             top: '20px',
             width: '108%',
+           
         },
 
         textField: {
             width: limit2 ? '60%' : limit ? '70%' : '90%',
+            // width: '90%',
             fontSize: 'x-large',
             outline: 'none',
             paddingLeft: '20px',
@@ -78,16 +83,108 @@ const Input = ({ setDialogs }) => {
             position: 'absolute',
             cursor: 'pointer',
             right: 45,
+            // left: 12,
             bottom: 14
+        },
+
+        fileImage: {
+            color: '#6082B6',
+            fontSize: '30px',
+            position: 'absolute',
+            cursor: 'pointer',
+            right: 50,
+            // left: 12,
+            bottom: 14
+        },
+
+        preview: {
+            zIndex: 1,
+            position: 'absolute',
+            width: '100%',
+            height: '200px',
+            right: '1px',
+            bottom: '60px',
+            background: '#6588DE',
+            boxShadow: '0px 8px 40px rgba(0, 72, 251, 0.3)',
+            borderRadius: '14px',
+            padding: '20px',
+            display: 'flex',
+            // justifyContent: 'center',
+            alignItems: 'center',
+        },
+
+        thumbnail: {
+            width: '100px',
+            height: '100px',
+            borderRadius: '10px'
+        },
+
+        deletePreviewIcon: {
+            color: 'red',
+            fontSize: '20px',
+            cursor: 'pointer',
+            position: 'relative',
+            top: '-56px',
+        },
+
+        fileName: {
+            position: 'relative',
+            left: '50px',
+            top: '5px',
+            color: 'white'
+        },
+
+        addFile: {
+            display: 'grid',
+            placeItems: 'center',
+            position: 'relative',
+            bottom: 18,
+            left: 18,
+            width: '100px',
+            height: '100px',
+            borderRadius: '10px',
+            border: '1px dashed #F9FBFB',
+            boxSizing: 'border-box',
+            // bottom: '10px'
+        },
+
+        addIcon: {
+            fontSize: '50px',
+            color: '#F9FBFB',
         }
     }
 
     const handleEmojiSelect = (e) => { setMessage((message) => (message += e.native)) }
 
-    const handleChange = (e) => {
+    const deletePreview = (id) => {
+        setPreviewImage(previewImage.filter(item => item.id !== id))
+        // setPreviewFile(previewFile.filter(item => item.id !== id))
+        setFiles(files.filter(item => item.id !== id))
+    }
+    
+    const handleImageChange = (e) => {
+        // convert to base64
         for (let i = 0; i < e.target.files.length; i++) {
             const newFile = e.target.files[i]
+            console.log('newFile', newFile.type)
             newFile["id"] = Math.random()
+            let fileUrl = ''
+            let name = ''
+            // check file type is not image
+            if (newFile.type.split('/')[0] !== 'image') {
+                fileUrl = 'file.png'
+                name = `file ${i + 1}`
+            } else {
+                fileUrl = null
+                name = `image ${i + 1}`
+            }
+            
+
+            const reader = new FileReader()
+            reader.readAsDataURL(newFile)
+            reader.onloadend = () => {
+                setPreviewImage((prevState) => [...prevState, { id: newFile["id"], url: reader.result, name, fileUrl}])
+            }
             setFiles((prevState) => [...prevState, newFile])
         }
     }
@@ -98,7 +195,7 @@ const Input = ({ setDialogs }) => {
             files.map((file) => {
                 const promise = new Promise((resolve, reject) => {
                     const metadata = {
-                        contentType: file.type
+                        contentType: file.type 
                     }
                     const storageRef = storage.ref(`files/${file.name}`)
                     storageRef.put(file, metadata).then((snapshot) => {
@@ -114,6 +211,31 @@ const Input = ({ setDialogs }) => {
                 setDialogs(message, urls)
             })
         }
+        // setPreviewFile([])
+        setPreviewImage([])
+        setFiles([])
+    }
+    const PreviewSelectedFiles = () => {
+        if (previewImage) {
+            return (
+                <div style={style.preview}>
+                    {previewImage.map((item) => {
+                        return (
+                            <div key={item.id}>
+                                <Icon onClick={() => deletePreview(item.id)} style={style.deletePreviewIcon} icon="ep:circle-close" />
+                                <img style={style.thumbnail} src={item.fileUrl ? item.fileUrl : item.url} alt="thumb" />
+                                <p style={style.fileName}>{item.name}</p>
+                                
+                            </div>
+                        )
+                    })}
+                    <div style={style.addFile}>
+                        <label htmlFor="files"><Icon style={style.addIcon} icon="carbon:add-alt" /></label>
+                    </div>
+                </div>
+            )
+        }
+        
     }
 
     return (
@@ -136,7 +258,6 @@ const Input = ({ setDialogs }) => {
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position='end'>
-                                <Icon icon="fluent:emoji-24-regular" style={style.icons} onClick={() => {setShowEmoji(!showEmoji)}}></Icon>
                                 <SendIcon
                                     onClick={() => {
                                         sendMessage()
@@ -146,8 +267,12 @@ const Input = ({ setDialogs }) => {
                                     fontSize='large'
                                     style={style.send}
                                 />
-                                <label for="files"><Icon style={style.file} icon="akar-icons:folder" /></label>
-                                <input id="files" style={{ visibility: "hidden" }} type="file" multiple onChange={handleChange} />
+                                <Icon icon="fluent:emoji-24-regular" style={style.icons} onClick={() => {setShowEmoji(!showEmoji)}}></Icon>
+                                <label htmlFor="files"><Icon style={style.fileImage} icon="akar-icons:image" /></label>
+                                <input id="files" style={{ visibility: "hidden" }} type="file" multiple onChange={handleImageChange} />
+                                {/* <label htmlFor="files"><Icon style={style.file} icon="eva:attach-fill" /></label>
+                                <input id="files" style={{ visibility: "hidden" }} type="file" accept=".pdf, .txt, .docx" multiple onChange={handleFileChange} /> */}
+                                {files.length > 0 && <PreviewSelectedFiles />}
                                 {showEmoji && (
                                     <div style={{ position: "fixed", bottom: "80px", left: "20%"}}>
                                         <Picker
