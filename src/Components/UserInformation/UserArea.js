@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core"
 // import { useMediaQuery } from 'react-responsive'
 import { Icon } from '@iconify/react'
 import { useState } from 'react'
-import {Modal, Form, Input} from 'antd'
+import {Modal, Form, Input, Avatar as UserAvatar} from 'antd'
 
 const useStyles = makeStyles((theme) => ({
   large: {
@@ -22,7 +22,7 @@ const UserArea = ({ user, logout }) => {
 
   // TODO: update user info
   const handleUpdateUserInfo = () => {}
-
+  const handleUpdateUserAvatar = () => {}
   // const limit = useMediaQuery({ maxWidth: 1300 })
 
   const style = {
@@ -69,6 +69,15 @@ const UserArea = ({ user, logout }) => {
       color: '#FFFFFF',
       fontSize: '10px',
 
+    },
+
+    userAvaterEdit: {
+      width: 'fit-content',
+      display: 'block',
+      margin: 'auto',
+      border: '4px solid #' + user.color,
+      borderRadius: '100px',
+      cursor: 'pointer',
     }
   }
 
@@ -76,7 +85,14 @@ const UserArea = ({ user, logout }) => {
     <div style={style.userInformation}>
       <Avatar onClick={handleEditUserInfo} style={style.avatar} className={classes.large}>{user.fullname.toUpperCase()[0]}</Avatar>
       
+
       <Modal visible={updateVisible} closable={false} title="Update User Info" onCancel={handleEditUserInfo} onOk={handleUpdateUserInfo}>
+        {updateVisible &&
+            <div>
+                <label style={style.userAvaterEdit} for="files"><UserAvatar size={200} src="https://joeschmoe.io/api/v1/random"></UserAvatar></label>
+                <input id="files" style={{ visibility: "hidden" }} accept='image/*' type="file" onChange={handleUpdateUserAvatar} />
+            </div>
+        }
         <Form 
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}

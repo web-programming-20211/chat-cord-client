@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import copy from 'copy-to-clipboard';
 import { toast } from 'react-toastify'
 import { Icon } from '@iconify/react';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 
 const { TabPane } = Tabs;
 
@@ -256,6 +257,20 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
             border: '4px solid #' + room.color,
             borderRadius: '100px',
             cursor: 'pointer',
+        },
+
+        plusIconContainer: {
+            width: 55,
+            height: 55,
+            borderRadius: '50%',
+            border: '1px dashed #6ECB63',
+            display: 'grid',
+            placeItems: 'center',
+            backgroundColor: 'rgb(227, 246, 252)'
+        },
+
+        plusIcon: {
+            fontSize: '20px',
         }
     }
 
@@ -308,7 +323,7 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
                         {updateVisible &&
                             <div>
                                 <label style={style.roomAvatarEdit} for="files"><Avatar size={200} src="https://joeschmoe.io/api/v1/random"></Avatar></label>
-                                <input id="files" style={{ visibility: "hidden" }} type="file" onChange={handleUpdateRoomAvatar} />
+                                <input id="files" style={{ visibility: "hidden" }} accept='image/*' type="file" onChange={handleUpdateRoomAvatar} />
                             </div>
                         }
                         <div style={style.roomShortId} onClick={copyToClipboard}>{room?.shortId}</div>
@@ -382,6 +397,13 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
                             </TabPane>
                             <TabPane tab="Members" key="4">
                                 <div style={style.members}>
+                                    <Form>
+                                        <Form.List>
+                                            <Form.Item>
+                                                <Button style={style.plusIconContainer}><Icon style={style.plusIcon} icon="carbon:add" /></Button>
+                                            </Form.Item> 
+                                        </Form.List>
+                                    </Form>
                                     {
                                         users?.map((user, index) => {
                                             return (
