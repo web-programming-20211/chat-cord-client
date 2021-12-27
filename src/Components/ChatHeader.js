@@ -15,9 +15,9 @@ const { TabPane } = Tabs;
 const ChatHeader = ({ userOnlines, room, dialogs }) => {
     const [users, setUsers] = useState([])
     const [currentRoom, setRoom] = useState(room)
-    const [visible, setVisible] = useState(false);
-    const [updateVisible, setUpdateVisible] = useState(false);
-
+    const [visible, setVisible] = useState(false)
+    const [updateVisible, setUpdateVisible] = useState(false)
+    const user = []
     const showDrawer = () => {
         setVisible(true);
     };
@@ -181,6 +181,7 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
             flexDirection: 'column',
             alignItems: 'flex-start',
             gap: '10px',
+            overflowY: 'auto',
         },
 
         member: {
@@ -271,7 +272,17 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
 
         plusIcon: {
             fontSize: '20px',
+        },
+
+        removeIcon: {
+            fontSize: '18px',
+            color: '#E74C3C',
+        },
+
+        submitButton: {
+            borderRadius: '5px'
         }
+
     }
 
 
@@ -296,6 +307,15 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
         copy(room?.shortId)
         toast.success('Copied to clipboard')
     }
+
+    const onFinish = (values) => {
+        // get user email
+        for (let i = 0; i < values.usersList.length; i++) {
+            user.push(values.usersList[i].first)
+        }
+        // TODO: handle add user
+    }
+
 
     return (
         <>
@@ -397,12 +417,35 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
                             </TabPane>
                             <TabPane tab="Members" key="4">
                                 <div style={style.members}>
-                                    <Form>
-                                        <Form.List>
-                                            <Form.Item>
-                                                <Button style={style.plusIconContainer}><Icon style={style.plusIcon} icon="carbon:add" /></Button>
-                                            </Form.Item> 
+                                    <Form name="add user dynamic form" autoComplete="off" onFinish={onFinish}>
+                                        <Form.List name="usersList">
+                                            {(fields, { add, remove }) => (
+                                                <>
+                                                    {fields.map(({ key, name, fieldKey, ...restField }) => (
+                                                        <Space key={key} style={{ display: 'flex', marginBottom: 2 }} align="baseline">
+                                                            <Form.Item
+                                                            {...restField}
+                                                            name={[name, 'first']}
+                                                            fieldKey={[fieldKey, 'first']}
+                                                            rules={[{ type: 'email', required: true, message: 'Email is required!' }]}
+                                                            >
+                                                                <Input placeholder="Email" />
+                                                            </Form.Item>
+                                                            <Icon style={style.removeIcon} icon="gg:remove" onClick={() => remove(name)} />
+                                                            {/* <MinusCircleOutlined onClick={() => remove(name)} /> */}
+                                                        </Space>
+                                                    ))}
+                                                    <Form.Item>
+                                                        <Button onClick={() => add()} block style={style.plusIconContainer}><Icon style={style.plusIcon} icon="carbon:add" /></Button>
+                                                    </Form.Item>
+                                                </>
+                                            )}
                                         </Form.List>
+                                        <Form.Item>
+                                            <Button style={style.submitButton} type='primary' htmlType="submit">
+                                                Submit
+                                            </Button>
+                                        </Form.Item>
                                     </Form>
                                     {
                                         users?.map((user, index) => {
