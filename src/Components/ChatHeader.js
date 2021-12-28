@@ -1,6 +1,3 @@
-/* eslint-disable jsx-a11y/alt-text */
-/* eslint-disable array-callback-return */
-/* eslint-disable no-unused-vars */
 import { Input, Select, Avatar, Drawer, Tabs, Space, Form, Switch, Button } from 'antd';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -8,6 +5,7 @@ import copy from 'copy-to-clipboard';
 import { toast } from 'react-toastify'
 import { Icon } from '@iconify/react';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { storage } from "../firebase/index"
 
 const { TabPane } = Tabs;
 
@@ -18,7 +16,16 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
     const [visible, setVisible] = useState(false)
     const [updateVisible, setUpdateVisible] = useState(false)
     const user = []
+    const [roomMode, setRoomMode] = useState(room.isPrivate)
     const [roomAvatarPreview, setRoomAvatarPreview] = useState(null)
+    const [roomAvatar, setRoomAvatar] = useState()
+
+    const [roomUpdateInfo, setRoomUpdateInfo] = useState({
+        name: '',
+        description: '',
+        isPrivate: false,
+        avatar: '',
+    })
     const showDrawer = () => {
         setVisible(true);
     };
@@ -28,8 +35,7 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
     const handleEditInfo = () => {
         setUpdateVisible(!updateVisible);
     }
-    // TODO
-    const handleUpdateInfo = () => {}
+
     const handleUpdateRoomAvatar = (e) => {
         const newRoomAvatar = e.target.files[0]
         const reader = new FileReader()
@@ -37,34 +43,31 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
         reader.onloadend = () => {
             setRoomAvatarPreview(reader.result)
         }
+        setRoomAvatar(newRoomAvatar)
     }
 
-    const UpdateRoomInfo = () => {
-        return (
-           <Form
-            labelCol={{ span: 10 }}
-            wrapperCol={{ span: 20 }}
-        >
-            <Form.Item label="Room name" name="room-name">
-                <Input defaultValue={room?.name} />
-            </Form.Item>
-            <Form.Item label="Description" name="room-description">
-                <Input defaultValue={room?.description}/>
-            </Form.Item>
-            <Form.Item label="Mode" name="mode">
-                <Switch checkedChildren="Private" unCheckedChildren="Public" />
-            </Form.Item>
-            <Form.Item>
-                <Button onClick={handleEditInfo} style={style.buttonUpdateDrawer} type="primary" danger>
-                    Cancel
-                </Button>
-                <Button onClick={handleUpdateInfo} style={style.buttonUpdateDrawer} type="primary" htmlType="submit">
-                    Update
-                </Button>
-            </Form.Item>
-        </Form> 
-        )
-        
+
+    const handleUpdateRoomInfo = async () => {
+        let roomUpdateInfo_ = roomUpdateInfo
+        if (roomAvatar) {
+            const metadata = {
+                contentType: roomAvatar.type
+            }
+            const storageRef = storage.ref(`roomAvatars/${roomAvatar.name}`)
+            const snapshot = await storageRef.put(roomAvatar, metadata)
+            const url = await snapshot.ref.getDownloadURL()
+            roomUpdateInfo_.avatar = url
+        }
+        try {
+            console.log(roomUpdateInfo_)
+            const update = await axios.put(`/room/${room._id}`, roomUpdateInfo_, { withCredentials: true })
+            toast.success(update?.data?.msg)
+        } catch (err) {
+            toast.error(`${err?.response?.data?.msg}`)
+        }
+        setRoomAvatarPreview(roomUpdateInfo.avatar)
+        setRoomAvatar(null)
+        setUpdateVisible(false)
     }
 
     const style = {
@@ -131,7 +134,7 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
         roomAvatar: {
             marginBottom: '20px',
             border: '4px solid #' + room.color,
-            borderRadius: '100px',
+            borderRadius: '115px',
         },
 
         roomName: {
@@ -228,11 +231,11 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
             color: '#6588DE'
         },
 
-        avatar : {
+        avatar: {
             position: 'relative',
         },
 
-        dot : {
+        dot: {
             position: 'absolute',
             bottom: '6px',
             right: '3px',
@@ -250,7 +253,8 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
         buttonEditDrawer: {
             border: 'none',
             backgroundColor: '#E3F6FC',
-            color: '#6588DE'
+            color: '#6588DE',
+            cursor: 'pointer',
         },
 
         buttonUpdateDrawer: {
@@ -264,7 +268,7 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
             display: 'block',
             margin: 'auto',
             border: '4px solid #' + room.color,
-            borderRadius: '100px',
+            borderRadius: '115px',
             cursor: 'pointer',
         },
 
@@ -335,22 +339,22 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
                 <div style={style.chatTool}>
                     <Input style={style.input} autoComplete='off' addonBefore={selectBefore} placeholder="Type user or a message you what to search..." />
                 </div>
-                <Drawer 
-                    placement="right" 
-                    onClose={onClose} 
-                    visible={visible} 
+                <Drawer
+                    placement="right"
+                    onClose={onClose}
+                    visible={visible}
                     extra={
                         <Space>
-                          <button onClick={handleEditInfo} style={style.buttonEditDrawer}>Edit</button>
+                            <button onClick={handleEditInfo} style={style.buttonEditDrawer}>Edit</button>
                         </Space>
-                      }
+                    }
                 >
                     <div style={style.roomInfo}>
                         <div style={style.roomTitle}>Room Info</div>
-                        {!updateVisible && <div style={style.roomAvatar}><Avatar size={200} src="https://joeschmoe.io/api/v1/random"></Avatar></div>}
+                        {!updateVisible && <div style={style.roomAvatar}><Avatar size={200} src={room.avatar}></Avatar></div>}
                         {updateVisible &&
                             <div>
-                                <label style={style.roomAvatarEdit} htmlFor="roomAvatar"><Avatar size={200} src={roomAvatarPreview ? roomAvatarPreview : "https://joeschmoe.io/api/v1/random"}></Avatar></label>
+                                <label style={style.roomAvatarEdit} htmlFor="roomAvatar"><Avatar size={200} src={roomAvatarPreview ? roomAvatarPreview : room.avatar}></Avatar></label>
                                 <input id="roomAvatar" style={{ visibility: "hidden" }} accept='image' type="file" onChange={handleUpdateRoomAvatar} />
                             </div>
                         }
@@ -359,16 +363,48 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
                         <div style={style.roomDescription}>{room?.description}</div>
                         <div style={style.line}></div>
                     </div>
-                    {updateVisible ? 
-                        <UpdateRoomInfo /> 
-                        : 
+                    {updateVisible ?
+                        <Form
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 20 }}
+                            onFinish={handleUpdateRoomInfo}
+                        >
+                            <Form.Item label="Room name" rules={[
+                                {
+                                    required: true,
+                                    message: 'Please input room name!'
+                                },
+                            ]}>
+                                <Input defaultValue={room.name} onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, name: e.target.value })} />
+                            </Form.Item>
+
+                            <Form.Item label="Description" rules={[
+                                {
+                                    required: true,
+                                    message: 'Please input room description!'
+                                },
+                            ]}>
+                                <Input defaultValue={room.description} onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, description: e.target.value })} />
+                            </Form.Item>
+
+                            <Form.Item label="Mode">
+                                <Switch defaultChecked={room.isPrivate} checkedChildren="Private" unCheckedChildren="Public" onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, isPrivate: !roomMode })} />
+                            </Form.Item>
+
+                            <Form.Item wrapperCol={{ offset: 10, span: 16 }}>
+                                <Button type="primary" htmlType="submit">
+                                    Save
+                                </Button>
+                            </Form.Item>
+                        </Form>
+                        :
                         <Tabs style={{ marginBottom: '25px' }} defaultActiveKey="1">
                             <TabPane tab="Image" key="1">
                                 <div style={style.media}>
                                     <div style={style.mediaGrid}>
                                         {
                                             dialogs.map(dialog => {
-                                                return dialog.urls.length > 0 && dialog.urls.map((url, index) =>{
+                                                return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
                                                     let format = url.split('.').pop().split('?')[0]
                                                     if (format === 'jpg' || format === 'png' || format === 'jpeg') {
                                                         return <img src={url} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} />
@@ -432,10 +468,10 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
                                                     {fields.map(({ key, name, fieldKey, ...restField }) => (
                                                         <Space key={key} style={{ display: 'flex', marginBottom: 2 }} align="baseline">
                                                             <Form.Item
-                                                            {...restField}
-                                                            name={[name, 'first']}
-                                                            fieldKey={[fieldKey, 'first']}
-                                                            rules={[{ type: 'email', required: true, message: 'Email is required!' }]}
+                                                                {...restField}
+                                                                name={[name, 'first']}
+                                                                fieldKey={[fieldKey, 'first']}
+                                                                rules={[{ type: 'email', required: true, message: 'Email is required!' }]}
                                                             >
                                                                 <Input placeholder="Email" />
                                                             </Form.Item>

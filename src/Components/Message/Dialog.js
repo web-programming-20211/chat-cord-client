@@ -240,15 +240,15 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
 
     return (
         <div style={style.dialogDiv} onMouseEnter={() => setShowTime(true)} onMouseLeave={() => setShowTime(false)}>
-            {!self && <Avatar size={60} style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
-            {self && <Avatar size={60} style={style.avatar}>{dialog.from.fullname?.toUpperCase()[0]}</Avatar>}
+            {!self && <Avatar size={60} style={style.avatar} src={dialog.from.avatar}></Avatar>}
+            {self && <Avatar size={60} style={style.avatar} src={dialog.from.avatar}></Avatar>}
             <div style={style.container} onMouseEnter={() => setWidget(true)} onMouseLeave={() => setWidget(false)}>
                 {self && <div style={style.dialogDivInfoNameTime}>
-                    <div style={style.dialogDivInfoName}>{dialog.from.fullname}</div>
+                    <div style={style.dialogDivInfoName}>{dialog.from.username}</div>
                     <div style={style.dialogDivInfoTime}>{moment(dialog.createdAt).calendar()}</div>
                 </div>}
                 {!self && <div style={style.dialogDivInfoNameTime}>
-                    <div style={style.dialogDivInfoName}>{dialog.from.fullname}</div>
+                    <div style={style.dialogDivInfoName}>{dialog.from.username}</div>
                     <div style={style.dialogDivInfoTime}>{moment(dialog.createdAt).calendar()}</div>
                 </div>}
 
