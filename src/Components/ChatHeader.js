@@ -18,6 +18,7 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
     const [visible, setVisible] = useState(false)
     const [updateVisible, setUpdateVisible] = useState(false)
     const user = []
+    const [roomAvatarPreview, setRoomAvatarPreview] = useState(null)
     const showDrawer = () => {
         setVisible(true);
     };
@@ -29,7 +30,14 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
     }
     // TODO
     const handleUpdateInfo = () => {}
-    const handleUpdateRoomAvatar = () => {}
+    const handleUpdateRoomAvatar = (e) => {
+        const newRoomAvatar = e.target.files[0]
+        const reader = new FileReader()
+        reader.readAsDataURL(newRoomAvatar)
+        reader.onloadend = () => {
+            setRoomAvatarPreview(reader.result)
+        }
+    }
 
     const UpdateRoomInfo = () => {
         return (
@@ -342,8 +350,8 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
                         {!updateVisible && <div style={style.roomAvatar}><Avatar size={200} src="https://joeschmoe.io/api/v1/random"></Avatar></div>}
                         {updateVisible &&
                             <div>
-                                <label style={style.roomAvatarEdit} for="files"><Avatar size={200} src="https://joeschmoe.io/api/v1/random"></Avatar></label>
-                                <input id="files" style={{ visibility: "hidden" }} accept='image/*' type="file" onChange={handleUpdateRoomAvatar} />
+                                <label style={style.roomAvatarEdit} htmlFor="roomAvatar"><Avatar size={200} src={roomAvatarPreview ? roomAvatarPreview : "https://joeschmoe.io/api/v1/random"}></Avatar></label>
+                                <input id="roomAvatar" style={{ visibility: "hidden" }} accept='image' type="file" onChange={handleUpdateRoomAvatar} />
                             </div>
                         }
                         <div style={style.roomShortId} onClick={copyToClipboard}>{room?.shortId}</div>

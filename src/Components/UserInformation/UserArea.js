@@ -15,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
 const UserArea = ({ user, logout }) => {
   const classes = useStyles()
   const [updateVisible, setUpdateVisible] = useState(false)
+  const [userAvatarPreview, setUserAvatarPreview] = useState(null)
 
   const handleEditUserInfo = () => {
     setUpdateVisible(!updateVisible)
@@ -22,7 +23,15 @@ const UserArea = ({ user, logout }) => {
 
   // TODO: update user info
   const handleUpdateUserInfo = () => {}
-  const handleUpdateUserAvatar = () => {}
+  const handleUpdateUserAvatar = (e) => {
+    const newUserAvatar = e.target.files[0]
+    const reader = new FileReader()
+    reader.readAsDataURL(newUserAvatar)
+    reader.onloadend = () => {
+      setUserAvatarPreview(reader.result)
+    }
+    // TODO: update user avatar to firebase
+  }
   // const limit = useMediaQuery({ maxWidth: 1300 })
 
   const style = {
@@ -89,8 +98,8 @@ const UserArea = ({ user, logout }) => {
       <Modal visible={updateVisible} closable={false} title="Update User Info" onCancel={handleEditUserInfo} onOk={handleUpdateUserInfo}>
         {updateVisible &&
             <div>
-                <label style={style.userAvaterEdit} for="files"><UserAvatar size={200} src="https://joeschmoe.io/api/v1/random"></UserAvatar></label>
-                <input id="files" style={{ visibility: "hidden" }} accept='image/*' type="file" onChange={handleUpdateUserAvatar} />
+                <label style={style.userAvaterEdit} htmlFor="userAvatar"><UserAvatar size={200} src={userAvatarPreview ? userAvatarPreview :"https://joeschmoe.io/api/v1/random"}></UserAvatar></label>
+                <input id="userAvatar" style={{ visibility: "hidden" }} accept='image/*' type="file" onChange={handleUpdateUserAvatar} />
             </div>
         }
         <Form 
