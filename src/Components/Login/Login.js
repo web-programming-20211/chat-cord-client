@@ -18,7 +18,7 @@ toast.configure({
 
 const Login = ({ logIn, invalid, errorToggle, message }) => {
     const [error, setError] = useState(false)
-    const [user, setUser] = useState({ email: '', fullname: '', username: '', password: '' })
+    const [user, setUser] = useState({ email: '', fullname: '', username: '', password: ''})
     // const [haveAccount, setAccount] = useState(true)
     const [hover, setHover] = useState(false)
 

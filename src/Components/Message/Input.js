@@ -1,9 +1,4 @@
-/* eslint-disable array-callback-return */
-/* eslint-disable no-unused-vars */
 import SendIcon from '@material-ui/icons/Send'
-// import AttachFileIcon from '@mui/icons-material/AttachFile'
-// import ImageIcon from '@mui/icons-material/Image'
-// import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon'
 import { useState } from 'react'
 import { useMediaQuery } from 'react-responsive'
 import { TextField, FormControl, InputAdornment } from "@material-ui/core"
@@ -13,15 +8,13 @@ import { Picker } from 'emoji-mart'
 
 import { storage } from "../../firebase/index"
 import { Icon } from '@iconify/react'
-// import FileImage from '../../public/images/file.png'
-// import PreviewFile from '../assets/file.png'
 
 const Input = ({ setDialogs }) => {
     const [message, setMessage] = useState('')
     const [showEmoji, setShowEmoji] = useState(false)
     const [files, setFiles] = useState([]);
     const [urls, setUrls] = useState([]);
-    const [previewImage, setPreviewImage] = useState([{id: null, url: null, name: null, fileUrl: null}]);
+    const [previewImage, setPreviewImage] = useState([{ id: null, url: null, name: null, fileUrl: null }]);
 
     const limit = useMediaQuery({ maxWidth: 900 })
     const limit2 = useMediaQuery({ maxWidth: 600 })
@@ -35,7 +28,7 @@ const Input = ({ setDialogs }) => {
             left: '10px',
             top: '20px',
             width: '108%',
-           
+
         },
 
         textField: {
@@ -55,6 +48,8 @@ const Input = ({ setDialogs }) => {
             position: 'absolute',
             right: 10,
             cursor: 'pointer',
+            color: '#6082B6',
+            fontSize: '30px',
         },
 
         attach: {
@@ -161,7 +156,7 @@ const Input = ({ setDialogs }) => {
         // setPreviewFile(previewFile.filter(item => item.id !== id))
         setFiles(files.filter(item => item.id !== id))
     }
-    
+
     const handleImageChange = (e) => {
         // convert to base64
         for (let i = 0; i < e.target.files.length; i++) {
@@ -178,12 +173,12 @@ const Input = ({ setDialogs }) => {
                 fileUrl = null
                 name = `image ${i + 1}`
             }
-            
+
 
             const reader = new FileReader()
             reader.readAsDataURL(newFile)
             reader.onloadend = () => {
-                setPreviewImage((prevState) => [...prevState, { id: newFile["id"], url: reader.result, name, fileUrl}])
+                setPreviewImage((prevState) => [...prevState, { id: newFile["id"], url: reader.result, name, fileUrl }])
             }
             setFiles((prevState) => [...prevState, newFile])
         }
@@ -195,7 +190,7 @@ const Input = ({ setDialogs }) => {
             files.map((file) => {
                 const promise = new Promise((resolve, reject) => {
                     const metadata = {
-                        contentType: file.type 
+                        contentType: file.type
                     }
                     const storageRef = storage.ref(`files/${file.name}`)
                     storageRef.put(file, metadata).then((snapshot) => {
@@ -225,7 +220,7 @@ const Input = ({ setDialogs }) => {
                                 <Icon onClick={() => deletePreview(item.id)} style={style.deletePreviewIcon} icon="ep:circle-close" />
                                 <img style={style.thumbnail} src={item.fileUrl ? item.fileUrl : item.url} alt="thumb" />
                                 <p style={style.fileName}>{item.name}</p>
-                                
+
                             </div>
                         )
                     })}
@@ -235,7 +230,7 @@ const Input = ({ setDialogs }) => {
                 </div>
             )
         }
-        
+
     }
 
     return (
@@ -258,7 +253,7 @@ const Input = ({ setDialogs }) => {
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position='end'>
-                                <SendIcon
+                                {/* <SendIcon
                                     onClick={() => {
                                         sendMessage()
                                         setMessage('')
@@ -266,15 +261,22 @@ const Input = ({ setDialogs }) => {
                                     color='primary'
                                     fontSize='large'
                                     style={style.send}
-                                />
-                                <Icon icon="fluent:emoji-24-regular" style={style.icons} onClick={() => {setShowEmoji(!showEmoji)}}></Icon>
+                                /> */}
+                                <Icon onClick={() => {
+                                    sendMessage()
+                                    setMessage('')
+                                }}
+
+                                    style={style.send} icon="akar-icons:send" />
+
+                                <Icon icon="fluent:emoji-24-regular" style={style.icons} onClick={() => { setShowEmoji(!showEmoji) }}></Icon>
                                 <label htmlFor="files"><Icon style={style.fileImage} icon="akar-icons:image" /></label>
                                 <input id="files" style={{ visibility: "hidden" }} type="file" multiple onChange={handleImageChange} />
                                 {/* <label htmlFor="files"><Icon style={style.file} icon="eva:attach-fill" /></label>
                                 <input id="files" style={{ visibility: "hidden" }} type="file" accept=".pdf, .txt, .docx" multiple onChange={handleFileChange} /> */}
                                 {files.length > 0 && <PreviewSelectedFiles />}
                                 {showEmoji && (
-                                    <div style={{ position: "fixed", bottom: "80px", left: "20%"}}>
+                                    <div style={{ position: "fixed", bottom: "80px", left: "20%" }}>
                                         <Picker
                                             onSelect={handleEmojiSelect}
                                             emojiSize={20} />
