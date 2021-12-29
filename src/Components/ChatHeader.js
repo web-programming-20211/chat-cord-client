@@ -10,7 +10,7 @@ import { storage } from "../firebase/index"
 const { TabPane } = Tabs;
 
 
-const ChatHeader = ({ userOnlines, room, dialogs, socket, setIsPin }) => {
+const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => {
     const [users, setUsers] = useState([])
     const [currentRoom, setRoom] = useState(room)
     const [visible, setVisible] = useState(false)
@@ -263,6 +263,16 @@ const ChatHeader = ({ userOnlines, room, dialogs, socket, setIsPin }) => {
             backgroundColor: '#46D362',
         },
 
+        des: {
+            display: '-webkit-box',
+            WebkitLineClamp: 1,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            width: '320px',
+            workBreak: 'break-word',
+        }, 
+
         infoIcon: {
             position: 'relative',
             top: '5px'
@@ -432,7 +442,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, socket, setIsPin }) => {
                         </Form>
                         :
                         <Tabs style={{ marginBottom: '25px' }} defaultActiveKey="1">
-                            <TabPane tab="Image" key="1">
+                            <TabPane tab="Images" key="1">
                                 <div style={style.media}>
                                     <div style={style.mediaGrid}>
                                         {
@@ -477,13 +487,13 @@ const ChatHeader = ({ userOnlines, room, dialogs, socket, setIsPin }) => {
                                                 if (format === 'pdf') {
                                                     return (
                                                         <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                            <p>{url.split('%2F').pop().split('?')[0]}</p>
+                                                            <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
                                                         </a>
                                                     )
                                                 } else if (format === 'docx') {
                                                     return (
                                                         <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                            <p>{url.split('%2F').pop().split('?')[0]}</p>
+                                                            <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
                                                         </a>
                                                     )
                                                 }
@@ -545,7 +555,11 @@ const ChatHeader = ({ userOnlines, room, dialogs, socket, setIsPin }) => {
                     {!updateVisible &&
                         <div style={style.leaveRoom}>
                             <Icon style={style.leaveRoomIcon} icon="pepicons:leave" />
-                            <p style={style.leaveRoomText}>Leave Room</p>
+                            <p style={style.leaveRoomText} onClick={() => {
+                                onClose()
+                                leave(room._id)
+                            }
+                            }>Leave Room</p>
                         </div>
                     }
                 </Drawer>
