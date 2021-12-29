@@ -1,30 +1,76 @@
-/* eslint-disable jsx-a11y/alt-text */
-/* eslint-disable array-callback-return */
-/* eslint-disable no-unused-vars */
-import { Input, Select, Avatar, Drawer, Tabs } from 'antd';
+import { Input, Select, Avatar, Drawer, Tabs, Space, Form, Switch, Button } from 'antd';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import copy from 'copy-to-clipboard';
 import { toast } from 'react-toastify'
 import { Icon } from '@iconify/react';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { storage } from "../firebase/index"
 
 const { TabPane } = Tabs;
 
 
-const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => {
+const ChatHeader = ({ userOnlines, room, dialogs, socket, setIsPin }) => {
     const [users, setUsers] = useState([])
     const [currentRoom, setRoom] = useState(room)
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(false)
+    const [updateVisible, setUpdateVisible] = useState(false)
     const [pinnedMessage, setPinnedMessage] = useState(null);
     const [showPinnedMessage, setShowPinnedMessage] = useState(false);
+    const user = []
+    const [roomMode, setRoomMode] = useState(room.isPrivate)
+    const [roomAvatarPreview, setRoomAvatarPreview] = useState(null)
+    const [roomAvatar, setRoomAvatar] = useState()
 
-
+    const [roomUpdateInfo, setRoomUpdateInfo] = useState({
+        name: '',
+        description: '',
+        isPrivate: false,
+        avatar: '',
+    })
     const showDrawer = () => {
         setVisible(true);
     };
     const onClose = () => {
         setVisible(false);
     };
+    const handleEditInfo = () => {
+        setUpdateVisible(!updateVisible);
+    }
+
+    const handleUpdateRoomAvatar = (e) => {
+        const newRoomAvatar = e.target.files[0]
+        const reader = new FileReader()
+        reader.readAsDataURL(newRoomAvatar)
+        reader.onloadend = () => {
+            setRoomAvatarPreview(reader.result)
+        }
+        setRoomAvatar(newRoomAvatar)
+    }
+
+
+    const handleUpdateRoomInfo = async () => {
+        let roomUpdateInfo_ = roomUpdateInfo
+        if (roomAvatar) {
+            const metadata = {
+                contentType: roomAvatar.type
+            }
+            const storageRef = storage.ref(`roomAvatars/${roomAvatar.name}`)
+            const snapshot = await storageRef.put(roomAvatar, metadata)
+            const url = await snapshot.ref.getDownloadURL()
+            roomUpdateInfo_.avatar = url
+        }
+        try {
+            console.log(roomUpdateInfo_)
+            const update = await axios.put(`/room/${room._id}`, roomUpdateInfo_, { withCredentials: true })
+            toast.success(update?.data?.msg)
+        } catch (err) {
+            toast.error(`${err?.response?.data?.msg}`)
+        }
+        setRoomAvatarPreview(roomUpdateInfo.avatar)
+        setRoomAvatar(null)
+        setUpdateVisible(false)
+    }
 
     const style = {
         chatHeader: {
@@ -107,7 +153,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => 
         roomAvatar: {
             marginBottom: '20px',
             border: '4px solid #' + room.color,
-            borderRadius: '100px',
+            borderRadius: '115px',
         },
 
         roomName: {
@@ -164,6 +210,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => 
             flexDirection: 'column',
             alignItems: 'flex-start',
             gap: '10px',
+            overflowY: 'auto',
         },
 
         member: {
@@ -216,15 +263,56 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => 
             backgroundColor: '#46D362',
         },
 
-        des: {
-            display: '-webkit-box',
-            WebkitLineClamp: 1,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            width: '320px',
-            workBreak: 'break-word',
+        infoIcon: {
+            position: 'relative',
+            top: '5px'
+        },
+
+        buttonEditDrawer: {
+            border: 'none',
+            backgroundColor: '#E3F6FC',
+            color: '#6588DE',
+            cursor: 'pointer',
+        },
+
+        buttonUpdateDrawer: {
+            position: 'relative',
+            left: '50%',
+            marginRight: '5px',
+        },
+
+        roomAvatarEdit: {
+            width: 'fit-content',
+            display: 'block',
+            margin: 'auto',
+            border: '4px solid #' + room.color,
+            borderRadius: '115px',
+            cursor: 'pointer',
+        },
+
+        plusIconContainer: {
+            width: 55,
+            height: 55,
+            borderRadius: '50%',
+            border: '1px dashed #6ECB63',
+            display: 'grid',
+            placeItems: 'center',
+            backgroundColor: 'rgb(227, 246, 252)'
+        },
+
+        plusIcon: {
+            fontSize: '20px',
+        },
+
+        removeIcon: {
+            fontSize: '18px',
+            color: '#E74C3C',
+        },
+
+        submitButton: {
+            borderRadius: '5px'
         }
+
     }
 
 
@@ -265,113 +353,201 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => 
         toast.success('Copied to clipboard')
     }
 
+    const onFinish = (values) => {
+        // get user email
+        for (let i = 0; i < values.usersList.length; i++) {
+            user.push(values.usersList[i].first)
+        }
+        // TODO: handle add user
+    }
+
+
     return (
         <>
             <div style={style.chatHeader}>
                 <div style={style.chatInfo} onClick={showDrawer}>
-                    <p style={style.chatName}>{room?.name}</p>
+                    <p style={style.chatName}>{room?.name} <Icon style={style.infoIcon} icon="ant-design:info-circle-outlined" /></p>
                     <p style={style.numberOfUser}>{users?.length + ' members'}</p>
                 </div>
                 <div style={style.chatTool}>
                     <Input style={style.input} autoComplete='off' addonBefore={selectBefore} placeholder="Type user or a message you what to search..." />
                 </div>
-                <Drawer placement="right" onClose={onClose} visible={visible}>
+                <Drawer
+                    placement="right"
+                    onClose={onClose}
+                    visible={visible}
+                    extra={
+                        <Space>
+                            <button onClick={handleEditInfo} style={style.buttonEditDrawer}>Edit</button>
+                        </Space>
+                    }
+                >
                     <div style={style.roomInfo}>
                         <div style={style.roomTitle}>Room Info</div>
-                        <div style={style.roomAvatar}><Avatar size={100} src="https://joeschmoe.io/api/v1/random"></Avatar></div>
+                        {!updateVisible && <div style={style.roomAvatar}><Avatar size={200} src={room.avatar}></Avatar></div>}
+                        {updateVisible &&
+                            <div>
+                                <label style={style.roomAvatarEdit} htmlFor="roomAvatar"><Avatar size={200} src={roomAvatarPreview ? roomAvatarPreview : room.avatar}></Avatar></label>
+                                <input id="roomAvatar" style={{ visibility: "hidden" }} accept='image' type="file" onChange={handleUpdateRoomAvatar} />
+                            </div>
+                        }
+                        <div style={style.roomShortId} onClick={copyToClipboard}>{room?.shortId}</div>
                         <div style={style.roomName}>{room?.name}</div>
                         <div style={style.roomDescription}>{room?.description}</div>
-                        <div style={style.roomShortId} onClick={copyToClipboard}>{room?.shortId}</div>
                         <div style={style.line}></div>
                     </div>
-                    <Tabs style={{ marginBottom: '25px' }} defaultActiveKey="1">
-                        <TabPane tab="Images" key="1">
-                            <div style={style.media}>
-                                <div style={style.mediaGrid}>
-                                    {
-                                        dialogs.map(dialog => {
-                                            return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
-                                                let format = url.split('.').pop().split('?')[0]
-                                                if (format === 'jpg' || format === 'png' || format === 'jpeg') {
-                                                    return <img src={url} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} />
-                                                }
+                    {updateVisible ?
+                        <Form
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 20 }}
+                            onFinish={handleUpdateRoomInfo}
+                        >
+                            <Form.Item label="Room name" rules={[
+                                {
+                                    required: true,
+                                    message: 'Please input room name!'
+                                },
+                            ]}>
+                                <Input defaultValue={room.name} onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, name: e.target.value })} />
+                            </Form.Item>
+
+                            <Form.Item label="Description" rules={[
+                                {
+                                    required: true,
+                                    message: 'Please input room description!'
+                                },
+                            ]}>
+                                <Input defaultValue={room.description} onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, description: e.target.value })} />
+                            </Form.Item>
+
+                            <Form.Item label="Mode">
+                                <Switch defaultChecked={room.isPrivate} checkedChildren="Private" unCheckedChildren="Public" onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, isPrivate: !roomMode })} />
+                            </Form.Item>
+
+                            <Form.Item wrapperCol={{ offset: 10, span: 16 }}>
+                                <Button type="primary" htmlType="submit">
+                                    Save
+                                </Button>
+                            </Form.Item>
+                        </Form>
+                        :
+                        <Tabs style={{ marginBottom: '25px' }} defaultActiveKey="1">
+                            <TabPane tab="Image" key="1">
+                                <div style={style.media}>
+                                    <div style={style.mediaGrid}>
+                                        {
+                                            dialogs.map(dialog => {
+                                                return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
+                                                    let format = url.split('.').pop().split('?')[0]
+                                                    if (format === 'jpg' || format === 'png' || format === 'jpeg') {
+                                                        return <img src={url} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} />
+                                                    }
+                                                })
                                             })
-                                        })
-                                    }
+                                        }
+                                    </div>
                                 </div>
-                            </div>
-                        </TabPane>
-                        <TabPane tab="Videos" key="2">
-                            <div style={style.media}>
-                                <div style={style.mediaGrid}>
+                            </TabPane>
+                            <TabPane tab="Videos" key="2">
+                                <div style={style.media}>
+                                    <div style={style.mediaGrid}>
+                                        {
+                                            dialogs.map(dialog => {
+                                                return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
+                                                    let format = url.split('.').pop().split('?')[0]
+                                                    if (format === 'mp4') {
+                                                        return (
+                                                            <video key={index} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} controls>
+                                                                <source src={url} type="video/mp4" />
+                                                            </video>
+                                                        )
+                                                    }
+                                                })
+                                            })
+                                        }
+                                    </div>
+                                </div>
+                            </TabPane>
+                            <TabPane tab="Files" key="3">
+                                <div style={style.file}>
                                     {
                                         dialogs.map(dialog => {
                                             return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
                                                 let format = url.split('.').pop().split('?')[0]
-                                                if (format === 'mp4') {
+                                                if (format === 'pdf') {
                                                     return (
-                                                        <video key={index} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} controls>
-                                                            <source src={url} type="video/mp4" />
-                                                        </video>
+                                                        <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
+                                                            <p>{url.split('%2F').pop().split('?')[0]}</p>
+                                                        </a>
+                                                    )
+                                                } else if (format === 'docx') {
+                                                    return (
+                                                        <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
+                                                            <p>{url.split('%2F').pop().split('?')[0]}</p>
+                                                        </a>
                                                     )
                                                 }
                                             })
                                         })
                                     }
                                 </div>
-                            </div>
-                        </TabPane>
-                        <TabPane tab="Files" key="3">
-                            <div style={style.file}>
-                                {
-                                    dialogs.map(dialog => {
-                                        return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
-                                            let format = url.split('.').pop().split('?')[0]
-                                            if (format === 'pdf') {
-                                                return (
-                                                    <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                        <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
-                                                    </a>
-                                                )
-                                            } else if (format === 'docx') {
-                                                return (
-                                                    <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                        <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
-                                                    </a>
-                                                )
-                                            }
-                                        })
-                                    })
-                                }
-                            </div>
-                        </TabPane>
-                        <TabPane tab="Members" key="4">
-                            <div style={style.members}>
-                                {
-                                    users?.map((user, index) => {
-                                        return (
-                                            <div key={index} style={style.member}>
-                                                <div style={style.avatar}>
-                                                    <Avatar style={{ backgroundColor: '#' + user.color }} size={50}>{user.fullname?.toUpperCase()[0]}</Avatar>
-                                                    {userOnlines.includes(user._id) && <span style={style.dot}></span>}
+                            </TabPane>
+                            <TabPane tab="Members" key="4">
+                                <div style={style.members}>
+                                    <Form name="add user dynamic form" autoComplete="off" onFinish={onFinish}>
+                                        <Form.List name="usersList">
+                                            {(fields, { add, remove }) => (
+                                                <>
+                                                    {fields.map(({ key, name, fieldKey, ...restField }) => (
+                                                        <Space key={key} style={{ display: 'flex', marginBottom: 2 }} align="baseline">
+                                                            <Form.Item
+                                                                {...restField}
+                                                                name={[name, 'first']}
+                                                                fieldKey={[fieldKey, 'first']}
+                                                                rules={[{ type: 'email', required: true, message: 'Email is required!' }]}
+                                                            >
+                                                                <Input placeholder="Email" />
+                                                            </Form.Item>
+                                                            <Icon style={style.removeIcon} icon="gg:remove" onClick={() => remove(name)} />
+                                                            {/* <MinusCircleOutlined onClick={() => remove(name)} /> */}
+                                                        </Space>
+                                                    ))}
+                                                    <Form.Item>
+                                                        <Button onClick={() => add()} block style={style.plusIconContainer}><Icon style={style.plusIcon} icon="carbon:add" /></Button>
+                                                    </Form.Item>
+                                                </>
+                                            )}
+                                        </Form.List>
+                                        <Form.Item>
+                                            <Button style={style.submitButton} type='primary' htmlType="submit">
+                                                Submit
+                                            </Button>
+                                        </Form.Item>
+                                    </Form>
+                                    {
+                                        users?.map((user, index) => {
+                                            return (
+                                                <div key={index} style={style.member}>
+                                                    <div style={style.avatar}>
+                                                        <Avatar style={{ backgroundColor: '#' + user.color }} size={50}>{user.fullname?.toUpperCase()[0]}</Avatar>
+                                                        {userOnlines.includes(user._id) && <span style={style.dot}></span>}
+                                                    </div>
+                                                    <p style={{ fontSize: '16px' }}>{user.fullname}</p>
                                                 </div>
-                                                <p style={{ fontSize: '16px' }}>{user.fullname}</p>
-                                            </div>
-                                        )
-                                    })
-                                }
-                            </div>
+                                            )
+                                        })
+                                    }
+                                </div>
 
-                        </TabPane>
-                    </Tabs>
-                    <div style={style.leaveRoom}>
-                        <Icon style={style.leaveRoomIcon} icon="pepicons:leave" />
-                        <p style={style.leaveRoomText} onClick={() => {
-                            onClose()
-                            leave(room._id)
-                        }
-                        }>Leave Room</p>
-                    </div>
+                            </TabPane>
+                        </Tabs>
+                    }
+                    {!updateVisible &&
+                        <div style={style.leaveRoom}>
+                            <Icon style={style.leaveRoomIcon} icon="pepicons:leave" />
+                            <p style={style.leaveRoomText}>Leave Room</p>
+                        </div>
+                    }
                 </Drawer>
                 <div style={style.pinMessageContainer}>
                     <Icon style={style.pinMessageIcon} icon="bi:pin-angle-fill" />

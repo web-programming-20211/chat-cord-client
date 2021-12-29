@@ -7,7 +7,6 @@ import { useState } from 'react';
 const RoomsHeader = ({ joinRoom, findRoom, handleSearchRoom }) => {
     const [visibleCreate, setVisibleCreate] = useState(false)
     const [visibleJoin, setVisibleJoin] = useState(false)
-    const [visibleAdd, setVisibleAdd] = useState(false)
     const [isPrivate, setIsPrivate] = useState(false)
     const [room, setRoom] = useState({ name: '', description: '', isPrivate: false })
 
@@ -85,26 +84,12 @@ const RoomsHeader = ({ joinRoom, findRoom, handleSearchRoom }) => {
         hideModalJoin()
     }
 
-    const showModalAdd = () => {
-        setVisibleAdd(true);
-    }
-
-    const hideModalAdd = () => {
-        setVisibleAdd(false);
-    }
-
-    const joinWithEmail = () => {
-        // findRoom(shortId)
-        hideModalAdd()
-    }
-
     return (
         <>
             <div style={style.roomHeaderContainer}>
                 <Icon style={style.add} icon="akar-icons:search" onClick={handleSearchRoom} />
                 <Icon style={style.add} icon="akar-icons:chat-add" onClick={showModalCreate} />
                 <Icon style={style.join} icon="fluent:chat-arrow-back-16-regular" onClick={showModalJoin} />
-                <Icon style={style.addUser} icon="uil:user-plus"  onClick={showModalAdd}/>
             </div>
 
             <Modal title="Create room" closable={false} visible={visibleCreate} footer={[
@@ -137,21 +122,6 @@ const RoomsHeader = ({ joinRoom, findRoom, handleSearchRoom }) => {
             ]}>
                 <Form name="control-hooks">
                     <Form.Item label="Room ID" name="roomShortId" rules={[{ required: true }]} onChange={(e) => setShortId(e.target.value)}>
-                        <Input />
-                    </Form.Item>
-                </Form>
-            </Modal>
-
-            <Modal title="Add user" closable={false} visible={visibleAdd} footer={[
-                <Button onClick={hideModalAdd}>
-                    Cancel
-                </Button>,
-                <Button key="submit" type="primary" onClick={joinWithEmail} >
-                    Add
-                </Button>,
-            ]}>
-                <Form name="control-hooks">
-                    <Form.Item label="Email" name="email" rules={[{ required: true }]}>
                         <Input />
                     </Form.Item>
                 </Form>

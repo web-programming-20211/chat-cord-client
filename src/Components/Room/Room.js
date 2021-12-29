@@ -147,7 +147,7 @@ const Room = ({ room, onClick, lastMsgRoomId, setLastMsgRoomId, leaveHandle, roo
                     {/* <div style={{display: 'flex', flexDirection: limit ? 'column' : 'row', justifyItems: 'center'}}> */}
                     {/* <Avatar style={style.avatar} className={limit ? classes.small : classes.large} sx={{ width: 44, height: 44 }}>{room?.name[0].toUpperCase()}</Avatar> */}
                     {/* <Avatar sx={{ width: 100, height: 200 }}  style={style.avatar} >{room?.name[0].toUpperCase()}</Avatar> */}
-                    <Avatar size={56} style={style.avatar}>{room?.name[0].toUpperCase()}</Avatar>
+                    <Avatar size={56} style={style.avatar} src={room.avatar}></Avatar>
                     <div style={style.roomMessage}>
                         <p style={style.roomMessageName}>{room?.name}</p>
                         <p style={style.roomMessageLastMessage}>{updateMsg ? lastMsg : room?.lastMessage}</p>
