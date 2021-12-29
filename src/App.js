@@ -125,10 +125,12 @@ function App() {
 
   const joinRoom = async (room) => {
     if (room) {
-      const response = await axios.post('/room/create', room, { withCredentials: true })
-      if (response.status === 200) {
+      try {
+        const response = await axios.post('/room/create', room, { withCredentials: true })
         setRooms([response.data.msg, ...rooms])
         setCurrentRoom(response.data.msg)
+      } catch (err) {
+        toast.error(`${err?.response?.data?.msg}`)
       }
     }
   }

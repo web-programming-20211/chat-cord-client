@@ -18,14 +18,13 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => 
     const [pinnedMessage, setPinnedMessage] = useState(null);
     const [showPinnedMessage, setShowPinnedMessage] = useState(false);
     const user = []
-    const [roomMode, setRoomMode] = useState(room.isPrivate)
     const [roomAvatarPreview, setRoomAvatarPreview] = useState(null)
     const [roomAvatar, setRoomAvatar] = useState()
 
     const [roomUpdateInfo, setRoomUpdateInfo] = useState({
         name: '',
         description: '',
-        isPrivate: false,
+        isPrivate: room.isPrivate,
         avatar: '',
     })
     const showDrawer = () => {
@@ -431,7 +430,8 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => 
                             </Form.Item>
 
                             <Form.Item label="Mode">
-                                <Switch defaultChecked={room.isPrivate} checkedChildren="Private" unCheckedChildren="Public" onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, isPrivate: !roomMode })} />
+                                <Switch defaultChecked={room.isPrivate} checkedChildren="Private" unCheckedChildren="Public" onChange={(e) => {setRoomUpdateInfo({ ...roomUpdateInfo, isPrivate: !roomUpdateInfo.isPrivate })
+                            console.log(roomUpdateInfo)}} />
                             </Form.Item>
 
                             <Form.Item wrapperCol={{ offset: 10, span: 16 }}>
