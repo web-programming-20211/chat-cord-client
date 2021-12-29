@@ -10,11 +10,13 @@ import { storage } from "../firebase/index"
 const { TabPane } = Tabs;
 
 
-const ChatHeader = ({ userOnlines, room, dialogs }) => {
+const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => {
     const [users, setUsers] = useState([])
     const [currentRoom, setRoom] = useState(room)
     const [visible, setVisible] = useState(false)
     const [updateVisible, setUpdateVisible] = useState(false)
+    const [pinnedMessage, setPinnedMessage] = useState(null);
+    const [showPinnedMessage, setShowPinnedMessage] = useState(false);
     const user = []
     const [roomMode, setRoomMode] = useState(room.isPrivate)
     const [roomAvatarPreview, setRoomAvatarPreview] = useState(null)
@@ -77,10 +79,27 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
             alignItems: 'center',
             padding: '50px',
             backgroundColor: '#6588DE',
-            // borderRadius: '14px',
             height: '20px',
             width: '100%',
-            margin: '0px 0px 0px 10px'
+            margin: '0px 0px 0px 10px',
+            position: 'relative',
+        },
+
+        pinMessageContainer: {
+            opacity: showPinnedMessage || room?.pinnedMessages?.length > 0 ? 1 : 0,
+            position: 'absolute',
+            backgroundColor: '#E3F6FC',
+            bottom: '-67px',
+            left: '0px',
+            zIndex: '1',
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+        },
+
+        pinMessageIcon: {
+
         },
 
         chatInfo: {
@@ -179,7 +198,6 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
         },
 
         file: {
-            // overflow: 'auto',
             display: 'flex',
             height: '400px',
             flexDirection: 'column',
@@ -244,6 +262,16 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
             borderRadius: '50%',
             backgroundColor: '#46D362',
         },
+
+        des: {
+            display: '-webkit-box',
+            WebkitLineClamp: 1,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            width: '320px',
+            workBreak: 'break-word',
+        }, 
 
         infoIcon: {
             position: 'relative',
@@ -313,6 +341,21 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
             axios.get('/room/' + room?._id + '/members', { withCredentials: true }).then(res => {
                 setUsers(res.data.msg);
             })
+    }, [room])
+
+    useEffect(() => {
+        socket.on('new-pinned-message', (dialog, roomId, r) => {
+            if (roomId === room._id) {
+                if (r.pinnedMessages.length === 0)
+                    setShowPinnedMessage(false)
+                else {
+                    setShowPinnedMessage(true)
+                    setPinnedMessage(r.pinnedMessages.at(-1))
+                }
+                setIsPin(dialog.pinned)
+                console.log(dialog.pinned)
+            }
+        })
     }, [room])
 
     const copyToClipboard = () => {
@@ -399,7 +442,7 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
                         </Form>
                         :
                         <Tabs style={{ marginBottom: '25px' }} defaultActiveKey="1">
-                            <TabPane tab="Image" key="1">
+                            <TabPane tab="Images" key="1">
                                 <div style={style.media}>
                                     <div style={style.mediaGrid}>
                                         {
@@ -444,13 +487,13 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
                                                 if (format === 'pdf') {
                                                     return (
                                                         <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                            <p>{url.split('%2F').pop().split('?')[0]}</p>
+                                                            <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
                                                         </a>
                                                     )
                                                 } else if (format === 'docx') {
                                                     return (
                                                         <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                            <p>{url.split('%2F').pop().split('?')[0]}</p>
+                                                            <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
                                                         </a>
                                                     )
                                                 }
@@ -512,10 +555,27 @@ const ChatHeader = ({ userOnlines, room, dialogs }) => {
                     {!updateVisible &&
                         <div style={style.leaveRoom}>
                             <Icon style={style.leaveRoomIcon} icon="pepicons:leave" />
-                            <p style={style.leaveRoomText}>Leave Room</p>
+                            <p style={style.leaveRoomText} onClick={() => {
+                                onClose()
+                                leave(room._id)
+                            }
+                            }>Leave Room</p>
                         </div>
                     }
                 </Drawer>
+                <div style={style.pinMessageContainer}>
+                    <Icon style={style.pinMessageIcon} icon="bi:pin-angle-fill" />
+                    <div style={style.pinMessageInfo}>
+                        <div style={style.pinMessageTitle}>Pinned message</div>
+                        <div style={style.pinMessageContent}>
+                            <Avatar style={style.pinMessageAvatar} src="https://joeschmoe.io/api/v1/random"></Avatar>
+                            <div>
+                                <p style={style.pinMessageName}>{pinnedMessage ? pinnedMessage?.username : room?.pinnedMessages?.at(-1)?.username}</p>
+                                <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </>
     )

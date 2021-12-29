@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Emoji from '../Emoji/Emoji';
 import EmojiIcon from '../Emoji/EmojiIcon';
 import DeleteIcon from '@material-ui/icons/Delete';
+import PushPinIcon from '@mui/icons-material/PushPin';
 import Cookies from 'js-cookie';
 import axios from 'axios'
 import moment from 'moment';
@@ -41,7 +42,7 @@ const Icons = ({ reactions, self }) => {
 }
 
 
-const Dialog = ({ dialog, onDelete, room, socket }) => {
+const Dialog = ({ dialog, onDelete, room, socket, isPin }) => {
     const [widget, setWidget] = useState(false)
     const [enter, setEnter] = useState(false)
     const [reactions, setReaction] = useState([])
@@ -75,9 +76,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
 
         avatar: {
             position: 'relative',
-            marginLeft: self ? '10px' : '0px',
-            marginRight: self ? '0px' : '10px',
-            marginTop: '5px',
+            marginTop: '15px',
             background: `#${dialog.from.color}`,
             flexShrink: 0,
         },
@@ -97,12 +96,15 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
         },
 
         deleteIcon: {
-            background: enter ? '#999999' : '',
             borderRadius: '50%',
             padding: '1px',
             cursor: 'pointer',
-            transition: 'background 300ms',
-            marginRight: '5px',
+        },
+
+        pinIcon: {
+            borderRadius: '50%',
+            padding: '1px',
+            cursor: 'pointer',
         },
 
         container: {
@@ -110,6 +112,9 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
             flexDirection: 'column',
             alignItems: self ? 'flex-end' : 'flex-start',
             rowGap: '1em',
+            padding: '10px',
+            borderRadius: '14px',
+            backgroundColor: isPin || dialog.pinned ? '#E3F6FC' : null,
         },
 
         reply: {
@@ -207,6 +212,10 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
         socket.emit('get-reaction', dialog, reaction_id, new_cookie, room._id)
     }
 
+    const setPin = () => {
+        socket.emit('set-pin', dialog, room._id)
+    }
+
     useEffect(() => {
         socket.on('return-reaction', (return_dialog) => {
             if (dialog._id === return_dialog._id) {
@@ -294,11 +303,12 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
 
                     <div style={style.widget}>
                         <Emoji dialog={dialog} react={react} self={self}></Emoji>
+                        <PushPinIcon style={style.pinIcon} onClick={() => {
+                            setPin()
+                        }}></PushPinIcon>
                         {(self || selfAndCreator) &&
                             <DeleteIcon
                                 style={style.deleteIcon}
-                                onMouseEnter={() => setEnter(true)}
-                                onMouseLeave={() => setEnter(false)}
                                 onClick={() => onDelete(dialog, room.creator)}
                             >
                             </DeleteIcon>

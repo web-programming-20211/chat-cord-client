@@ -17,6 +17,7 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
     const [currentRoom, setRoom] = useState(room)
     const [newMessage, setNewMessage] = useState(null)
     const [userOnlines, setUserOnlines] = useState([])
+    const [isPin, setIsPin] = useState(false)
 
     // const style = {
     //     container: {
@@ -108,9 +109,9 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
 
     return (
         <div>
-            <ChatHeader userOnlines={userOnlines} room={room} dialogs={dialogs} leave={leave} />
+            <ChatHeader userOnlines={userOnlines} room={room} dialogs={dialogs} leave={leave} socket={socket} setIsPin={setIsPin} />
             <div>
-                <Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage} ></Dialogs>
+                <Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage} isPin={isPin} ></Dialogs>
                 <Input room={currentRoom} setDialogs={dialogsUpdate} socket={socket}></Input>
             </div>
         </div>
