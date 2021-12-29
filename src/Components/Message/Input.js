@@ -276,7 +276,7 @@ const Input = ({ setDialogs }) => {
                                 <input id="files" style={{ visibility: "hidden" }} type="file" accept=".pdf, .txt, .docx" multiple onChange={handleFileChange} /> */}
                                 {files.length > 0 && <PreviewSelectedFiles />}
                                 {showEmoji && (
-                                    <div style={{ position: "fixed", bottom: "80px", left: "20%" }}>
+                                    <div style={{ position: "fixed", bottom: "80px", left: "20%", zIndex: "1" }}>
                                         <Picker
                                             onSelect={handleEmojiSelect}
                                             emojiSize={20} />
