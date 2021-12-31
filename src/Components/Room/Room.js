@@ -5,6 +5,8 @@ import { useMediaQuery } from 'react-responsive'
 import moment from 'moment';
 import { Avatar } from 'antd';
 import axios from 'axios';
+import { Icon } from '@iconify/react';
+
 
 const useStyles = makeStyles((theme) => ({
     large: {
@@ -124,6 +126,14 @@ const Room = ({ room, onClick, lastMsgRoomId, setLastMsgRoomId, leaveHandle, roo
             borderRadius: '5px',
             cursor: 'pointer',
             paddingLeft: '1em',
+        },
+
+        private : {
+            position: 'absolute',
+            fontSize: '30px',
+            right: 0,
+            top: 0,
+            color: '#52585D',
         }
     }
 
@@ -144,30 +154,14 @@ const Room = ({ room, onClick, lastMsgRoomId, setLastMsgRoomId, leaveHandle, roo
         <div style={style.room_container} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             <div style={style.room}>
                 <div style={style.roomInfo} onClick={() => onClick(room)}>
-                    {/* <div style={{display: 'flex', flexDirection: limit ? 'column' : 'row', justifyItems: 'center'}}> */}
-                    {/* <Avatar style={style.avatar} className={limit ? classes.small : classes.large} sx={{ width: 44, height: 44 }}>{room?.name[0].toUpperCase()}</Avatar> */}
-                    {/* <Avatar sx={{ width: 100, height: 200 }}  style={style.avatar} >{room?.name[0].toUpperCase()}</Avatar> */}
                     <Avatar size={56} style={style.avatar} src={room.avatar}></Avatar>
                     <div style={style.roomMessage}>
                         <p style={style.roomMessageName}>{room?.name}</p>
                         <p style={style.roomMessageLastMessage}>{updateMsg ? lastMsg : room?.lastMessage}</p>
                     </div>
                     <span style={style.messageTime}>{moment(`${updateMsg ? lastMsgTime : room?.lastMessageDate}`).fromNow()}</span>
-                    {/* </div> */}
-                    {/* <ArrowRightIcon style={style.button} onClick={() => setOption(!option)}></ArrowRightIcon> */}
+                    {room.isPrivate && <Icon style={style.private} icon="ri:chat-private-line" />}
                 </div>
-
-                {/* <div>
-                    <div style={style.roomOption}>
-                        <p
-                            style={{padding: '10px 0px'}}
-                            onClick={() => roomManage(room)}
-                        >Room management</p>
-                    </div>
-                    <div style={style.roomOption} onClick={() => leaveHandle(room._id)}>
-                        <p style={{color: 'red', padding: '10px 0px'}}>Leave</p>
-                    </div>
-                </div> */}
             </div>
         </div>
     )
