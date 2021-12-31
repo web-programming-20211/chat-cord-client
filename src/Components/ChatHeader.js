@@ -6,6 +6,7 @@ import { toast } from 'react-toastify'
 import { Icon } from '@iconify/react';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { storage } from "../firebase/index"
+import Cookies from "js-cookie"
 
 const { TabPane } = Tabs;
 
@@ -20,7 +21,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
     const user = []
     const [roomAvatarPreview, setRoomAvatarPreview] = useState(null)
     const [roomAvatar, setRoomAvatar] = useState()
-
+    const currentUser = Cookies.get('userId').slice(Cookies.get('userId').indexOf('"') + 1, Cookies.get('userId').length - 1)
     const [roomUpdateInfo, setRoomUpdateInfo] = useState({
         name: '',
         description: '',
@@ -361,12 +362,16 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
         toast.success('Copied to clipboard')
     }
 
-    const onFinish = (values) => {
-        // get user email
+    const onFinish = async (values) => {
         for (let i = 0; i < values.usersList.length; i++) {
             user.push(values.usersList[i].first)
         }
-        // TODO: handle add user
+        try {
+            let add = await axios.post('/room/' + room?._id + '/add', { emails: user.join(',') }, { withCredentials: true })
+            toast.success(add.data.msg)
+        } catch (err) {
+            toast.error(`${err?.response?.data?.msg}`)
+        }
     }
 
 
@@ -399,7 +404,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                                 <input id="roomAvatar" style={{ visibility: "hidden" }} accept='image' type="file" onChange={handleUpdateRoomAvatar} />
                             </div>
                         }
-                        <div style={style.roomShortId} onClick={copyToClipboard}>{room?.shortId}</div>
+                        {!room.isPrivate && <div style={style.roomShortId} onClick={copyToClipboard}>{room?.shortId}</div>}
                         <div style={style.roomName}>{room?.name}</div>
                         <div style={style.roomDescription}>{room?.description}</div>
                         <div style={style.line}></div>
@@ -428,9 +433,11 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                                 <Input defaultValue={room.description} onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, description: e.target.value })} />
                             </Form.Item>
 
-                            <Form.Item label="Mode">
+                            {
+                            currentUser == room.creator && <Form.Item label="Mode">
                                 <Switch defaultChecked={room.isPrivate} checkedChildren="Private" unCheckedChildren="Public" onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, isPrivate: !roomUpdateInfo.isPrivate })} />
                             </Form.Item>
+                            }
 
                             <Form.Item wrapperCol={{ offset: 10, span: 16 }}>
                                 <Button type="primary" htmlType="submit">
@@ -502,45 +509,48 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                             </TabPane>
                             <TabPane tab="Members" key="4">
                                 <div style={style.members}>
-                                    <Form name="add user dynamic form" autoComplete="off" onFinish={onFinish}>
-                                        <Form.List name="usersList">
-                                            {(fields, { add, remove }) => (
-                                                <>
-                                                    {fields.map(({ key, name, fieldKey, ...restField }) => (
-                                                        <Space key={key} style={{ display: 'flex', marginBottom: 2 }} align="baseline">
-                                                            <Form.Item
-                                                                {...restField}
-                                                                name={[name, 'first']}
-                                                                fieldKey={[fieldKey, 'first']}
-                                                                rules={[{ type: 'email', required: true, message: 'Email is required!' }]}
-                                                            >
-                                                                <Input placeholder="Email" />
-                                                            </Form.Item>
-                                                            <Icon style={style.removeIcon} icon="gg:remove" onClick={() => remove(name)} />
-                                                            {/* <MinusCircleOutlined onClick={() => remove(name)} /> */}
-                                                        </Space>
-                                                    ))}
-                                                    <Form.Item>
-                                                        <Button onClick={() => add()} block style={style.plusIconContainer}><Icon style={style.plusIcon} icon="carbon:add" /></Button>
-                                                    </Form.Item>
-                                                </>
-                                            )}
-                                        </Form.List>
-                                        <Form.Item>
-                                            <Button style={style.submitButton} type='primary' htmlType="submit">
-                                                Submit
-                                            </Button>
-                                        </Form.Item>
-                                    </Form>
+                                    {
+                                        ((currentUser == room.creator && room.isPrivate) || !room.isPrivate) &&
+                                        <Form name="add user dynamic form" autoComplete="off" onFinish={onFinish}>
+                                            <Form.List name="usersList">
+                                                {(fields, { add, remove }) => (
+                                                    <>
+                                                        {fields.map(({ key, name, fieldKey, ...restField }) => (
+                                                            <Space key={key} style={{ display: 'flex', marginBottom: 2 }} align="baseline">
+                                                                <Form.Item
+                                                                    {...restField}
+                                                                    name={[name, 'first']}
+                                                                    fieldKey={[fieldKey, 'first']}
+                                                                    rules={[{ type: 'email', required: true, message: 'Email is required!' }]}
+                                                                >
+                                                                    <Input placeholder="Email" />
+                                                                </Form.Item>
+                                                                <Icon style={style.removeIcon} icon="gg:remove" onClick={() => remove(name)} />
+                                                                {/* <MinusCircleOutlined onClick={() => remove(name)} /> */}
+                                                            </Space>
+                                                        ))}
+                                                        <Form.Item>
+                                                            <Button onClick={() => add()} block style={style.plusIconContainer}><Icon style={style.plusIcon} icon="carbon:add" /></Button>
+                                                        </Form.Item>
+                                                    </>
+                                                )}
+                                            </Form.List>
+                                            <Form.Item>
+                                                <Button style={style.submitButton} type='primary' htmlType="submit">
+                                                    Submit
+                                                </Button>
+                                            </Form.Item>
+                                        </Form>
+                                    }
                                     {
                                         users?.map((user, index) => {
                                             return (
                                                 <div key={index} style={style.member}>
                                                     <div style={style.avatar}>
-                                                        <Avatar style={{ backgroundColor: '#' + user.color }} size={50}>{user.fullname?.toUpperCase()[0]}</Avatar>
-                                                        {userOnlines.includes(user._id) && <span style={style.dot}></span>}
+                                                        <Avatar style={{ backgroundColor: '#' + user?.color }} size={50} src={user?.avatar}></Avatar>
+                                                        {userOnlines.includes(user?._id) && <span style={style.dot}></span>}
                                                     </div>
-                                                    <p style={{ fontSize: '16px' }}>{user.fullname}</p>
+                                                    <p style={{ fontSize: '16px' }}>{user?.fullname}</p>
                                                 </div>
                                             )
                                         })
@@ -566,7 +576,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                     <div style={style.pinMessageInfo}>
                         <div style={style.pinMessageTitle}>Pinned message</div>
                         <div style={style.pinMessageContent}>
-                            <Avatar style={style.pinMessageAvatar} src="https://joeschmoe.io/api/v1/random"></Avatar>
+                            <Avatar style={style.pinMessageAvatar} src={pinnedMessage ? pinnedMessage?.avatar : room?.pinnedMessages?.at(-1)?.avatar}></Avatar>
                             <div>
                                 <p style={style.pinMessageName}>{pinnedMessage ? pinnedMessage?.username : room?.pinnedMessages?.at(-1)?.username}</p>
                                 <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
