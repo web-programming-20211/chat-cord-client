@@ -10,22 +10,21 @@ import { storage } from "../firebase/index"
 const { TabPane } = Tabs;
 
 
-const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => {
+const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
     const [users, setUsers] = useState([])
     const [currentRoom, setRoom] = useState(room)
     const [visible, setVisible] = useState(false)
     const [updateVisible, setUpdateVisible] = useState(false)
-    const [pinnedMessage, setPinnedMessage] = useState(null);
+    const [pinnedMessage, setPinnedMessage] = useState(false);
     const [showPinnedMessage, setShowPinnedMessage] = useState(false);
     const user = []
-    const [roomMode, setRoomMode] = useState(room.isPrivate)
     const [roomAvatarPreview, setRoomAvatarPreview] = useState(null)
     const [roomAvatar, setRoomAvatar] = useState()
 
     const [roomUpdateInfo, setRoomUpdateInfo] = useState({
         name: '',
         description: '',
-        isPrivate: false,
+        isPrivate: room.isPrivate,
         avatar: '',
     })
     const showDrawer = () => {
@@ -86,7 +85,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => 
         },
 
         pinMessageContainer: {
-            opacity: showPinnedMessage || room?.pinnedMessages?.length > 0 ? 1 : 0,
+            // opacity: showPinnedMessage || room?.pinnedMessages?.length > 0 ? 1 : 0,
             position: 'absolute',
             backgroundColor: '#E3F6FC',
             bottom: '-67px',
@@ -271,7 +270,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => 
             textOverflow: 'ellipsis',
             width: '320px',
             workBreak: 'break-word',
-        }, 
+        },
 
         infoIcon: {
             position: 'relative',
@@ -341,6 +340,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => 
             axios.get('/room/' + room?._id + '/members', { withCredentials: true }).then(res => {
                 setUsers(res.data.msg);
             })
+        room?.pinnedMessages?.length > 0 && setShowPinnedMessage(true)
     }, [room])
 
     useEffect(() => {
@@ -352,8 +352,6 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => 
                     setShowPinnedMessage(true)
                     setPinnedMessage(r.pinnedMessages.at(-1))
                 }
-                setIsPin(dialog.pinned)
-                console.log(dialog.pinned)
             }
         })
     }, [room])
@@ -431,7 +429,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => 
                             </Form.Item>
 
                             <Form.Item label="Mode">
-                                <Switch defaultChecked={room.isPrivate} checkedChildren="Private" unCheckedChildren="Public" onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, isPrivate: !roomMode })} />
+                                <Switch defaultChecked={room.isPrivate} checkedChildren="Private" unCheckedChildren="Public" onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, isPrivate: !roomUpdateInfo.isPrivate })} />
                             </Form.Item>
 
                             <Form.Item wrapperCol={{ offset: 10, span: 16 }}>
@@ -563,7 +561,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => 
                         </div>
                     }
                 </Drawer>
-                <div style={style.pinMessageContainer}>
+                {showPinnedMessage && <div style={style.pinMessageContainer}>
                     <Icon style={style.pinMessageIcon} icon="bi:pin-angle-fill" />
                     <div style={style.pinMessageInfo}>
                         <div style={style.pinMessageTitle}>Pinned message</div>
@@ -576,6 +574,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket, setIsPin }) => 
                         </div>
                     </div>
                 </div>
+                }
             </div>
         </>
     )
