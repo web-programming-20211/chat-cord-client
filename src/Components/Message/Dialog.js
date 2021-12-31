@@ -42,7 +42,7 @@ const Icons = ({ reactions, self }) => {
 }
 
 
-const Dialog = ({ dialog, onDelete, room, socket, isPin }) => {
+const Dialog = ({ dialog, onDelete, room, socket }) => {
     const [widget, setWidget] = useState(false)
     const [enter, setEnter] = useState(false)
     const [reactions, setReaction] = useState([])
@@ -114,7 +114,6 @@ const Dialog = ({ dialog, onDelete, room, socket, isPin }) => {
             rowGap: '1em',
             padding: '10px',
             borderRadius: '14px',
-            backgroundColor: isPin || dialog.pinned ? '#E3F6FC' : null,
         },
 
         reply: {
