@@ -195,7 +195,18 @@ function App() {
     }
   }, [currentRoom])
 
-  // setShowSearchRoom(!showSearchRoom)
+  useEffect(() => {
+    try {
+      axios.get(`/room/${lastMsgRoomId}`, { withCredentials: true }).then((res) => {
+        if (currentRoom?._id !== lastMsgRoomId) {
+          setRooms([res.data.msg, ...rooms.filter(el => el._id !== res.data.msg._id)])
+          setCurrentRoom(currentRoom)
+        }
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }, [lastMsgRoomId])
 
   return (
     <div className="App">
