@@ -142,7 +142,7 @@ const Room = ({ room, onClick, lastMsgRoomId, setLastMsgRoomId, leaveHandle, roo
             setOption(false)
         }
         if (room?._id === lastMsgRoomId) {
-            let res = await axios.get('/room/' + lastMsgRoomId, { withCredentials: true })
+            let res = await axios.get(`/room/${lastMsgRoomId}`, { withCredentials: true })
             setLastMsg(res.data.msg.lastMessage)
             setLastMsgTime(res.data.msg.lastMessageDate)
             setUpdateMsg(true)
