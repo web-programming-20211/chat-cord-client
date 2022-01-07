@@ -18,7 +18,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
     const [updateVisible, setUpdateVisible] = useState(false)
     const [pinnedMessage, setPinnedMessage] = useState(false);
     const [showPinnedMessage, setShowPinnedMessage] = useState(false);
-    const user = []
+    var user = []
     const [roomAvatarPreview, setRoomAvatarPreview] = useState(null)
     const [roomAvatar, setRoomAvatar] = useState()
     const currentUser = Cookies.get('userId').slice(Cookies.get('userId').indexOf('"') + 1, Cookies.get('userId').length - 1)
@@ -28,6 +28,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
         isPrivate: room.isPrivate,
         avatar: '',
     })
+    const [isPrivate, setIsPrivate] = useState(room.isPrivate)
     const showDrawer = () => {
         setVisible(true);
     };
@@ -363,6 +364,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
     }
 
     const onFinish = async (values) => {
+        user=[]
         for (let i = 0; i < values.usersList.length; i++) {
             user.push(values.usersList[i].first)
         }
@@ -372,6 +374,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
         } catch (err) {
             toast.error(`${err?.response?.data?.msg}`)
         }
+
     }
 
 
@@ -435,7 +438,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
 
                             {
                             currentUser == room.creator && <Form.Item label="Mode">
-                                <Switch defaultChecked={room.isPrivate} checkedChildren="Private" unCheckedChildren="Public" onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, isPrivate: !roomUpdateInfo.isPrivate })} />
+                                <Switch defaultChecked={isPrivate} checkedChildren="Private" unCheckedChildren="Public" onClick={(e) => {setIsPrivate(pre=>!pre);setRoomUpdateInfo(prevRoomUpdateInfo => {return ({...prevRoomUpdateInfo, isPrivate: !prevRoomUpdateInfo.isPrivate })})}} />
                             </Form.Item>
                             }
 
@@ -538,7 +541,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                                             <Form.Item>
                                                 <Button style={style.submitButton} type='primary' htmlType="submit">
                                                     Submit
-                                                </Button>
+                                                </Button>   
                                             </Form.Item>
                                         </Form>
                                     }
