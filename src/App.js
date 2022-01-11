@@ -17,7 +17,9 @@ import { useMediaQuery } from 'react-responsive'
 import { toast } from 'react-toastify'
 import SearchRoom from './Components/List/SearchRoom';
 
-const socket = io.connect('/')
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || '';
+
+const socket = io.connect(process.env.REACT_APP_API_URL || '');
 
 function App() {
   const [connected, setConnect] = useState(false)
