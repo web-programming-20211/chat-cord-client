@@ -21,7 +21,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
     var user = []
     const [roomAvatarPreview, setRoomAvatarPreview] = useState(null)
     const [roomAvatar, setRoomAvatar] = useState()
-    const currentUser = Cookies.get('userId').slice(Cookies.get('userId').indexOf('"') + 1, Cookies.get('userId').length - 1)
+    const currentUser = Cookies.get('userId')?.slice(Cookies.get('userId').indexOf('"') + 1, Cookies.get('userId').length - 1)
     const [roomUpdateInfo, setRoomUpdateInfo] = useState({
         name: '',
         description: '',
