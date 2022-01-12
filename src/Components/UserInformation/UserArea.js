@@ -82,7 +82,7 @@ const UserArea = ({ user, logout }) => {
       fontSize: 'xx-large',
       marginRight: '20px',
       marginLeft: '20px',
-      background: '#' + user.color,
+      background: '#' + user?.color,
       cursor: 'pointer',
     },
     info: {
@@ -115,7 +115,7 @@ const UserArea = ({ user, logout }) => {
       width: 'fit-content',
       display: 'block',
       margin: 'auto',
-      border: '4px solid #' + user.color,
+      border: '4px solid #' + user?.color,
       borderRadius: '115px',
       cursor: 'pointer',
     }
@@ -123,7 +123,7 @@ const UserArea = ({ user, logout }) => {
 
   return (
     <div style={style.userInformation}>
-      <Avatar onClick={handleEditUserInfo} style={style.avatar} className={classes.large} src={user.avatar}></Avatar>
+      <Avatar onClick={handleEditUserInfo} style={style.avatar} className={classes.large} src={user?.avatar}></Avatar>
 
 
       <Modal visible={updateVisible} closable={false} title="Update User Info" onCancel={handleEditUserInfo} footer={null}>
@@ -144,7 +144,7 @@ const UserArea = ({ user, logout }) => {
               message: 'Please input your full name!',
             },
           ]}>
-            <Input defaultValue={user.fullname} onChange={(e) => setUserInfo({ ...userInfo, fullname: e.target.value })} />
+            <Input defaultValue={user?.fullname} onChange={(e) => setUserInfo({ ...userInfo, fullname: e.target.value })} />
           </Form.Item>
           <Form.Item label="Username" rules={[
             {
@@ -152,7 +152,7 @@ const UserArea = ({ user, logout }) => {
               message: 'Please input your username!',
             },
           ]}>
-            <Input defaultValue={user.username} onChange={(e) => setUserInfo({ ...userInfo, username: e.target.value })} />
+            <Input defaultValue={user?.username} onChange={(e) => setUserInfo({ ...userInfo, username: e.target.value })} />
           </Form.Item>
           <Form.Item label="Password" name="password"
             rules={[
@@ -190,8 +190,8 @@ const UserArea = ({ user, logout }) => {
       </Modal>
 
       <div style={style.info}>
-        <p style={style.fullname}>{user.fullname}</p>
-        <p style={style.username}>{user.username}</p>
+        <p style={style.fullname}>{user?.fullname}</p>
+        <p style={style.username}>{user?.username}</p>
       </div>
       <Icon icon="ion:log-out-outline" style={{ fontSize: '30px', marginRight: '20px', marginLeft: '20px', cursor: 'pointer' }} onClick={logout} />
     </div>

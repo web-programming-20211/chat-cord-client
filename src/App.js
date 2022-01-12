@@ -72,10 +72,10 @@ function App() {
   const logIn = async (user) => {
     let userId = ''
     try {
-      const result = await userService.login(user)
+      const result = await authService.login(user)
       toast.success('logged in successfully')
-      setAuthenticated(result.data.token !== undefined)
-      setError(result.data.token === undefined)
+      setAuthenticated(result.data.token !== null)
+      setError(result.data.token === null)
       localStorage.setItem("token", result.data.token);
       userId = result.data.user._id
     } catch (err) {
