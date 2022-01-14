@@ -1,12 +1,11 @@
 import { Input, Select, Avatar, Drawer, Tabs, Space, Form, Switch, Button } from 'antd';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import copy from 'copy-to-clipboard';
 import { toast } from 'react-toastify'
 import { Icon } from '@iconify/react';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { storage } from "../firebase/index"
-import Cookies from "js-cookie"
+import { roomService } from "../service/room"
 
 const { TabPane } = Tabs;
 
@@ -21,7 +20,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
     var user = []
     const [roomAvatarPreview, setRoomAvatarPreview] = useState(null)
     const [roomAvatar, setRoomAvatar] = useState()
-    const currentUser = Cookies.get('userId')?.slice(Cookies.get('userId').indexOf('"') + 1, Cookies.get('userId').length - 1)
+    const currentUser = localStorage.getItem('userId')
     const [roomUpdateInfo, setRoomUpdateInfo] = useState({
         name: '',
         description: '',
@@ -61,13 +60,9 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
             const url = await snapshot.ref.getDownloadURL()
             roomUpdateInfo_.avatar = url
         }
-        try {
-            console.log(roomUpdateInfo_)
-            const update = await axios.put(`/room/${room._id}`, roomUpdateInfo_, { withCredentials: true })
-            toast.success(update?.data?.msg)
-        } catch (err) {
-            toast.error(`${err?.response?.data?.msg}`)
-        }
+        let res = await roomService.updateRoom(room?._id, roomUpdateInfo_)
+        if (res.status === 200)
+            toast.success(res?.data?.msg)
         setRoomAvatarPreview(roomUpdateInfo.avatar)
         setRoomAvatar(null)
         setUpdateVisible(false)
@@ -336,12 +331,13 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
         </Select>
     );
 
-    useEffect(() => {
+    useEffect(async () => {
         setRoom(room)
-        if (room?._id !== -1)
-            axios.get('/room/' + room?._id + '/members', { withCredentials: true }).then(res => {
-                setUsers(res.data.msg);
-            })
+        if (room?._id !== -1) {
+            let res = await roomService.getMembers(room?._id)
+            if (res.status === 200)
+                setUsers(res.data.msg)
+        }
         room?.pinnedMessages?.length > 0 && setShowPinnedMessage(true)
     }, [room])
 
@@ -364,17 +360,14 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
     }
 
     const onFinish = async (values) => {
-        user=[]
+        user = []
         for (let i = 0; i < values.usersList.length; i++) {
             user.push(values.usersList[i].first)
         }
-        try {
-            let add = await axios.post('/room/' + room?._id + '/add', { emails: user.join(',') }, { withCredentials: true })
-            toast.success(add.data.msg)
-        } catch (err) {
-            toast.error(`${err?.response?.data?.msg}`)
+        let res = await roomService.addMember(room?._id, { emails: user.join(',') })
+        if (res.status === 200) {
+            toast.success(res.data.msg)
         }
-
     }
 
 
@@ -437,9 +430,9 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                             </Form.Item>
 
                             {
-                            currentUser == room.creator && <Form.Item label="Mode">
-                                <Switch defaultChecked={isPrivate} checkedChildren="Private" unCheckedChildren="Public" onClick={(e) => {setIsPrivate(pre=>!pre);setRoomUpdateInfo(prevRoomUpdateInfo => {return ({...prevRoomUpdateInfo, isPrivate: !prevRoomUpdateInfo.isPrivate })})}} />
-                            </Form.Item>
+                                currentUser == room.creator && <Form.Item label="Mode">
+                                    <Switch defaultChecked={isPrivate} checkedChildren="Private" unCheckedChildren="Public" onClick={(e) => { setIsPrivate(pre => !pre); setRoomUpdateInfo(prevRoomUpdateInfo => { return ({ ...prevRoomUpdateInfo, isPrivate: !prevRoomUpdateInfo.isPrivate }) }) }} />
+                                </Form.Item>
                             }
 
                             <Form.Item wrapperCol={{ offset: 10, span: 16 }}>
@@ -541,7 +534,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                                             <Form.Item>
                                                 <Button style={style.submitButton} type='primary' htmlType="submit">
                                                     Submit
-                                                </Button>   
+                                                </Button>
                                             </Form.Item>
                                         </Form>
                                     }

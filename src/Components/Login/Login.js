@@ -1,6 +1,5 @@
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import axios from 'axios';
 import PersonIcon from '@material-ui/icons/Person';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import { useState } from 'react';
@@ -9,21 +8,19 @@ import Intro from '../Intro/Intro'
 import { useMediaQuery } from 'react-responsive';
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { authService } from '../../service/auth'
 
 toast.configure({
     autoClose: 2000,
     draggable: false,
     position: toast.POSITION.BOTTOM_RIGHT
-  })
+})
 
 const Login = ({ logIn, invalid, errorToggle, message }) => {
     const [error, setError] = useState(false)
-    const [user, setUser] = useState({ email: '', fullname: '', username: '', password: ''})
-    // const [haveAccount, setAccount] = useState(true)
+    const [user, setUser] = useState({ email: '', fullname: '', username: '', password: '' })
     const [hover, setHover] = useState(false)
-
     const [verifyUser, setUserVerify] = useState({ email: '', code: '' })
-
     const [formId, setFormId] = useState('login')
 
     const limit = useMediaQuery({ maxWidth: 1300 })
@@ -117,33 +114,25 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
     }
 
     const registation = async () => {
-            const result = await axios.post('/auth/register', user).
-            then (result => {
-                if (result.status === 200) {
-                    toast.success(`${result.data.msg}`)
-                    setFormId('verify')
-                }
-                else {
-                    setError(true)
-                }
-             })
-             .catch(error => {
-                toast.error(`${error.response.data.msg}`)
-             })
-
+        try {
+            let result = await authService.register(user)
+            toast.success(`${result.data.msg}`)
+            setFormId('verify')
+        } catch (error) {
+            setError(true)
+            toast.error(`${error.response.data.msg}`)
+        }
     }
 
     const verify = async () => {
-        const result = await axios.post('/auth/verify', verifyUser)
-        .then (result => {
+        let result = await authService.verify(verifyUser)
         if (result.status === 200) {
             toast.success(`${result.data.msg}`)
             setFormId('login')
-        }})
-        .catch(error => {
+        }
+        else {
             toast.error(`${error.response.data.msg}`,)
-         })
-
+        }
     }
 
     return (

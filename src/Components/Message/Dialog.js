@@ -4,10 +4,8 @@ import Emoji from '../Emoji/Emoji';
 import EmojiIcon from '../Emoji/EmojiIcon';
 import DeleteIcon from '@material-ui/icons/Delete';
 import PushPinIcon from '@mui/icons-material/PushPin';
-import Cookies from 'js-cookie';
-import axios from 'axios'
 import moment from 'moment';
-
+import { reactionService } from "../../service/reaction"
 import { Avatar } from 'antd';
 
 
@@ -30,9 +28,9 @@ const Icons = ({ reactions, self }) => {
     return (
         <div style={style.iconsInfo}>
             <div style={style.icons}>
-                {reactions.map((reaction) => {
+                {reactions?.map((reaction) => {
                     if (reaction.from.length !== 0) {
-                        return <EmojiIcon key={reaction.reaction_type} emojiIndex={reaction.reaction_type}></EmojiIcon>
+                        return <EmojiIcon key={reaction?.reaction_type} emojiIndex={reaction?.reaction_type}></EmojiIcon>
                     }
                     return null
                 })}
@@ -160,9 +158,9 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
             display: 'grid',
             gridTemplateColumns: fileNumber === 1 ? 'repeat(1, 1fr)' : fileNumber == 2 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
             gap: '10px',
-        }, 
+        },
 
-        des : {
+        des: {
             display: '-webkit-box',
             WebkitLineClamp: 1,
             WebkitBoxOrient: 'vertical',
@@ -174,15 +172,12 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
     }
 
     const react = (reaction_id, id) => {
-        const cookie = Cookies.get('userId')
-        const index = cookie.indexOf('"')
-        const new_cookie = cookie.slice(index + 1, cookie.length - 1)
-
+        let userId = localStorage.getItem('userId')
         const tmp = [...reactions]
         let pre_react = 0
 
         tmp.every(react => {
-            const index = react.from.findIndex(user => user.userId === new_cookie)
+            const index = react.from.findIndex(user => user.userId === userId)
             if (index !== -1) {
                 react.from.splice(index, 1)
                 pre_react = react.reaction_type
@@ -194,12 +189,12 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
         if (pre_react !== reaction_id) {
             const index = tmp.findIndex(react => react.reaction_type === reaction_id)
             if (index !== -1) {
-                tmp[index].from.push({ userId: new_cookie, username: ' ' })
+                tmp[index].from.push({ userId: userId, username: ' ' })
             } else {
                 tmp.push({
                     reaction_type: reaction_id,
                     from: [{
-                        userId: new_cookie,
+                        userId: userId,
                         username: ' '
                     }]
                 })
@@ -208,7 +203,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
 
         setReaction([...tmp])
 
-        socket.emit('get-reaction', dialog, reaction_id, new_cookie, room._id)
+        socket.emit('get-reaction', dialog, reaction_id, userId, room._id)
     }
 
     const setPin = () => {
@@ -223,10 +218,9 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
         })
 
         if (self === null) {
-            const cookie = Cookies.get('userId')
-            const index = cookie.indexOf('"')
-            setSelf(cookie.slice(index + 1, cookie.length - 1) === dialog.from.userId)
-            if (cookie.slice(index + 1, cookie.length - 1) === room.creator)
+            let userId = localStorage.getItem('userId')
+            setSelf(userId === dialog.from.userId)
+            if (userId === room.creator)
                 setSelfAndCreator(true)
         }
 
@@ -236,10 +230,13 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
     }, [dialog])
 
 
-    useEffect(() => {
-        axios.post('/reaction/retrieve', { id: dialog._id }, { withCredentials: true }).then(result => {
-            setReaction(result.data.data)
-        })
+    useEffect(async () => {
+        let res = await reactionService.getReactionsByMessage({ id: dialog._id })
+
+        if (res.status === 200)
+        {
+            setReaction(res.data.data)
+        }
     }, [])
 
     useEffect(() => {
@@ -295,7 +292,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
                                         )
                                     }
                                 })
-                                
+
                             }
                         </div>
                     </div>

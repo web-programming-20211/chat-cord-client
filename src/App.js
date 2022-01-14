@@ -2,8 +2,6 @@
 import { useState, useEffect } from 'react';
 import '../src/App.css';
 import io from 'socket.io-client';
-import axios from "axios";
-import Cookies from "js-cookie";
 import ChatWindow from "./Components/ChatWindow";
 import Login from './Components/Login/Login';
 import Loading from './Components/Loading';
@@ -36,8 +34,6 @@ function App() {
   const [showSearchRoom, setShowSearchRoom] = useState(false)
   const [token, setToken] = useState('')
 
-  axios.defaults.baseURL = process.env.REACT_APP_API_URL || '';
-  axios.defaults.withCredentials = true;
   const socket = io.connect(process.env.REACT_APP_API_URL || '');
 
   const limit = useMediaQuery({ maxWidth: 1300 })
@@ -89,7 +85,9 @@ function App() {
   }
 
   const leaveRoom = async (id) => {
-    axios.post('/room/' + id + '/leave', { withCredentials: true }).then(result => {
+    let res = await roomService.leaveRoom(id)
+    if (res.status === 200) {
+      toast.success('left room successfully')
       const index = rooms.findIndex(room => room._id === id)
       if (index !== -1) {
         rooms.splice(index, 1)
@@ -107,14 +105,15 @@ function App() {
           color: ''
         })
       }
-    })
-
+    } else {
+      toast.error(`${res.response.data.msg}`)
+    }
   }
 
   const findRoom = async (shortId) => {
     const index = rooms.findIndex(room => room.shortId === shortId)
     if (index === -1) {
-      const res = await axios.post('/room/' + shortId + '/attend', { withCredentials: true })
+      let res = await roomService.attendRoom(shortId)
       if (res.status === 200) {
         setRooms([res.data.msg, ...rooms])
         setCurrentRoom(res.data.msg)
@@ -129,7 +128,7 @@ function App() {
   const joinRoom = async (room) => {
     if (room) {
       try {
-        const response = await axios.post('/room/create', room, { withCredentials: true })
+        let response = await roomService.createRoom(room)
         setRooms([response.data.msg, ...rooms])
         setCurrentRoom(response.data.msg)
       } catch (err) {
@@ -148,22 +147,9 @@ function App() {
   }
 
   const logout = async () => {
-    // const response = await axios.get('/user/logout', { withCredentials: true })
-    // if (response) {
-    //   setAuthenticated(false)
-    //   setLogin(false)
-    //   setCurrentRoom({
-    //     _id: -1,
-    //     name: " ",
-    //     color: ''
-    //   })
-    //   setRooms([])
-    // }
-    const cookie = Cookies.get('userId')
-    let index = cookie.indexOf('"')
-    let new_cookie = cookie.slice(index + 1, cookie.length - 1)
-    await socket.emit('logout', new_cookie)
-    Cookies.remove('userId')
+    let userId = localStorage.getItem("userId")
+    await socket.emit('logout', userId)
+    localStorage.clear()
     window.location.reload()
   }
 
@@ -174,24 +160,20 @@ function App() {
   useEffect(async () => {
     let token = localStorage.getItem("token")
     setLogin(token !== null)
-    console.log(token)
-    console.log(authenticated)
-    console.log(connected)
     if (token !== null && !authenticated) {
       let res = await userService.getUser()
-      if (res) {
+      if (res.status === 200) {
         setAuthenticated(true)
+        localStorage.setItem("userId", res.data.msg._id)
         setUser(res.data.msg)
+        res = await roomService.getRooms()
+        if (res.status === 200) setRooms(res.data.msg)
+        if (res.data.length !== 0) {
+          setCurrentRoom(res.data.msg[0])
+        }
+        socket.emit('login', token)
+        socket.once('connected', () => setConnect(true))
       }
-      res = await roomService.getRooms()
-      if (res) setRooms(res.data.msg)
-      if (res.data.length !== 0) {
-        setCurrentRoom(res.data.msg[0])
-      }
-      // let index = cookie.indexOf('"')
-      // let new_cookie = cookie.slice(index + 1, cookie.length - 1)
-      socket.emit('login', token)
-      socket.once('connected', () => setConnect(true))
     }
   }, [user, rooms, authenticated])
 
@@ -201,17 +183,12 @@ function App() {
     }
   }, [currentRoom])
 
-  useEffect(() => {
+  useEffect(async () => {
     if (lastMsgRoomId) {
-      try {
-        axios.get(`/room/${lastMsgRoomId}`, { withCredentials: true }).then((res) => {
-          if (currentRoom?._id !== lastMsgRoomId) {
-            setRooms([res.data.msg, ...rooms.filter(el => el._id !== res.data.msg._id)])
-            setCurrentRoom(currentRoom)
-          }
-        })
-      } catch (err) {
-        console.log(err)
+      let res = await roomService.getRoom(lastMsgRoomId)
+      if (res.status === 200 && currentRoom?._id !== lastMsgRoomId) {
+        setRooms([res.data.msg, ...rooms.filter(el => el._id !== res.data.msg._id)])
+        setCurrentRoom(currentRoom)
       }
     }
   }, [lastMsgRoomId])

@@ -5,8 +5,8 @@ import { Icon } from '@iconify/react'
 import { useState } from 'react'
 import { Modal, Form, Input, Avatar as UserAvatar, Button } from 'antd'
 import { storage } from "../../firebase/index"
-import axios from 'axios'
 import { toast } from 'react-toastify'
+import { userService } from "../../service/user"
 
 const useStyles = makeStyles((theme) => ({
   large: {
@@ -44,9 +44,8 @@ const UserArea = ({ user, logout }) => {
       userInfoToUpdate.avatar = url
     }
     try {
-      console.log(userInfo)
-      const update = await axios.put(`/user/${user._id}`, userInfoToUpdate, { withCredentials: true })
-      toast.success(update?.data?.msg)
+      let res = await userService.updateUser(user?.id, userInfoToUpdate)
+      toast.success(res?.data?.msg)
     } catch (err) {
       toast.error(`${err?.response?.data?.msg}`)
     }
