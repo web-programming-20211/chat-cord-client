@@ -232,11 +232,9 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
 
     useEffect(async () => {
         let res = await reactionService.getReactionsByMessage({ id: dialog._id })
-
         if (res.status === 200)
-        {
-            setReaction(res.data.data)
-        }
+            setReaction(res.data.reactions.data)
+        
     }, [])
 
     useEffect(() => {
@@ -274,14 +272,14 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
                                     } else if (format === 'pdf') {
                                         return (
                                             <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                <img src='pdf_file_icon.png' style={{ width: '50px', marginBottom: '10px', marginRight: '10px' }} />
+                                                <img src='https://firebasestorage.googleapis.com/v0/b/chat-cord-712bf.appspot.com/o/default-avatar%2Fpdf_file_icon.png?alt=media&token=f12bd4a4-9d41-4096-9596-b3dfeb8d24b5' style={{ width: '50px', marginBottom: '10px', marginRight: '10px' }} />
                                                 <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
                                             </a>
                                         )
                                     } else if (format === 'docx' || format === 'doc') {
                                         return (
                                             <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                <img src='docx_file_icon.png' style={{ width: '50px', marginBottom: '10px', marginRight: '10px', }} />
+                                                <img src='https://firebasestorage.googleapis.com/v0/b/chat-cord-712bf.appspot.com/o/default-avatar%2Fdocx_file_icon.png?alt=media&token=8c3eeb46-718b-4277-862f-da3236fb6182' style={{ width: '50px', marginBottom: '10px', marginRight: '10px', }} />
                                                 <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
                                             </a>
                                         )

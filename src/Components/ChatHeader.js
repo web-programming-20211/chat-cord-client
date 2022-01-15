@@ -364,9 +364,13 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
         for (let i = 0; i < values.usersList.length; i++) {
             user.push(values.usersList[i].first)
         }
-        let res = await roomService.addMember(room?._id, { emails: user.join(',') })
-        if (res.status === 200) {
-            toast.success(res.data.msg)
+        try {
+            let res = await roomService.addMember(room?._id, { emails: user.join(',') })
+            if (res.status === 200) {
+                toast.success(res.data.msg)
+            }
+        } catch (e) {
+            toast.error(`${e.response.data.msg}`)
         }
     }
 
@@ -533,7 +537,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                                             </Form.List>
                                             <Form.Item>
                                                 <Button style={style.submitButton} type='primary' htmlType="submit">
-                                                    Submit
+                                                    Add
                                                 </Button>
                                             </Form.Item>
                                         </Form>

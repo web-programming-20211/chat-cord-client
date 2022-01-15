@@ -15,6 +15,7 @@ import SearchRoom from './Components/List/SearchRoom';
 import { userService } from './service/user';
 import { roomService } from './service/room';
 import { authService } from './service/auth';
+require('dotenv').config()
 
 function App() {
   const [connected, setConnect] = useState(false)
@@ -41,10 +42,7 @@ function App() {
     left: {
       width: limit ? '15em' : '25%',
       float: 'left',
-      // height: '100%',
       boxSizing: 'border-box',
-      // background: '#E5E5E5',
-      // borderRight: '2px solid #4a336e'
     },
 
     right: {
