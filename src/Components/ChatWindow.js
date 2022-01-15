@@ -1,16 +1,8 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import Input from "./Message/Input"
 import Dialogs from "./Message/Dialogs"
 import ChatHeader from "./ChatHeader"
-import axios from 'axios'
 import { useEffect, useState } from "react"
-import Cookies from "js-cookie"
-// import Snackbar from '@material-ui/core/Snackbar'
-// import MuiAlert from '@material-ui/lab/Alert'
-
-// const Alert = (props) => {
-//     return <MuiAlert elevation={6} variant='filled' {...props} />
-// }
+import { messageService } from "../service/message"
 
 const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) => {
     const [dialogs, setDialogs] = useState([])
@@ -18,25 +10,12 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
     const [newMessage, setNewMessage] = useState(null)
     const [userOnlines, setUserOnlines] = useState([])
 
-    // const style = {
-    //     container: {
-    //         height: '100vh',
-    //         width: '90%',
-    //         background: '#E3F6FC',
-    //         borderRadius: '10px',
-    //         margin: '50px 50px 50px 30px'
-    //     },
-
-    // }
-
     const dialogsUpdate = (message, urls) => {
-        socket.emit('chat', message, urls, Cookies.get('userId'), room._id)
+        socket.emit('chat', message, urls, localStorage.getItem('userId'), room._id)
     }
 
     const deleteMessage = (dialog, creator) => {
-        const cookie = Cookies.get('userId')
-        const index = cookie.indexOf('"')
-        let userId = cookie.slice(index + 1, cookie.length - 1)
+        let userId = localStorage.getItem('userId')
         if (dialog.from.userId === userId || creator === userId) {
             const temp = [...dialogs]
             temp.every((d, index) => {
@@ -51,12 +30,15 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
         }
     }
 
-    useEffect(() => {
+    useEffect(async () => {
         setRoom(room)
         if (room?._id !== -1)
-            axios.get('/message/room/' + room?._id, { withCredentials: true }).then(response => {
-                setDialogs(response.data.msg)
-            })
+        {
+            let res = await messageService.getMessages(room?._id)
+            if (res.status === 200) {
+                setDialogs(res.data.msg)
+            }
+        }
     }, [room])
 
     useEffect(() => {
@@ -78,7 +60,6 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
             setDialogs([...temp])
         })
         return () => {
-            // socket.off('logged')
             socket.off('your_new_message')
             socket.off('dialog-deleted')
         }
