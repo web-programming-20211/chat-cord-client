@@ -7,33 +7,31 @@ import { messageService } from "../service/message"
 const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) => {
     const [dialogs, setDialogs] = useState([])
     const [currentRoom, setRoom] = useState(room)
-    const [newMessage, setNewMessage] = useState(null)
     const [userOnlines, setUserOnlines] = useState([])
 
     const dialogsUpdate = (message, urls) => {
-        socket.emit('chat', message, urls, localStorage.getItem('userId'), room._id)
+        socket.emit('chat', message, urls, localStorage.getItem('userId'), room._id)     
     }
 
-    const deleteMessage = (dialog, creator) => {
-        let userId = localStorage.getItem('userId')
+    const deleteMessage =async (dialog, creator) => {
+        const userId = localStorage.getItem('userId')
         if (dialog.from.userId === userId || creator === userId) {
-            const temp = [...dialogs]
-            temp.every((d, index) => {
-                if (d._id === dialog._id) {
-                    temp.splice(index, 1)
-                    return false
-                }
-                return true
-            })
-            setDialogs([...temp])
-            socket.emit('delete', dialog._id, room)
+            // const temp = [...dialogs]
+            // temp.every((d, index) => {
+            //     if (d._id === dialog._id) {
+            //         temp.splice(index, 1)
+            //         return false
+            //     }
+            //     return true
+            // })
+            // setDialogs([...temp])
+            await socket.emit('delete', dialog._id, room)
         }
     }
 
     useEffect(async () => {
         setRoom(room)
-        if (room?._id !== -1)
-        {
+        if (room?._id !== -1) {
             let res = await messageService.getMessages(room?._id)
             if (res.status === 200) {
                 setDialogs(res.data.msg)
@@ -46,7 +44,7 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
             setLastMsgRoomId(ctRoom)
             setLastMsgRoomId('')
             if (ctRoom === room?._id)
-                setNewMessage(dialog)
+                setDialogs([...dialogs, dialog])
         })
         socket.on('dialog-deleted', (id) => {
             const temp = [...dialogs]
@@ -66,12 +64,6 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
     }, [dialogs, socket])
 
     useEffect(() => {
-        if (newMessage) {
-            setDialogs([...dialogs, newMessage])
-        }
-    }, [newMessage])
-
-    useEffect(() => {
         socket.on('loggedIn', (users) => {
             setUserOnlines([...users])
         })
@@ -85,7 +77,7 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
             socket.off('loggedOut')
         }
 
-    }, [userOnlines,socket])
+    }, [userOnlines, socket])
 
     return (
         <div>
