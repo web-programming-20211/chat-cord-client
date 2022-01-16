@@ -10,7 +10,6 @@ import { Avatar } from 'antd';
 
 
 const Icons = ({ reactions, self }) => {
-
     const style = {
         icons: {
             display: 'flex',
@@ -28,9 +27,9 @@ const Icons = ({ reactions, self }) => {
     return (
         <div style={style.iconsInfo}>
             <div style={style.icons}>
-                {reactions?.map((reaction) => {
+                {reactions.map((reaction) => {
                     if (reaction.from.length !== 0) {
-                        return <EmojiIcon key={reaction?.reaction_type} emojiIndex={reaction?.reaction_type}></EmojiIcon>
+                        return <EmojiIcon key={reaction.reaction_type} emojiIndex={reaction.reaction_type}></EmojiIcon>
                     }
                     return null
                 })}
@@ -172,12 +171,12 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
     }
 
     const react = (reaction_id, id) => {
-        let userId = localStorage.getItem('userId')
+        const user_id = localStorage.getItem('userId')
         const tmp = [...reactions]
         let pre_react = 0
 
         tmp.every(react => {
-            const index = react.from.findIndex(user => user.userId === userId)
+            const index = react.from.findIndex(user => user.userId === user_id)
             if (index !== -1) {
                 react.from.splice(index, 1)
                 pre_react = react.reaction_type
@@ -189,12 +188,12 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
         if (pre_react !== reaction_id) {
             const index = tmp.findIndex(react => react.reaction_type === reaction_id)
             if (index !== -1) {
-                tmp[index].from.push({ userId: userId, username: ' ' })
+                tmp[index].from.push({ userId: user_id, username: ' ' })
             } else {
                 tmp.push({
                     reaction_type: reaction_id,
                     from: [{
-                        userId: userId,
+                        userId: user_id,
                         username: ' '
                     }]
                 })
@@ -203,7 +202,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
 
         setReaction([...tmp])
 
-        socket.emit('get-reaction', dialog, reaction_id, userId, room._id)
+        socket.emit('get-reaction', dialog, reaction_id, user_id, room._id)
     }
 
     const setPin = () => {
@@ -218,7 +217,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
         })
 
         if (self === null) {
-            let userId = localStorage.getItem('userId')
+            const userId = localStorage.getItem('userId')
             setSelf(userId === dialog.from.userId)
             if (userId === room.creator)
                 setSelfAndCreator(true)
@@ -231,9 +230,9 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
 
 
     useEffect(async () => {
-        let res = await reactionService.getReactionsByMessage({ id: dialog._id })
+        let res = await reactionService.getReactionsByMessage(dialog._id)
         if (res.status === 200)
-            setReaction(res.data.reactions.data)
+            setReaction(res.data.data)
         
     }, [])
 
@@ -303,7 +302,9 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
                         {(self || selfAndCreator) &&
                             <DeleteIcon
                                 style={style.deleteIcon}
-                                onClick={() => onDelete(dialog, room.creator)}
+                                onClick={() => {
+                                    onDelete(dialog, room.creator)
+                                }}
                             >
                             </DeleteIcon>
                         }

@@ -23,11 +23,7 @@ function App() {
   const [authenticated, setAuthenticated] = useState(false)
   const [user, setUser] = useState(null)
   const [roomPanel, setPanel] = useState(false)
-  const [currentRoom, setCurrentRoom] = useState({
-    _id: -1,
-    name: " ",
-    color: ''
-  })
+  const [currentRoom, setCurrentRoom] = useState(null)
   const [lastMsgRoomId, setLastMsgRoomId] = useState('')
   const [rooms, setRooms] = useState([])
   const [login, setLogin] = useState(false)
@@ -35,7 +31,7 @@ function App() {
   const [showSearchRoom, setShowSearchRoom] = useState(false)
   const [token, setToken] = useState('')
 
-  const socket = io.connect(process.env.REACT_APP_API_URL || '');
+  const socket = io.connect(process.env.REACT_APP_API_URL || 'http://localhost:8080');
 
   const limit = useMediaQuery({ maxWidth: 1300 })
   const style = {
@@ -136,11 +132,12 @@ function App() {
   }
 
   const switchRoom = (newRoom) => {
-    if (newRoom?._id !== currentRoom?._id) {
+    if (currentRoom && newRoom?._id !== currentRoom?._id) {
       socket.emit('leaveRoom', currentRoom?._id, newRoom?._id)
       setCurrentRoom(newRoom)
     }
-    setCurrentRoom(newRoom)
+    else
+      setCurrentRoom(newRoom)
     setShowSearchRoom(false)
   }
 
@@ -166,9 +163,7 @@ function App() {
         setUser(res.data.msg)
         res = await roomService.getRooms()
         if (res.status === 200) setRooms(res.data.msg)
-        if (res.data.length !== 0) {
-          setCurrentRoom(res.data.msg[0])
-        }
+
         socket.emit('login', token)
         socket.once('connected', () => setConnect(true))
       }
@@ -177,7 +172,7 @@ function App() {
 
   useEffect(() => {
     if (currentRoom) {
-      socket.emit('joinRoom', currentRoom)
+      socket.emit('joinRoom', currentRoom._id)
     }
   }, [currentRoom])
 
