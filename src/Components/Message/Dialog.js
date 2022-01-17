@@ -226,7 +226,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
         return () => {
             socket.off('return-reaction')
         }
-    }, [dialog])
+    }, [dialog, socket])
 
 
     useEffect(async () => {

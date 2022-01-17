@@ -20,16 +20,16 @@ require('dotenv').config()
 function App() {
   const [connected, setConnect] = useState(false)
   const [error, setError] = useState(false)
+  const [isLoading, setLoading] = useState(true)
   const [authenticated, setAuthenticated] = useState(false)
   const [user, setUser] = useState(null)
   const [roomPanel, setPanel] = useState(false)
   const [currentRoom, setCurrentRoom] = useState(null)
   const [lastMsgRoomId, setLastMsgRoomId] = useState('')
   const [rooms, setRooms] = useState([])
-  const [login, setLogin] = useState(false)
   const [message, setMessage] = useState('')
   const [showSearchRoom, setShowSearchRoom] = useState(false)
-  const [token, setToken] = useState('')
+  const [updateCurrentRoom, setUpdateCurrentRoom] = useState(false)
 
   const socket = io.connect(process.env.REACT_APP_API_URL || 'http://localhost:8080');
 
@@ -60,22 +60,24 @@ function App() {
   }
 
   const logIn = async (user) => {
-    let userId = ''
     try {
       const result = await authService.login(user)
-      toast.success('logged in successfully')
-      setAuthenticated(result.data.token !== null)
-      setError(result.data.token === null)
       localStorage.setItem("token", result.data.token);
-      userId = result.data.user._id
+      setError(result.data.token === null)
+      let res = await userService.getUser()
+      if (res.status === 200) {
+        localStorage.setItem("userId", res.data.msg._id)
+        setUser(res.data.msg)
+        res = await roomService.getRooms()
+        if (res.status === 200) setRooms(res.data.msg)
+        socket.emit('login', result.data.token)
+        socket.once('connected', () => setConnect(true))
+      }
+      setAuthenticated(true)
+      toast.success('logged in successfully')
     } catch (err) {
       toast.error(`${err?.response?.data?.msg}`)
     }
-    const listOfRooom = await roomService.getRooms()
-    setRooms(listOfRooom.data.msg)
-    if (listOfRooom.data.length !== 0)
-      setCurrentRoom(listOfRooom.data[0])
-    await socket.emit('login', userId)
   }
 
   const leaveRoom = async (id) => {
@@ -93,11 +95,7 @@ function App() {
           }
           return true
         })
-        setCurrentRoom({
-          _id: -1,
-          name: " ",
-          color: ''
-        })
+        setCurrentRoom(null)
       }
     } else {
       toast.error(`${res.response.data.msg}`)
@@ -123,8 +121,17 @@ function App() {
     if (room) {
       try {
         let response = await roomService.createRoom(room)
-        setRooms([response.data.msg, ...rooms])
-        setCurrentRoom(response.data.msg)
+        const newRoom = response.data.msg
+        setRooms([newRoom, ...rooms])
+        // if (!currentRoom) {
+        //   socket.emit('joinRoom', newRoom._id)
+        // }
+        // if (currentRoom && newRoom?._id !== currentRoom?._id) {
+        //   socket.emit('leaveRoom', currentRoom?._id)
+        //   socket.emit('joinRoom', newRoom?._id)
+        // }
+        // setCurrentRoom(newRoom)
+        setCurrentRoom(newRoom)
       } catch (err) {
         toast.error(`${err?.response?.data?.msg}`)
       }
@@ -132,14 +139,19 @@ function App() {
   }
 
   const switchRoom = (newRoom) => {
-    if (currentRoom && newRoom?._id !== currentRoom?._id) {
-      socket.emit('leaveRoom', currentRoom?._id, newRoom?._id)
-      setCurrentRoom(newRoom)
+    setLoading(true)
+    if (!currentRoom) {
+      socket.emit('joinRoom', newRoom?._id)
     }
-    else
-      setCurrentRoom(newRoom)
+    if (currentRoom && newRoom?._id !== currentRoom?._id) {
+      socket.emit('leaveRoom', currentRoom?._id)
+      socket.emit('joinRoom', newRoom?._id)
+    }
+    setCurrentRoom(newRoom)
     setShowSearchRoom(false)
+    setLoading(false)
   }
+
 
   const logout = async () => {
     let userId = localStorage.getItem("userId")
@@ -153,22 +165,23 @@ function App() {
   }
 
   useEffect(async () => {
-    let token = localStorage.getItem("token")
-    setLogin(token !== null)
-    if (token !== null && !authenticated) {
+    const token = localStorage.getItem("token")
+    if (token !== null) {
       let res = await userService.getUser()
       if (res.status === 200) {
-        setAuthenticated(true)
         localStorage.setItem("userId", res.data.msg._id)
+        setAuthenticated(true)
         setUser(res.data.msg)
         res = await roomService.getRooms()
         if (res.status === 200) setRooms(res.data.msg)
-
         socket.emit('login', token)
         socket.once('connected', () => setConnect(true))
+        setLoading(false)
       }
+    } else {
+      setLoading(false)
     }
-  }, [user, rooms, authenticated])
+  }, [])
 
   useEffect(() => {
     if (currentRoom) {
@@ -178,17 +191,18 @@ function App() {
 
   useEffect(async () => {
     if (lastMsgRoomId) {
-      let res = await roomService.getRoom(lastMsgRoomId)
-      if (res.status === 200 && currentRoom?._id !== lastMsgRoomId) {
-        setRooms([res.data.msg, ...rooms.filter(el => el._id !== res.data.msg._id)])
+      let res = rooms.find(room => room._id === lastMsgRoomId)
+      if (lastMsgRoomId !== rooms[0]?._id) {
+        setRooms([res, ...rooms.filter(el => el._id !== res._id)])
         setCurrentRoom(currentRoom)
       }
     }
   }, [lastMsgRoomId])
 
+
   return (
     <div className="App">
-      {authenticated ?
+      {isLoading ? <Loading></Loading> : (authenticated ?
         <div style={{ position: 'relative', width: '100%', height: '100%' }}>
           <div style={{ height: '100%', display: 'flex' }}>
             <div style={style.left}>
@@ -198,10 +212,10 @@ function App() {
               {!showSearchRoom && <RoomsList currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} lastMsgRoomId={lastMsgRoomId} setLastMsgRoomId={setLastMsgRoomId} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} />}
             </div>
             {currentRoom ? <div style={style.right}>
-              <ChatWindow socket={socket} room={currentRoom} rooms={rooms} setRooms={setRooms} setLastMsgRoomId={setLastMsgRoomId} leave={leaveRoom}></ChatWindow>
+              <ChatWindow socket={socket} currentRoom={currentRoom} setLastMsgRoomId={setLastMsgRoomId} leave={leaveRoom}></ChatWindow>
             </div> : <Guide></Guide>}
           </div>
-        </div> : <Login message={message} logIn={logIn} invalid={error} errorToggle={setError}></Login>}
+        </div> : <Login message={message} logIn={logIn} invalid={error} errorToggle={setError}></Login>)}
     </div>
   );
 }

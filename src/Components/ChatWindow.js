@@ -4,16 +4,17 @@ import ChatHeader from "./ChatHeader"
 import { useEffect, useState } from "react"
 import { messageService } from "../service/message"
 
-const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) => {
+const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave }) => {
     const [dialogs, setDialogs] = useState([])
-    const [currentRoom, setRoom] = useState(room)
     const [userOnlines, setUserOnlines] = useState([])
+    const [isLoading, setLoading] = useState(false)
+    const [newMessage, setNewMessage] = useState(null)
 
     const dialogsUpdate = (message, urls) => {
-        socket.emit('chat', message, urls, localStorage.getItem('userId'), room._id)     
+        socket.emit('chat', message, urls, localStorage.getItem('userId'), currentRoom._id)
     }
 
-    const deleteMessage =async (dialog, creator) => {
+    const deleteMessage = (dialog, creator) => {
         const userId = localStorage.getItem('userId')
         if (dialog.from.userId === userId || creator === userId) {
             // const temp = [...dialogs]
@@ -25,26 +26,28 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
             //     return true
             // })
             // setDialogs([...temp])
-            await socket.emit('delete', dialog._id, room)
+            socket.emit('delete', dialog._id, currentRoom?._id)
         }
     }
 
     useEffect(async () => {
-        setRoom(room)
-        if (room?._id !== -1) {
-            let res = await messageService.getMessages(room?._id)
+        if (currentRoom?._id !== -1) {
+            setLoading(true)
+            let res = await messageService.getMessages(currentRoom?._id)
             if (res.status === 200) {
                 setDialogs(res.data.msg)
+                setLoading(false)
             }
         }
-    }, [room])
+    }, [currentRoom])
 
     useEffect(() => {
-        socket.on('your_new_message', (dialog, ctRoom) => {
+        socket.on('new_message', (dialog, ctRoom) => {
             setLastMsgRoomId(ctRoom)
             setLastMsgRoomId('')
-            if (ctRoom === room?._id)
-                setDialogs([...dialogs, dialog])
+            console.log(ctRoom + ' ' + currentRoom?._id)
+            if (ctRoom === currentRoom?._id)
+                setNewMessage(dialog)
         })
         socket.on('dialog-deleted', (id) => {
             const temp = [...dialogs]
@@ -57,6 +60,7 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
             })
             setDialogs([...temp])
         })
+
         return () => {
             socket.off('your_new_message')
             socket.off('dialog-deleted')
@@ -79,13 +83,18 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
 
     }, [userOnlines, socket])
 
+    useEffect(() => {
+        if (newMessage)
+            setDialogs([...dialogs, newMessage])
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [newMessage])
+
     return (
         <div>
-            <ChatHeader userOnlines={userOnlines} room={room} dialogs={dialogs} leave={leave} socket={socket} />
-            <div>
-                <Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage} ></Dialogs>
-                <Input room={currentRoom} setDialogs={dialogsUpdate} socket={socket}></Input>
-            </div>
+            <ChatHeader userOnlines={userOnlines} room={currentRoom} dialogs={dialogs} leave={leave} socket={socket} />
+            {!isLoading && <div><Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage}></Dialogs>
+                < Input setDialogs={dialogsUpdate} /></div>}
         </div>
     )
 }
