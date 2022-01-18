@@ -194,7 +194,7 @@ function App() {
       let res = rooms.find(room => room._id === lastMsgRoomId)
       if (lastMsgRoomId !== rooms[0]?._id) {
         setRooms([res, ...rooms.filter(el => el._id !== res._id)])
-        setCurrentRoom(currentRoom)
+        // setCurrentRoom(currentRoom)
       }
     }
   }, [lastMsgRoomId])
