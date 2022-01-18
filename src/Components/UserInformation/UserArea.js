@@ -124,7 +124,6 @@ const UserArea = ({ user, logout }) => {
     <div style={style.userInformation}>
       <Avatar onClick={handleEditUserInfo} style={style.avatar} className={classes.large} src={user?.avatar}></Avatar>
 
-
       <Modal visible={updateVisible} closable={false} title="Update User Info" onCancel={handleEditUserInfo} footer={null}>
         {updateVisible &&
           <div>

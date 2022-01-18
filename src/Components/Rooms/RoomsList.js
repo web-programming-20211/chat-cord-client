@@ -16,9 +16,9 @@ const RoomsList = ({rooms, joinRoom, leaveRoom, switchRoom, roomManage, currentR
     return (
         <div style={style.roomList}>
           {/* <CreateRoom joinRoom={joinRoom}></CreateRoom> */}
-          {rooms?.map((room) => {
+          {rooms?.map((room, index) => {
             return (
-              <Room key={room?._id} choosen={currentRoom?._id === room?._id} room={room} lastMsgRoomId={lastMsgRoomId} setLastMsgRoomId={setLastMsgRoomId} leaveHandle={leaveRoom} onClick={switchRoom} roomManage={roomManage}></Room>
+              <Room key={index} choosen={currentRoom?._id === room?._id} room={room} lastMsgRoomId={lastMsgRoomId} setLastMsgRoomId={setLastMsgRoomId} leaveHandle={leaveRoom} onClick={switchRoom} roomManage={roomManage}></Room>
             )
           })}
         </div>

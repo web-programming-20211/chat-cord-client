@@ -19,8 +19,8 @@ const Dialogs = ({socket, room, dialogs, deleteMessage}) => {
 
     return (
         <div style={style}>
-            {dialogs.map((dialog) => {
-                return <Dialog key={dialog._id} socket={socket} dialog={dialog} onDelete={deleteMessage} room={room}></Dialog>
+            {dialogs.map((dialog, index) => {
+                return <Dialog key={index} socket={socket} dialog={dialog} onDelete={deleteMessage} room={room}></Dialog>
             })}
             <div ref={MessEnding} />
         </div>
