@@ -45,7 +45,6 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave }) => {
         socket.on('new_message', (dialog, ctRoom) => {
             setLastMsgRoomId(ctRoom)
             setLastMsgRoomId('')
-            console.log(ctRoom + ' ' + currentRoom?._id)
             if (ctRoom === currentRoom?._id)
                 setNewMessage(dialog)
         })
@@ -65,7 +64,7 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave }) => {
             socket.off('your_new_message')
             socket.off('dialog-deleted')
         }
-    }, [dialogs, socket])
+    }, [socket])
 
     useEffect(() => {
         socket.on('loggedIn', (users) => {

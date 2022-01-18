@@ -333,13 +333,15 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
 
     useEffect(async () => {
         setLoading(true);
-        if (room?._id !== -1) {
-            let res = await roomService.getMembers(room?._id)
-            if (res.status === 200)
-                setUsers(res.data.msg)
-        }
-        if (room?.pinnedMessages?.length > 0) {
+        let res = await roomService.getMembers(room?._id)
+        if (res.status === 200)
+            setUsers(res.data.msg)
+
+        res = await roomService.getRoom(room?._id)
+        let r = res.data.msg
+        if (r?.pinnedMessages?.length > 0) {
             setShowPinnedMessage(true)
+            setPinnedMessage(r.pinnedMessages.at(-1))
         }
         else
             setShowPinnedMessage(false)
@@ -357,7 +359,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                 }
             }
         })
-    }, [room, socket])
+    }, [socket])
 
     const copyToClipboard = () => {
         copy(room?.shortId)
