@@ -89,13 +89,6 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [newMessage])
 
-    useEffect(() => {
-        if (newMessage)
-            setDialogs([...dialogs, newMessage])
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [newMessage])
-
     return (
         <div>
             <ChatHeader userOnline={userOnline} room={currentRoom} dialogs={dialogs} leave={leave} socket={socket} />

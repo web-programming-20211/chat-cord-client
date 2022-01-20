@@ -68,6 +68,9 @@ function App() {
       if (res.status === 200) {
         localStorage.setItem("userId", res.data.msg._id)
         setUser(res.data.msg)
+        socket.emit('login', res.data.msg._id)
+        res = await roomService.getRooms()
+        if (res.status === 200) setRooms(res.data.msg)
         socket.once('connected', () => setConnect(true))
       }
       setAuthenticated(true)
