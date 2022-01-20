@@ -6,7 +6,7 @@ import { Icon } from '@iconify/react';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { storage } from "../firebase/index"
 import { roomService } from "../service/room"
-import axios from 'axios';
+import moment from 'moment';
 
 const { TabPane } = Tabs;
 
@@ -29,6 +29,8 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
         avatar: '',
     })
     const [isPrivate, setIsPrivate] = useState(room.isPrivate)
+    const [dialogResult, setDialogResult] = useState([])
+    const [showDialogResult, setShowDialogResult] = useState(false)
     const showDrawer = () => {
         setVisible(true);
     };
@@ -125,7 +127,8 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
             alignItems: 'center',
             justifyContent: 'center',
             gap: '10px',
-
+            width: '30%',
+            position: 'relative',
         },
 
         tuneIcon: {
@@ -318,8 +321,67 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
 
         submitButton: {
             borderRadius: '5px'
-        }
+        },
 
+        searchResultContainer: {
+            position: 'absolute',
+            top: '58px',
+            left: '0px',
+            right: '0px',
+            backgroundColor: 'rgb(101, 136, 222)',
+            padding: '10px',
+            borderRadius: '10px',
+            zIndex: '1',
+        },
+
+        searchResultOption: {
+            display: 'flex',
+            gap: '50px',
+            alignItems: 'center',
+        },
+
+        searchOption: {
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontWeight: 'bold',
+        },
+
+        dialogContainer: {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            marginTop: '15px',
+        },
+
+        dialogNameAndTime: {
+            display: 'flex',
+            gap: '10px',
+            alignItems: 'center',
+        },
+
+        dialogName: {
+            color: 'white',
+            fontSize: '20px',
+        },
+
+        dialogTime: {
+            color: 'white'
+        },
+
+        dialogMessage: {
+            fontSize: '16px',
+            color: 'white',
+        },
+
+        closeIcon: {
+            fontSize: '24px',
+            position: 'absolute',
+            top: '-19px',
+            right: '6px',
+            color: 'white',
+            cursor: 'pointer',
+        }
     }
 
 
@@ -331,7 +393,6 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
             <Option value="User">User</Option>
         </Select>
     );
-
     useEffect(async () => {
         setLoading(true);
         let res = await roomService.getMembers(room?._id)
@@ -382,24 +443,63 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
         }
     }
 
+    const Dialog = ({ dialog }) => {
+        return (
+            <div style={style.dialogContainer}>
+                <Avatar src={dialog.avatar} size={60} style={style.dialogContainerAvatar} />
+
+                <div style={style.dialogContainerInfo}>
+                    <div style={style.dialogNameAndTime}>
+                        <span style={style.dialogName}>{dialog.username}</span>
+                        <span style={style.dialogTime}>{moment(dialog.createdAt).calendar()}</span>
+                    </div>
+                    <span style={style.dialogMessage}>
+                        {dialog.content}
+                    </span>
+                </div>
+            </div>
+        )
+    }
 
     return (
+
         !isLoading && <div style={style.chatHeader}>
             <div style={style.chatInfo} onClick={showDrawer}>
                 <p style={style.chatName}>{room?.name} <Icon style={style.infoIcon} icon="ant-design:info-circle-outlined" /></p>
                 <p style={style.numberOfUser}>{users?.length + ' members'}</p>
             </div>
             <div style={style.chatTool}>
-                <Input style={style.input} autoComplete='off' addonBefore={selectBefore} placeholder="Type user or a message you what to search..." onKeyPress={async (e) => {
-                     if(e.key === 'Enter'){
-                         await roomService.searchMessages(room._id, e.target.value).then(
-                             (res) =>{
-                                console.log(res.data.msg)
-                             }
-                         );
-                         
-                     }
+
+                <Input style={style.input} autoComplete='off' placeholder="Type user or a message you what to search..." onKeyPress={async (e) => {
+                    if (e.key === 'Enter') {
+                        setShowDialogResult(true)
+                        await roomService.searchMessages(room._id, e.target.value).then(
+                            (res) => {
+                                setDialogResult(res.data.msg)
+                            }
+                        );
+                    }
                 }} />
+
+                {showDialogResult && dialogResult.length > 0 && <div style={style.searchResultContainer}>
+                    <Icon style={style.closeIcon} onClick={() => setShowDialogResult(false)} icon="ant-design:close-circle-outlined" />
+
+                    <div style={style.searchResultOption}>
+                        <Input style={style.input} autoComplete='off' addonBefore={selectBefore} />
+                        <div style={style.searchOption}>Old</div>
+                        <div style={style.searchOption}>New</div>
+                    </div>
+                    <div style={{ overflow: "scroll", maxHeight: "500px" }}>
+                        {
+                            dialogResult?.map((dialog, i) => {
+                                console.log(dialog)
+                                return (
+                                    <Dialog key={i} dialog={dialog}></Dialog>
+                                )
+                            })
+                        }
+                    </div>
+                </div>}
             </div>
             <Drawer
                 placement="right"
