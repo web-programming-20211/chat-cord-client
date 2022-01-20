@@ -83,6 +83,7 @@ function App() {
   const leaveRoom = async (id) => {
     let res = await roomService.leaveRoom(id)
     if (res.status === 200) {
+      socket.emit('leaveRoom', id)
       toast.success('left room successfully')
       const index = rooms.findIndex(room => room._id === id)
       if (index !== -1) {
@@ -111,6 +112,7 @@ function App() {
     socket.on('kicked', (userId, roomId) => {
       if (localStorage.getItem("userId") === userId) {
         toast.error('you have been kicked from this room')
+        socket.emit('leaveRoom', roomId)
         const index = rooms.findIndex(room => room._id === roomId)
         if (index !== -1) {
           rooms.splice(index, 1)
