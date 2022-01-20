@@ -6,6 +6,7 @@ import { Icon } from '@iconify/react';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { storage } from "../firebase/index"
 import { roomService } from "../service/room"
+import axios from 'axios';
 
 const { TabPane } = Tabs;
 
@@ -389,7 +390,16 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
                 <p style={style.numberOfUser}>{users?.length + ' members'}</p>
             </div>
             <div style={style.chatTool}>
-                <Input style={style.input} autoComplete='off' addonBefore={selectBefore} placeholder="Type user or a message you what to search..." />
+                <Input style={style.input} autoComplete='off' addonBefore={selectBefore} placeholder="Type user or a message you what to search..." onKeyPress={async (e) => {
+                     if(e.key === 'Enter'){
+                         await roomService.searchMessages(room._id, e.target.value).then(
+                             (res) =>{
+                                console.log(res.data.msg)
+                             }
+                         );
+                         
+                     }
+                }} />
             </div>
             <Drawer
                 placement="right"
