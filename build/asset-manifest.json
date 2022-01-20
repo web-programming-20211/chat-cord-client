@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/chat-cord-client/static/css/main.f7aa4171.chunk.css",
-    "main.js": "/chat-cord-client/static/js/main.c35cc2eb.chunk.js",
-    "main.js.map": "/chat-cord-client/static/js/main.c35cc2eb.chunk.js.map",
+    "main.js": "/chat-cord-client/static/js/main.55ac06a4.chunk.js",
+    "main.js.map": "/chat-cord-client/static/js/main.55ac06a4.chunk.js.map",
     "runtime-main.js": "/chat-cord-client/static/js/runtime-main.a71446b2.js",
     "runtime-main.js.map": "/chat-cord-client/static/js/runtime-main.a71446b2.js.map",
     "static/css/2.bd2438a8.chunk.css": "/chat-cord-client/static/css/2.bd2438a8.chunk.css",
@@ -18,6 +18,6 @@
     "static/css/2.bd2438a8.chunk.css",
     "static/js/2.de043621.chunk.js",
     "static/css/main.f7aa4171.chunk.css",
-    "static/js/main.c35cc2eb.chunk.js"
+    "static/js/main.55ac06a4.chunk.js"
   ]
 }
