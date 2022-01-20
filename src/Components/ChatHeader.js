@@ -10,7 +10,7 @@ import { roomService } from "../service/room"
 const { TabPane } = Tabs;
 
 
-const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
+const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
     const [isLoading, setLoading] = useState(false)
     const [users, setUsers] = useState([])
     const [visible, setVisible] = useState(false)
@@ -554,7 +554,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                                             <div key={index} style={style.member}>
                                                 <div style={style.avatar}>
                                                     <Avatar style={{ backgroundColor: '#' + user?.color }} size={50} src={user?.avatar}></Avatar>
-                                                    {userOnlines.includes(user?._id) && <span style={style.dot}></span>}
+                                                    {userOnline && user.online && <span style={style.dot}></span>}
                                                 </div>
                                                 <p style={{ fontSize: '16px' }}>{user?.fullname}</p>
                                             </div>

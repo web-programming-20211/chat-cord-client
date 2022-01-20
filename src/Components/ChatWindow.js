@@ -4,9 +4,9 @@ import ChatHeader from "./ChatHeader"
 import { useEffect, useState } from "react"
 import { messageService } from "../service/message"
 
-const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave }) => {
+const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) => {
     const [dialogs, setDialogs] = useState([])
-    const [userOnlines, setUserOnlines] = useState([])
+    const [userOnline, setUserOnline] = useState('')
     const [isLoading, setLoading] = useState(false)
     const [newMessage, setNewMessage] = useState(null)
 
@@ -67,12 +67,12 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave }) => {
     }, [socket])
 
     useEffect(() => {
-        socket.on('loggedIn', (users) => {
-            setUserOnlines([...users])
+        socket.on('loggedIn', (userId) => {
+            setUserOnline(userId)
         })
 
-        socket.on('loggedOut', (users) => {
-            setUserOnlines([...users])
+        socket.on('loggedOut', (userId) => {
+            setUserOnline(userId)
         })
 
         return () => {
@@ -80,7 +80,7 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave }) => {
             socket.off('loggedOut')
         }
 
-    }, [userOnlines, socket])
+    }, [socket])
 
     useEffect(() => {
         if (newMessage)
@@ -91,8 +91,8 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave }) => {
 
     return (
         <div>
-            <ChatHeader userOnlines={userOnlines} room={currentRoom} dialogs={dialogs} leave={leave} socket={socket} />
-            {!isLoading && <div><Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage}></Dialogs>
+            <ChatHeader userOnline={userOnline} room={currentRoom} dialogs={dialogs} leave={leave} socket={socket} />
+            {!isLoading && <div><Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage} kickUser={kickUser}></Dialogs>
                 < Input setDialogs={dialogsUpdate} /></div>}
         </div>
     )

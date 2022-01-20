@@ -68,9 +68,9 @@ function App() {
       if (res.status === 200) {
         localStorage.setItem("userId", res.data.msg._id)
         setUser(res.data.msg)
+        socket.emit('login', res.data.msg._id)
         res = await roomService.getRooms()
         if (res.status === 200) setRooms(res.data.msg)
-        socket.emit('login', result.data.token)
         socket.once('connected', () => setConnect(true))
       }
       setAuthenticated(true)
@@ -83,6 +83,7 @@ function App() {
   const leaveRoom = async (id) => {
     let res = await roomService.leaveRoom(id)
     if (res.status === 200) {
+      socket.emit('leaveRoom', id)
       toast.success('left room successfully')
       const index = rooms.findIndex(room => room._id === id)
       if (index !== -1) {
@@ -101,6 +102,34 @@ function App() {
       toast.error(`${res.response.data.msg}`)
     }
   }
+
+  const kickUser = async (userId, roomId) => {
+    console.log(userId+ '   ' +roomId)
+    socket.emit('kick', userId, roomId)
+  }
+
+  useEffect(() => {
+    socket.on('kicked', (userId, roomId) => {
+      if (localStorage.getItem("userId") === userId) {
+        toast.error('you have been kicked from this room')
+        socket.emit('leaveRoom', roomId)
+        const index = rooms.findIndex(room => room._id === roomId)
+        if (index !== -1) {
+          rooms.splice(index, 1)
+          const tmp = [...rooms]
+          tmp.every((room, index) => {
+            if (room._id === roomId) {
+              tmp.splice(index, 1)
+              return false
+            }
+            return true
+          })
+          setRooms(tmp)
+          setCurrentRoom(null)
+        }
+      }
+    })
+  }, [socket])
 
   const findRoom = async (shortId) => {
     const index = rooms.findIndex(room => room.shortId === shortId)
@@ -155,7 +184,7 @@ function App() {
 
   const logout = async () => {
     let userId = localStorage.getItem("userId")
-    await socket.emit('logout', userId)
+    socket.emit('logout', userId)
     localStorage.clear()
     window.location.reload()
   }
@@ -174,7 +203,7 @@ function App() {
         setUser(res.data.msg)
         res = await roomService.getRooms()
         if (res.status === 200) setRooms(res.data.msg)
-        socket.emit('login', token)
+        socket.emit('login', res.data.msg._id)
         socket.once('connected', () => setConnect(true))
         setLoading(false)
       }
@@ -212,7 +241,7 @@ function App() {
               {!showSearchRoom && <RoomsList currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} lastMsgRoomId={lastMsgRoomId} setLastMsgRoomId={setLastMsgRoomId} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} />}
             </div>
             {currentRoom ? <div style={style.right}>
-              <ChatWindow socket={socket} currentRoom={currentRoom} setLastMsgRoomId={setLastMsgRoomId} leave={leaveRoom}></ChatWindow>
+              <ChatWindow socket={socket} currentRoom={currentRoom} setLastMsgRoomId={setLastMsgRoomId} leave={leaveRoom} kickUser={kickUser}></ChatWindow>
             </div> : <Guide></Guide>}
           </div>
         </div> : <Login message={message} logIn={logIn} invalid={error} errorToggle={setError}></Login>)}
