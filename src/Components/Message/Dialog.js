@@ -6,7 +6,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import moment from 'moment';
 import { reactionService } from "../../service/reaction"
-import { Avatar } from 'antd';
+import { Avatar, Tooltip } from 'antd';
 
 
 const Icons = ({ reactions, self }) => {
@@ -39,7 +39,7 @@ const Icons = ({ reactions, self }) => {
 }
 
 
-const Dialog = ({ dialog, onDelete, room, socket }) => {
+const Dialog = ({ dialog, onDelete, room, socket, kickUser }) => {
     const [widget, setWidget] = useState(false)
     const [enter, setEnter] = useState(false)
     const [reactions, setReaction] = useState([])
@@ -47,7 +47,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
     const [showTime, setShowTime] = useState(false)
     const [selfAndCreator, setSelfAndCreator] = useState(null)
     const [fileNumber, setFileNumber] = useState(0)
-
+    const [showInfoUser, setShowInfoUser] = useState(false)
     const style = {
         dialogDiv: {
             width: '95%',
@@ -167,6 +167,59 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
             textOverflow: 'ellipsis',
             width: '150px',
             workBreak: 'break-word',
+        },
+
+        subInfo: {
+            position: 'absolute',
+            backgroundColor: 'rgb(227, 246, 252)',
+            bottom: '80px',
+            left: !self ? '-11px': 'none',
+            right: self ? '-11px': 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            padding: '10px',
+            borderRadius: '20px',
+            alignContent: 'flex-end',
+            alignItems: 'center',
+        },
+
+        subInfoContainer: {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px'
+        },
+
+        subInfoFullNameandUsername: {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '3px',
+        },
+
+        subInfoFullName: {
+            fontSize: '20px',
+            color: 'rgb(82, 88, 93)',
+        },
+
+        subInfoUsername: {
+            color: 'rgb(255, 255, 255)',
+            background: 'rgb(101, 136, 222)',
+            padding: '4px',
+            borderRadius: '10px',
+            fontSize: '10px',
+            textAlign: 'center',
+        },
+
+        kick: {
+            fontSize: '15px',
+            margin: '0',
+            border: '1px solid red',
+            fontWeight: 600,
+            color: 'red',
+            width: '100%',
+            textAlign: 'center',
+            borderRadius: '10px',
+            cursor: 'pointer',
         }
     }
 
@@ -226,14 +279,14 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
         return () => {
             socket.off('return-reaction')
         }
-    }, [dialog])
+    }, [dialog, socket])
 
 
     useEffect(async () => {
         let res = await reactionService.getReactionsByMessage(dialog._id)
         if (res.status === 200)
             setReaction(res.data.data)
-        
+
     }, [])
 
     useEffect(() => {
@@ -242,8 +295,36 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
 
     return (
         <div style={style.dialogDiv} onMouseEnter={() => setShowTime(true)} onMouseLeave={() => setShowTime(false)}>
-            {!self && <Avatar size={60} style={style.avatar} src={dialog.from.avatar}></Avatar>}
-            {self && <Avatar size={60} style={style.avatar} src={dialog.from.avatar}></Avatar>}
+            {!self &&
+                <div>
+                    <Avatar onMouseEnter={() => setShowInfoUser(!showInfoUser)} size={60} style={style.avatar} src={dialog.from.avatar}></Avatar>
+                    {showInfoUser && <div style={style.subInfo}>
+                        <div style={style.subInfoContainer}>
+                            <Avatar size={70} style={style.subInfoAvatar} src={dialog.from.avatar}></Avatar>
+                            <div style={style.subInfoFullNameandUsername}>
+                                <div style={style.subInfoFullName}>{dialog.from.fullname}</div>
+                                <div style={style.subInfoUsername}>{dialog.from.username}</div>
+                            </div>
+                        </div>
+                        {localStorage.getItem("userId") === room.creator && <p style={style.kick} onClick={() => kickUser(dialog.from.userId, room._id)} >Kick</p>}
+                    </div>}
+                </div>
+            }
+            {self &&
+                <div>
+                    <Avatar onMouseEnter={() => setShowInfoUser(!showInfoUser)} size={60} style={style.avatar} src={dialog.from.avatar}></Avatar>
+                    {showInfoUser && <div style={style.subInfo}>
+                        <div style={style.subInfoContainer}>
+                            <Avatar size={70} style={style.subInfoAvatar} src={dialog.from.avatar}></Avatar>
+                            <div style={style.subInfoFullNameandUsername}>
+                                <div style={style.subInfoFullName}>{dialog.from.fullname}</div>
+                                <div style={style.subInfoUsername}>{dialog.from.username}</div>
+                            </div>
+                        </div>
+                        <p style={style.kick} onClick={() => kickUser(dialog.from.userId, room._id)} >Kick</p>
+                    </div>}
+                </div>
+            }
             <div style={style.container} onMouseEnter={() => setWidget(true)} onMouseLeave={() => setWidget(false)}>
                 {self && <div style={style.dialogDivInfoNameTime}>
                     <div style={style.dialogDivInfoName}>{dialog.from.username}</div>
@@ -311,7 +392,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
 

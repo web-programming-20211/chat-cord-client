@@ -8,6 +8,7 @@ const attendRoom = (id) => fetchClient.post(`/room/${id}/attend`);
 const addMember = (id, user) => fetchClient.post(`/room/${id}/addMember`, user);
 const leaveRoom = (id) => fetchClient.post(`/room/${id}/leave`);
 const getMembers = (id) => fetchClient.get(`/room/${id}/members`);
+const getUserOnline = (id) => fetchClient.get(`/room/${id}/userOnline`);
 
 export const roomService = {
     getRooms,
