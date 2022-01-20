@@ -15,6 +15,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
     const [users, setUsers] = useState([])
     const [currentRoom, setRoom] = useState(room)
     const [visible, setVisible] = useState(false)
+    // const [roomPinMessage, setRoomPinMessage] = useState([])
     const [updateVisible, setUpdateVisible] = useState(false)
     const [pinnedMessage, setPinnedMessage] = useState(false);
     const [showPinnedMessage, setShowPinnedMessage] = useState(false);
@@ -86,20 +87,40 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
         },
 
         pinMessageContainer: {
-            // opacity: showPinnedMessage || room?.pinnedMessages?.length > 0 ? 1 : 0,
+            // backgroundImage: 'linear-gradient(to right, #E3F6FC, #ffff80)',
+            // opacity: '0.5',
             position: 'absolute',
             backgroundColor: '#E3F6FC',
-            bottom: '-67px',
+            // bottom: '-67px',
+            top: '110px',
             left: '0px',
             zIndex: '1',
-            width: '100%',
+            width: '30%',
+            height: '40px',
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
         },
 
         pinMessageIcon: {
+            position: 'relative',
+            left: '5px',
+            color: 'rgb(101, 136, 222)',
+            fontSize: '20px',
+        },
 
+        pinMessageInfo: {
+            width: '90%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+        },
+
+        pinMessageContentText: {
+            // fontSize: '14px',
+            width: '80%',
+            height: '100%',
+            paddingTop: '12px'
         },
 
         chatInfo: {
@@ -341,7 +362,9 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
             axios.get('/room/' + room?._id + '/members', { withCredentials: true }).then(res => {
                 setUsers(res.data.msg);
             })
-        room?.pinnedMessages?.length > 0 && setShowPinnedMessage(true)
+        if (room?.pinnedMessages?.length > 0) {
+            setShowPinnedMessage(true)
+        }
     }, [room])
 
     useEffect(() => {
@@ -434,7 +457,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                             </Form.Item>
 
                             {
-                            currentUser == room.creator && <Form.Item label="Mode">
+                            currentUser === room.creator && <Form.Item label="Mode">
                                 <Switch defaultChecked={room.isPrivate} checkedChildren="Private" unCheckedChildren="Public" onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, isPrivate: !roomUpdateInfo.isPrivate })} />
                             </Form.Item>
                             }
@@ -452,9 +475,11 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                                     <div style={style.mediaGrid}>
                                         {
                                             dialogs.map(dialog => {
+                                                // eslint-disable-next-line array-callback-return
                                                 return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
                                                     let format = url.split('.').pop().split('?')[0]
                                                     if (format === 'jpg' || format === 'png' || format === 'jpeg') {
+                                                        // eslint-disable-next-line jsx-a11y/alt-text
                                                         return <img src={url} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} />
                                                     }
                                                 })
@@ -468,6 +493,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                                     <div style={style.mediaGrid}>
                                         {
                                             dialogs.map(dialog => {
+                                                // eslint-disable-next-line array-callback-return
                                                 return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
                                                     let format = url.split('.').pop().split('?')[0]
                                                     if (format === 'mp4') {
@@ -487,6 +513,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                                 <div style={style.file}>
                                     {
                                         dialogs.map(dialog => {
+                                            // eslint-disable-next-line array-callback-return
                                             return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
                                                 let format = url.split('.').pop().split('?')[0]
                                                 if (format === 'pdf') {
@@ -510,7 +537,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                             <TabPane tab="Members" key="4">
                                 <div style={style.members}>
                                     {
-                                        ((currentUser == room.creator && room.isPrivate) || !room.isPrivate) &&
+                                        ((currentUser === room.creator && room.isPrivate) || !room.isPrivate) &&
                                         <Form name="add user dynamic form" autoComplete="off" onFinish={onFinish}>
                                             <Form.List name="usersList">
                                                 {(fields, { add, remove }) => (
@@ -572,16 +599,11 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                     }
                 </Drawer>
                 {showPinnedMessage && <div style={style.pinMessageContainer}>
-                    <Icon style={style.pinMessageIcon} icon="bi:pin-angle-fill" />
+                    <Icon style={style.pinMessageIcon} icon="entypo:pin" />
+                    
                     <div style={style.pinMessageInfo}>
-                        <div style={style.pinMessageTitle}>Pinned message</div>
-                        <div style={style.pinMessageContent}>
-                            <Avatar style={style.pinMessageAvatar} src={pinnedMessage ? pinnedMessage?.avatar : room?.pinnedMessages?.at(-1)?.avatar}></Avatar>
-                            <div>
-                                <p style={style.pinMessageName}>{pinnedMessage ? pinnedMessage?.username : room?.pinnedMessages?.at(-1)?.username}</p>
-                                <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
-                            </div>
-                        </div>
+                        <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.username : room?.pinnedMessages?.at(-1)?.username} {pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
+                        {/* <Icon icon="carbon:close-outline"  /> */}
                     </div>
                 </div>
                 }
