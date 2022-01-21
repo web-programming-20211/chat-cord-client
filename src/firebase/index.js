@@ -1,14 +1,16 @@
 import firebase from 'firebase/app';
 import 'firebase/storage';
+require('dotenv').config()
+
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCBJRfaIq-9QJMSreqGgbYErDHLbhv1naU",
-  authDomain: "chat-cord-712bf.firebaseapp.com",
-  projectId: "chat-cord-712bf",
-  storageBucket: "chat-cord-712bf.appspot.com",
-  messagingSenderId: "196707948525",
-  appId: "1:196707948525:web:c2690d98f36a957b0479e4",
-  measurementId: "G-WXRTH429VW"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
 firebase.initializeApp(firebaseConfig)

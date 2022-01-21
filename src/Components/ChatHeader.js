@@ -1,34 +1,37 @@
 import { Input, Select, Avatar, Drawer, Tabs, Space, Form, Switch, Button } from 'antd';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import copy from 'copy-to-clipboard';
 import { toast } from 'react-toastify'
 import { Icon } from '@iconify/react';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { storage } from "../firebase/index"
-import Cookies from "js-cookie"
+import { roomService } from "../service/room"
+import moment from 'moment';
 
 const { TabPane } = Tabs;
 
 
-const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
+const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
+    const [isLoading, setLoading] = useState(false)
     const [users, setUsers] = useState([])
-    const [currentRoom, setRoom] = useState(room)
     const [visible, setVisible] = useState(false)
     // const [roomPinMessage, setRoomPinMessage] = useState([])
     const [updateVisible, setUpdateVisible] = useState(false)
     const [pinnedMessage, setPinnedMessage] = useState(false);
     const [showPinnedMessage, setShowPinnedMessage] = useState(false);
-    const user = []
+    var user = []
     const [roomAvatarPreview, setRoomAvatarPreview] = useState(null)
     const [roomAvatar, setRoomAvatar] = useState()
-    const currentUser = Cookies.get('userId').slice(Cookies.get('userId').indexOf('"') + 1, Cookies.get('userId').length - 1)
+    const currentUser = localStorage.getItem('userId')
     const [roomUpdateInfo, setRoomUpdateInfo] = useState({
         name: '',
         description: '',
         isPrivate: room.isPrivate,
         avatar: '',
     })
+    const [isPrivate, setIsPrivate] = useState(room.isPrivate)
+    const [dialogResult, setDialogResult] = useState([])
+    const [showDialogResult, setShowDialogResult] = useState(false)
     const showDrawer = () => {
         setVisible(true);
     };
@@ -61,13 +64,9 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
             const url = await snapshot.ref.getDownloadURL()
             roomUpdateInfo_.avatar = url
         }
-        try {
-            console.log(roomUpdateInfo_)
-            const update = await axios.put(`/room/${room._id}`, roomUpdateInfo_, { withCredentials: true })
-            toast.success(update?.data?.msg)
-        } catch (err) {
-            toast.error(`${err?.response?.data?.msg}`)
-        }
+        let res = await roomService.updateRoom(room?._id, roomUpdateInfo_)
+        if (res.status === 200)
+            toast.success(res?.data?.msg)
         setRoomAvatarPreview(roomUpdateInfo.avatar)
         setRoomAvatar(null)
         setUpdateVisible(false)
@@ -95,16 +94,17 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
             top: '110px',
             left: '0px',
             zIndex: '1',
-            width: '30%',
-            height: '40px',
+            width: '50%',
+            height: '50px',
             display: 'flex',
-            alignItems: 'center',
+            // alignItems: 'center',
             gap: '10px',
         },
 
         pinMessageIcon: {
             position: 'relative',
             left: '5px',
+            top: '15px',
             color: 'rgb(101, 136, 222)',
             fontSize: '20px',
         },
@@ -112,15 +112,17 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
         pinMessageInfo: {
             width: '90%',
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            flexFlow: 'column',
+            padding: '2px'
+            // justifyContent: 'space-between',
+            // alignItems: 'center',
         },
 
         pinMessageContentText: {
             // fontSize: '14px',
             width: '80%',
             height: '100%',
-            paddingTop: '12px'
+            // paddingTop: '12px'
         },
 
         chatInfo: {
@@ -149,7 +151,8 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
             alignItems: 'center',
             justifyContent: 'center',
             gap: '10px',
-
+            width: '30%',
+            position: 'relative',
         },
 
         tuneIcon: {
@@ -342,8 +345,67 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
 
         submitButton: {
             borderRadius: '5px'
-        }
+        },
 
+        searchResultContainer: {
+            position: 'absolute',
+            top: '58px',
+            left: '0px',
+            right: '0px',
+            backgroundColor: 'rgb(101, 136, 222)',
+            padding: '10px',
+            borderRadius: '10px',
+            zIndex: '1',
+        },
+
+        searchResultOption: {
+            display: 'flex',
+            gap: '50px',
+            alignItems: 'center',
+        },
+
+        searchOption: {
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontWeight: 'bold',
+        },
+
+        dialogContainer: {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            marginTop: '15px',
+        },
+
+        dialogNameAndTime: {
+            display: 'flex',
+            gap: '10px',
+            alignItems: 'center',
+        },
+
+        dialogName: {
+            color: 'white',
+            fontSize: '20px',
+        },
+
+        dialogTime: {
+            color: 'white'
+        },
+
+        dialogMessage: {
+            fontSize: '16px',
+            color: 'white',
+        },
+
+        closeIcon: {
+            fontSize: '24px',
+            position: 'absolute',
+            top: '-19px',
+            right: '6px',
+            color: 'white',
+            cursor: 'pointer',
+        }
     }
 
 
@@ -355,16 +417,21 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
             <Option value="User">User</Option>
         </Select>
     );
+    useEffect(async () => {
+        setLoading(true);
+        let res = await roomService.getMembers(room?._id)
+        if (res.status === 200)
+            setUsers(res.data.msg)
 
-    useEffect(() => {
-        setRoom(room)
-        if (room?._id !== -1)
-            axios.get('/room/' + room?._id + '/members', { withCredentials: true }).then(res => {
-                setUsers(res.data.msg);
-            })
-        if (room?.pinnedMessages?.length > 0) {
+        res = await roomService.getRoom(room?._id)
+        let r = res.data.msg
+        if (r?.pinnedMessages?.length > 0) {
             setShowPinnedMessage(true)
+            setPinnedMessage(r.pinnedMessages.at(-1))
         }
+        else
+            setShowPinnedMessage(false)
+        setLoading(false)
     }, [room])
 
     useEffect(() => {
@@ -378,7 +445,7 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                 }
             }
         })
-    }, [room])
+    }, [socket])
 
     const copyToClipboard = () => {
         copy(room?.shortId)
@@ -386,203 +453,250 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
     }
 
     const onFinish = async (values) => {
+        user = []
         for (let i = 0; i < values.usersList.length; i++) {
             user.push(values.usersList[i].first)
         }
         try {
-            let add = await axios.post('/room/' + room?._id + '/add', { emails: user.join(',') }, { withCredentials: true })
-            toast.success(add.data.msg)
-        } catch (err) {
-            toast.error(`${err?.response?.data?.msg}`)
+            let res = await roomService.addMember(room?._id, { emails: user.join(',') })
+            if (res.status === 200) {
+                toast.success(res.data.msg)
+            }
+        } catch (e) {
+            toast.error(`${e.response.data.msg}`)
         }
     }
 
+    const Dialog = ({ dialog }) => {
+        return (
+            <div style={style.dialogContainer}>
+                <Avatar src={dialog.avatar} size={60} style={style.dialogContainerAvatar} />
+
+                <div style={style.dialogContainerInfo}>
+                    <div style={style.dialogNameAndTime}>
+                        <span style={style.dialogName}>{dialog.username}</span>
+                        <span style={style.dialogTime}>{moment(dialog.createdAt).calendar()}</span>
+                    </div>
+                    <span style={style.dialogMessage}>
+                        {dialog.content}
+                    </span>
+                </div>
+            </div>
+        )
+    }
 
     return (
-        <>
-            <div style={style.chatHeader}>
-                <div style={style.chatInfo} onClick={showDrawer}>
-                    <p style={style.chatName}>{room?.name} <Icon style={style.infoIcon} icon="ant-design:info-circle-outlined" /></p>
-                    <p style={style.numberOfUser}>{users?.length + ' members'}</p>
-                </div>
-                <div style={style.chatTool}>
-                    <Input style={style.input} autoComplete='off' addonBefore={selectBefore} placeholder="Type user or a message you what to search..." />
-                </div>
-                <Drawer
-                    placement="right"
-                    onClose={onClose}
-                    visible={visible}
-                    extra={
-                        <Space>
-                            <button onClick={handleEditInfo} style={style.buttonEditDrawer}>Edit</button>
-                        </Space>
-                    }
-                >
-                    <div style={style.roomInfo}>
-                        <div style={style.roomTitle}>Room Info</div>
-                        {!updateVisible && <div style={style.roomAvatar}><Avatar size={200} src={room.avatar}></Avatar></div>}
-                        {updateVisible &&
-                            <div>
-                                <label style={style.roomAvatarEdit} htmlFor="roomAvatar"><Avatar size={200} src={roomAvatarPreview ? roomAvatarPreview : room.avatar}></Avatar></label>
-                                <input id="roomAvatar" style={{ visibility: "hidden" }} accept='image' type="file" onChange={handleUpdateRoomAvatar} />
-                            </div>
-                        }
-                        {!room.isPrivate && <div style={style.roomShortId} onClick={copyToClipboard}>{room?.shortId}</div>}
-                        <div style={style.roomName}>{room?.name}</div>
-                        <div style={style.roomDescription}>{room?.description}</div>
-                        <div style={style.line}></div>
-                    </div>
-                    {updateVisible ?
-                        <Form
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 20 }}
-                            onFinish={handleUpdateRoomInfo}
-                        >
-                            <Form.Item label="Room name" rules={[
-                                {
-                                    required: true,
-                                    message: 'Please input room name!'
-                                },
-                            ]}>
-                                <Input defaultValue={room.name} onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, name: e.target.value })} />
-                            </Form.Item>
 
-                            <Form.Item label="Description" rules={[
-                                {
-                                    required: true,
-                                    message: 'Please input room description!'
-                                },
-                            ]}>
-                                <Input defaultValue={room.description} onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, description: e.target.value })} />
-                            </Form.Item>
+        !isLoading && <div style={style.chatHeader}>
+            <div style={style.chatInfo} onClick={showDrawer}>
+                <p style={style.chatName}>{room?.name} <Icon style={style.infoIcon} icon="ant-design:info-circle-outlined" /></p>
+                <p style={style.numberOfUser}>{users?.length + ' members'}</p>
+            </div>
+            <div style={style.chatTool}>
 
-                            {
-                            currentUser === room.creator && <Form.Item label="Mode">
-                                <Switch defaultChecked={room.isPrivate} checkedChildren="Private" unCheckedChildren="Public" onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, isPrivate: !roomUpdateInfo.isPrivate })} />
-                            </Form.Item>
+                <Input style={style.input} autoComplete='off' placeholder="Type user or a message you what to search..." onKeyPress={async (e) => {
+                    if (e.key === 'Enter') {
+                        setShowDialogResult(true)
+                        await roomService.searchMessages(room._id, e.target.value).then(
+                            (res) => {
+                                setDialogResult(res.data.msg)
                             }
+                        );
+                    }
+                }} />
 
-                            <Form.Item wrapperCol={{ offset: 10, span: 16 }}>
-                                <Button type="primary" htmlType="submit">
-                                    Save
-                                </Button>
+                {showDialogResult && dialogResult.length > 0 && <div style={style.searchResultContainer}>
+                    <Icon style={style.closeIcon} onClick={() => setShowDialogResult(false)} icon="ant-design:close-circle-outlined" />
+
+                    <div style={style.searchResultOption}>
+                        <Input style={style.input} autoComplete='off' addonBefore={selectBefore} />
+                        <div style={style.searchOption}>Old</div>
+                        <div style={style.searchOption}>New</div>
+                    </div>
+                    <div style={{ overflow: "scroll", maxHeight: "500px" }}>
+                        {
+                            dialogResult?.map((dialog, i) => {
+                                console.log(dialog)
+                                return (
+                                    <Dialog key={i} dialog={dialog}></Dialog>
+                                )
+                            })
+                        }
+                    </div>
+                </div>}
+            </div>
+            <Drawer
+                placement="right"
+                onClose={onClose}
+                visible={visible}
+                extra={
+                    <Space>
+                        <button onClick={handleEditInfo} style={style.buttonEditDrawer}>Edit</button>
+                    </Space>
+                }
+            >
+                <div style={style.roomInfo}>
+                    <div style={style.roomTitle}>Room Info</div>
+                    {!updateVisible && <div style={style.roomAvatar}><Avatar size={200} src={room.avatar}></Avatar></div>}
+                    {updateVisible &&
+                        <div>
+                            <label style={style.roomAvatarEdit} htmlFor="roomAvatar"><Avatar size={200} src={roomAvatarPreview ? roomAvatarPreview : room.avatar}></Avatar></label>
+                            <input id="roomAvatar" style={{ visibility: "hidden" }} accept='image' type="file" onChange={handleUpdateRoomAvatar} />
+                        </div>
+                    }
+                    {!room.isPrivate && <div style={style.roomShortId} onClick={copyToClipboard}>{room?.shortId}</div>}
+                    <div style={style.roomName}>{room?.name}</div>
+                    <div style={style.roomDescription}>{room?.description}</div>
+                    <div style={style.line}></div>
+                </div>
+                {updateVisible ?
+                    <Form
+                        labelCol={{ span: 10 }}
+                        wrapperCol={{ span: 20 }}
+                        onFinish={handleUpdateRoomInfo}
+                    >
+                        <Form.Item label="Room name" rules={[
+                            {
+                                required: true,
+                                message: 'Please input room name!'
+                            },
+                        ]}>
+                            <Input defaultValue={room.name} onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, name: e.target.value })} />
+                        </Form.Item>
+
+                        <Form.Item label="Description" rules={[
+                            {
+                                required: true,
+                                message: 'Please input room description!'
+                            },
+                        ]}>
+                            <Input defaultValue={room.description} onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, description: e.target.value })} />
+                        </Form.Item>
+
+                        {
+                            currentUser == room.creator && <Form.Item label="Mode">
+                                <Switch defaultChecked={isPrivate} checkedChildren="Private" unCheckedChildren="Public" onClick={(e) => { setIsPrivate(pre => !pre); setRoomUpdateInfo(prevRoomUpdateInfo => { return ({ ...prevRoomUpdateInfo, isPrivate: !prevRoomUpdateInfo.isPrivate }) }) }} />
                             </Form.Item>
-                        </Form>
-                        :
-                        <Tabs style={{ marginBottom: '25px' }} defaultActiveKey="1">
-                            <TabPane tab="Images" key="1">
-                                <div style={style.media}>
-                                    <div style={style.mediaGrid}>
-                                        {
-                                            dialogs.map(dialog => {
-                                                // eslint-disable-next-line array-callback-return
-                                                return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
-                                                    let format = url.split('.').pop().split('?')[0]
-                                                    if (format === 'jpg' || format === 'png' || format === 'jpeg') {
-                                                        // eslint-disable-next-line jsx-a11y/alt-text
-                                                        return <img src={url} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} />
-                                                    }
-                                                })
+                        }
+
+                        <Form.Item wrapperCol={{ offset: 10, span: 16 }}>
+                            <Button type="primary" htmlType="submit">
+                                Save
+                            </Button>
+                        </Form.Item>
+                    </Form>
+                    :
+                    <Tabs style={{ marginBottom: '25px' }} defaultActiveKey="1">
+                        <TabPane tab="Images" key="1">
+                            <div style={style.media}>
+                                <div style={style.mediaGrid}>
+                                    {
+                                        dialogs.map(dialog => {
+                                            return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
+                                                let format = url.split('.').pop().split('?')[0]
+                                                if (format === 'jpg' || format === 'png' || format === 'jpeg') {
+                                                    return <img key={index} src={url} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} />
+                                                }
                                             })
-                                        }
-                                    </div>
+                                        })
+                                    }
                                 </div>
-                            </TabPane>
-                            <TabPane tab="Videos" key="2">
-                                <div style={style.media}>
-                                    <div style={style.mediaGrid}>
-                                        {
-                                            dialogs.map(dialog => {
-                                                // eslint-disable-next-line array-callback-return
-                                                return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
-                                                    let format = url.split('.').pop().split('?')[0]
-                                                    if (format === 'mp4') {
-                                                        return (
-                                                            <video key={index} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} controls>
-                                                                <source src={url} type="video/mp4" />
-                                                            </video>
-                                                        )
-                                                    }
-                                                })
-                                            })
-                                        }
-                                    </div>
-                                </div>
-                            </TabPane>
-                            <TabPane tab="Files" key="3">
-                                <div style={style.file}>
+                            </div>
+                        </TabPane>
+                        <TabPane tab="Videos" key="2">
+                            <div style={style.media}>
+                                <div style={style.mediaGrid}>
                                     {
                                         dialogs.map(dialog => {
                                             // eslint-disable-next-line array-callback-return
                                             return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
                                                 let format = url.split('.').pop().split('?')[0]
-                                                if (format === 'pdf') {
+                                                if (format === 'mp4') {
                                                     return (
-                                                        <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                            <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
-                                                        </a>
-                                                    )
-                                                } else if (format === 'docx') {
-                                                    return (
-                                                        <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                            <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
-                                                        </a>
+                                                        <video key={index} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} controls>
+                                                            <source src={url} type="video/mp4" />
+                                                        </video>
                                                     )
                                                 }
                                             })
                                         })
                                     }
                                 </div>
-                            </TabPane>
-                            <TabPane tab="Members" key="4">
-                                <div style={style.members}>
-                                    {
-                                        ((currentUser === room.creator && room.isPrivate) || !room.isPrivate) &&
-                                        <Form name="add user dynamic form" autoComplete="off" onFinish={onFinish}>
-                                            <Form.List name="usersList">
-                                                {(fields, { add, remove }) => (
-                                                    <>
-                                                        {fields.map(({ key, name, fieldKey, ...restField }) => (
-                                                            <Space key={key} style={{ display: 'flex', marginBottom: 2 }} align="baseline">
-                                                                <Form.Item
-                                                                    {...restField}
-                                                                    name={[name, 'first']}
-                                                                    fieldKey={[fieldKey, 'first']}
-                                                                    rules={[{ type: 'email', required: true, message: 'Email is required!' }]}
-                                                                >
-                                                                    <Input placeholder="Email" />
-                                                                </Form.Item>
-                                                                <Icon style={style.removeIcon} icon="gg:remove" onClick={() => remove(name)} />
-                                                                {/* <MinusCircleOutlined onClick={() => remove(name)} /> */}
-                                                            </Space>
-                                                        ))}
-                                                        <Form.Item>
-                                                            <Button onClick={() => add()} block style={style.plusIconContainer}><Icon style={style.plusIcon} icon="carbon:add" /></Button>
-                                                        </Form.Item>
-                                                    </>
-                                                )}
-                                            </Form.List>
-                                            <Form.Item>
-                                                <Button style={style.submitButton} type='primary' htmlType="submit">
-                                                    Submit
-                                                </Button>
-                                            </Form.Item>
-                                        </Form>
-                                    }
-                                    {
-                                        users?.map((user, index) => {
-                                            return (
-                                                <div key={index} style={style.member}>
-                                                    <div style={style.avatar}>
-                                                        <Avatar style={{ backgroundColor: '#' + user?.color }} size={50} src={user?.avatar}></Avatar>
-                                                        {userOnlines.includes(user?._id) && <span style={style.dot}></span>}
-                                                    </div>
-                                                    <p style={{ fontSize: '16px' }}>{user?.fullname}</p>
-                                                </div>
-                                            )
+                            </div>
+                        </TabPane>
+                        <TabPane tab="Files" key="3">
+                            <div style={style.file}>
+                                {
+                                    dialogs.map(dialog => {
+                                        return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
+                                            let format = url.split('.').pop().split('?')[0]
+                                            if (format === 'pdf') {
+                                                return (
+                                                    <a key={index} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
+                                                        <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
+                                                    </a>
+                                                )
+                                            } else if (format === 'docx') {
+                                                return (
+                                                    <a key={index} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
+                                                        <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
+                                                    </a>
+                                                )
+                                            }
                                         })
-                                    }
-                                </div>
+                                    })
+                                }
+                            </div>
+                        </TabPane>
+                        <TabPane tab="Members" key="4">
+                            <div style={style.members}>
+                                {
+                                    ((currentUser == room.creator && room.isPrivate) || !room.isPrivate) &&
+                                    <Form name="add user dynamic form" autoComplete="off" onFinish={onFinish}>
+                                        <Form.List name="usersList">
+                                            {(fields, { add, remove }) => (
+                                                <>
+                                                    {fields.map(({ key, name, fieldKey, ...restField }) => (
+                                                        <Space key={key} style={{ display: 'flex', marginBottom: 2 }} align="baseline">
+                                                            <Form.Item
+                                                                {...restField}
+                                                                name={[name, 'first']}
+                                                                fieldKey={[fieldKey, 'first']}
+                                                                rules={[{ type: 'email', required: true, message: 'Email is required!' }]}
+                                                            >
+                                                                <Input placeholder="Email" />
+                                                            </Form.Item>
+                                                            <Icon style={style.removeIcon} icon="gg:remove" onClick={() => remove(name)} />
+                                                            {/* <MinusCircleOutlined onClick={() => remove(name)} /> */}
+                                                        </Space>
+                                                    ))}
+                                                    <Form.Item>
+                                                        <Button onClick={() => add()} block style={style.plusIconContainer}><Icon style={style.plusIcon} icon="carbon:add" /></Button>
+                                                    </Form.Item>
+                                                </>
+                                            )}
+                                        </Form.List>
+                                        <Form.Item>
+                                            <Button style={style.submitButton} type='primary' htmlType="submit">
+                                                Add
+                                            </Button>
+                                        </Form.Item>
+                                    </Form>
+                                }
+                                {
+                                    users?.map((user, index) => {
+                                        return (
+                                            <div key={index} style={style.member}>
+                                                <div style={style.avatar}>
+                                                    <Avatar style={{ backgroundColor: '#' + user?.color }} size={50} src={user?.avatar}></Avatar>
+                                                    {userOnline && user.online && <span style={style.dot}></span>}
+                                                </div>
+                                                <p style={{ fontSize: '16px' }}>{user?.fullname}</p>
+                                            </div>
+                                        )
+                                    })
+                                }
+                            </div>
 
                             </TabPane>
                         </Tabs>
@@ -602,13 +716,14 @@ const ChatHeader = ({ userOnlines, room, dialogs, leave, socket }) => {
                     <Icon style={style.pinMessageIcon} icon="entypo:pin" />
                     
                     <div style={style.pinMessageInfo}>
-                        <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.username : room?.pinnedMessages?.at(-1)?.username} {pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
+                        <b>Pinned Message</b>
+                        <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
                         {/* <Icon icon="carbon:close-outline"  /> */}
                     </div>
                 </div>
-                }
-            </div>
-        </>
+            
+            }
+        </div>
     )
 }
 export default ChatHeader

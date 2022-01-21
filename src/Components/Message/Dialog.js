@@ -4,15 +4,12 @@ import Emoji from '../Emoji/Emoji';
 import EmojiIcon from '../Emoji/EmojiIcon';
 import DeleteIcon from '@material-ui/icons/Delete';
 import PushPinIcon from '@mui/icons-material/PushPin';
-import Cookies from 'js-cookie';
-import axios from 'axios'
 import moment from 'moment';
-
-import { Avatar } from 'antd';
+import { reactionService } from "../../service/reaction"
+import { Avatar, Tooltip } from 'antd';
 
 
 const Icons = ({ reactions, self }) => {
-
     const style = {
         icons: {
             display: 'flex',
@@ -42,7 +39,7 @@ const Icons = ({ reactions, self }) => {
 }
 
 
-const Dialog = ({ dialog, onDelete, room, socket }) => {
+const Dialog = ({ dialog, onDelete, room, socket, kickUser }) => {
     const [widget, setWidget] = useState(false)
     const [enter, setEnter] = useState(false)
     const [reactions, setReaction] = useState([])
@@ -50,7 +47,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
     const [showTime, setShowTime] = useState(false)
     const [selfAndCreator, setSelfAndCreator] = useState(null)
     const [fileNumber, setFileNumber] = useState(0)
-
+    const [showInfoUser, setShowInfoUser] = useState(false)
     const style = {
         dialogDiv: {
             width: '95%',
@@ -160,9 +157,9 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
             display: 'grid',
             gridTemplateColumns: fileNumber === 1 ? 'repeat(1, 1fr)' : fileNumber == 2 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
             gap: '10px',
-        }, 
+        },
 
-        des : {
+        des: {
             display: '-webkit-box',
             WebkitLineClamp: 1,
             WebkitBoxOrient: 'vertical',
@@ -170,19 +167,69 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
             textOverflow: 'ellipsis',
             width: '150px',
             workBreak: 'break-word',
+        },
+
+        subInfo: {
+            position: 'absolute',
+            backgroundColor: 'rgb(227, 246, 252)',
+            bottom: '80px',
+            left: !self ? '-11px': 'none',
+            right: self ? '-11px': 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            padding: '10px',
+            borderRadius: '20px',
+            alignContent: 'flex-end',
+            alignItems: 'center',
+        },
+
+        subInfoContainer: {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px'
+        },
+
+        subInfoFullNameandUsername: {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '3px',
+        },
+
+        subInfoFullName: {
+            fontSize: '20px',
+            color: 'rgb(82, 88, 93)',
+        },
+
+        subInfoUsername: {
+            color: 'rgb(255, 255, 255)',
+            background: 'rgb(101, 136, 222)',
+            padding: '4px',
+            borderRadius: '10px',
+            fontSize: '10px',
+            textAlign: 'center',
+        },
+
+        kick: {
+            fontSize: '15px',
+            margin: '0',
+            border: '1px solid red',
+            fontWeight: 600,
+            color: 'red',
+            width: '100%',
+            textAlign: 'center',
+            borderRadius: '10px',
+            cursor: 'pointer',
         }
     }
 
     const react = (reaction_id, id) => {
-        const cookie = Cookies.get('userId')
-        const index = cookie.indexOf('"')
-        const new_cookie = cookie.slice(index + 1, cookie.length - 1)
-
+        const user_id = localStorage.getItem('userId')
         const tmp = [...reactions]
         let pre_react = 0
 
         tmp.every(react => {
-            const index = react.from.findIndex(user => user.userId === new_cookie)
+            const index = react.from.findIndex(user => user.userId === user_id)
             if (index !== -1) {
                 react.from.splice(index, 1)
                 pre_react = react.reaction_type
@@ -194,12 +241,12 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
         if (pre_react !== reaction_id) {
             const index = tmp.findIndex(react => react.reaction_type === reaction_id)
             if (index !== -1) {
-                tmp[index].from.push({ userId: new_cookie, username: ' ' })
+                tmp[index].from.push({ userId: user_id, username: ' ' })
             } else {
                 tmp.push({
                     reaction_type: reaction_id,
                     from: [{
-                        userId: new_cookie,
+                        userId: user_id,
                         username: ' '
                     }]
                 })
@@ -208,7 +255,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
 
         setReaction([...tmp])
 
-        socket.emit('get-reaction', dialog, reaction_id, new_cookie, room._id)
+        socket.emit('get-reaction', dialog, reaction_id, user_id, room._id)
     }
 
     const setPin = () => {
@@ -223,23 +270,23 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
         })
 
         if (self === null) {
-            const cookie = Cookies.get('userId')
-            const index = cookie.indexOf('"')
-            setSelf(cookie.slice(index + 1, cookie.length - 1) === dialog.from.userId)
-            if (cookie.slice(index + 1, cookie.length - 1) === room.creator)
+            const userId = localStorage.getItem('userId')
+            setSelf(userId === dialog.from.userId)
+            if (userId === room.creator)
                 setSelfAndCreator(true)
         }
 
         return () => {
             socket.off('return-reaction')
         }
-    }, [dialog])
+    }, [dialog, socket])
 
 
-    useEffect(() => {
-        axios.post('/reaction/retrieve', { id: dialog._id }, { withCredentials: true }).then(result => {
-            setReaction(result.data.data)
-        })
+    useEffect(async () => {
+        let res = await reactionService.getReactionsByMessage(dialog._id)
+        if (res.status === 200)
+            setReaction(res.data.data)
+
     }, [])
 
     useEffect(() => {
@@ -247,9 +294,37 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
     }, [])
 
     return (
-        <div style={style.dialogDiv} onMouseEnter={() => setShowTime(true)} onMouseLeave={() => setShowTime(false)}>
-            {!self && <Avatar size={60} style={style.avatar} src={dialog.from.avatar}></Avatar>}
-            {self && <Avatar size={60} style={style.avatar} src={dialog.from.avatar}></Avatar>}
+        <div id={dialog._id} style={style.dialogDiv} onMouseEnter={() => setShowTime(true)} onMouseLeave={() => setShowTime(false)}>
+            {!self &&
+                <div>
+                    <Avatar onMouseEnter={() => setShowInfoUser(!showInfoUser)} size={60} style={style.avatar} src={dialog.from.avatar}></Avatar>
+                    {showInfoUser && <div style={style.subInfo}>
+                        <div style={style.subInfoContainer}>
+                            <Avatar size={70} style={style.subInfoAvatar} src={dialog.from.avatar}></Avatar>
+                            <div style={style.subInfoFullNameandUsername}>
+                                <div style={style.subInfoFullName}>{dialog.from.fullname}</div>
+                                <div style={style.subInfoUsername}>{dialog.from.username}</div>
+                            </div>
+                        </div>
+                        {localStorage.getItem("userId") === room.creator && <p style={style.kick} onClick={() => kickUser(dialog.from.userId, room._id)} >Kick</p>}
+                    </div>}
+                </div>
+            }
+            {self &&
+                <div>
+                    <Avatar onMouseEnter={() => setShowInfoUser(!showInfoUser)} size={60} style={style.avatar} src={dialog.from.avatar}></Avatar>
+                    {showInfoUser && <div style={style.subInfo}>
+                        <div style={style.subInfoContainer}>
+                            <Avatar size={70} style={style.subInfoAvatar} src={dialog.from.avatar}></Avatar>
+                            <div style={style.subInfoFullNameandUsername}>
+                                <div style={style.subInfoFullName}>{dialog.from.fullname}</div>
+                                <div style={style.subInfoUsername}>{dialog.from.username}</div>
+                            </div>
+                        </div>
+                        <p style={style.kick} onClick={() => kickUser(dialog.from.userId, room._id)} >Kick</p>
+                    </div>}
+                </div>
+            }
             <div style={style.container} onMouseEnter={() => setWidget(true)} onMouseLeave={() => setWidget(false)}>
                 {self && <div style={style.dialogDivInfoNameTime}>
                     <div style={style.dialogDivInfoName}>{dialog.from.username}</div>
@@ -277,14 +352,14 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
                                     } else if (format === 'pdf') {
                                         return (
                                             <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                <img src='pdf_file_icon.png' style={{ width: '50px', marginBottom: '10px', marginRight: '10px' }} />
+                                                <img src='https://firebasestorage.googleapis.com/v0/b/chat-cord-712bf.appspot.com/o/default-avatar%2Fpdf_file_icon.png?alt=media&token=f12bd4a4-9d41-4096-9596-b3dfeb8d24b5' style={{ width: '50px', marginBottom: '10px', marginRight: '10px' }} />
                                                 <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
                                             </a>
                                         )
                                     } else if (format === 'docx' || format === 'doc') {
                                         return (
                                             <a style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} key={index} href={url} target="_blank" rel="noopener noreferrer">
-                                                <img src='docx_file_icon.png' style={{ width: '50px', marginBottom: '10px', marginRight: '10px', }} />
+                                                <img src='https://firebasestorage.googleapis.com/v0/b/chat-cord-712bf.appspot.com/o/default-avatar%2Fdocx_file_icon.png?alt=media&token=8c3eeb46-718b-4277-862f-da3236fb6182' style={{ width: '50px', marginBottom: '10px', marginRight: '10px', }} />
                                                 <p style={style.des}>{url.split('%2F').pop().split('?')[0]}</p>
                                             </a>
                                         )
@@ -295,7 +370,7 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
                                         )
                                     }
                                 })
-                                
+
                             }
                         </div>
                     </div>
@@ -308,14 +383,16 @@ const Dialog = ({ dialog, onDelete, room, socket }) => {
                         {(self || selfAndCreator) &&
                             <DeleteIcon
                                 style={style.deleteIcon}
-                                onClick={() => onDelete(dialog, room.creator)}
+                                onClick={() => {
+                                    onDelete(dialog, room.creator)
+                                }}
                             >
                             </DeleteIcon>
                         }
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
 
