@@ -294,7 +294,7 @@ const Dialog = ({ dialog, onDelete, room, socket, kickUser }) => {
     }, [])
 
     return (
-        <div style={style.dialogDiv} onMouseEnter={() => setShowTime(true)} onMouseLeave={() => setShowTime(false)}>
+        <div id={dialog._id} style={style.dialogDiv} onMouseEnter={() => setShowTime(true)} onMouseLeave={() => setShowTime(false)}>
             {!self &&
                 <div>
                     <Avatar onMouseEnter={() => setShowInfoUser(!showInfoUser)} size={60} style={style.avatar} src={dialog.from.avatar}></Avatar>
