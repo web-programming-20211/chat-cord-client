@@ -47,9 +47,13 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) 
 
     useEffect(() => {
         socket.on('new_message', (dialog, ctRoom) => {
-            setLastMsgRoomId(ctRoom)
-            // setLastMsgRoomId('')
+            setLastMsgRoomId({
+                roomId: ctRoom,
+                msg: dialog.content,
+                date: dialog.createdAt
+            })
             if (ctRoom === currentRoom?._id) {
+                console.log("1")
                 setNewMessage(dialog)
             }
         })
@@ -91,7 +95,6 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) 
         if (newMessage)
             setDialogs([...dialogs, newMessage])
 
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [newMessage])
 
     return (
