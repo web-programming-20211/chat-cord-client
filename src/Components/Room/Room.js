@@ -24,7 +24,11 @@ const Room = ({ room, onClick, lastMsgRoomId, setLastMsgRoomId, leaveHandle, roo
     const classes = useStyles()
     const [option, setOption] = useState(false)
     const [hover, setHover] = useState(false)
-    const [lastMsg, setLastMsg] = useState('')
+    const [lastMsg, setLastMsg] = useState({
+        roomId: '',
+        msg: '',
+        date: null
+    })
     const [lastMsgTime, setLastMsgTime] = useState(null)
     const [updateMsg, setUpdateMsg] = useState(false)
     const limit = useMediaQuery({ maxWidth: 1300 })
@@ -135,23 +139,28 @@ const Room = ({ room, onClick, lastMsgRoomId, setLastMsgRoomId, leaveHandle, roo
     }
 
     useEffect(() => {
-        async function getLastMsg() {
-
-           if (option && !choosen) {
-                setOption(false)
-            }
-            if (room?._id === lastMsgRoomId) {
-                let res = await roomService.getRoom(lastMsgRoomId)
-                if (res.status === 200) {
-                    setLastMsg(res.data.msg.lastMessage)
-                    setLastMsgTime(res.data.msg.lastMessageDate)
-                    setUpdateMsg(true)
-                }
-            } 
-
+        if (option && !choosen) {
+            setOption(false)
         }
-        getLastMsg()
+        if (room?._id === lastMsgRoomId.roomId) {
+            room.lastMessage = lastMsgRoomId.msg
+            room.lastMessageDate = lastMsgRoomId.date
+        }
+        setLastMsg({
+            roomId: room?._id,
+            msg: room?.lastMessage,
+            date: room?.lastMessageDate,
+        })
     }, [lastMsgRoomId])
+
+
+    useEffect(() => {
+        setLastMsg({
+            roomId: room?._id,
+            msg: room?.lastMessage,
+            date: room?.lastMessageDate,
+        })
+    }, [])
 
     return (
         <div style={style.room_container} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
@@ -160,9 +169,9 @@ const Room = ({ room, onClick, lastMsgRoomId, setLastMsgRoomId, leaveHandle, roo
                     <Avatar size={56} style={style.avatar} src={room.avatar}></Avatar>
                     <div style={style.roomMessage}>
                         <p style={style.roomMessageName}>{room?.name}</p>
-                        <p style={style.roomMessageLastMessage}>{updateMsg ? lastMsg : room?.lastMessage}</p>
+                        <p style={style.roomMessageLastMessage}>{lastMsg.msg}</p>
                     </div>
-                    <span style={style.messageTime}>{moment(`${updateMsg ? lastMsgTime : room?.lastMessageDate}`).fromNow()}</span>
+                    <span style={style.messageTime}>{moment(`${lastMsg.date}`).fromNow()}</span>
                     {room.isPrivate && <Icon style={style.private} icon="ri:chat-private-line" />}
                 </div>
             </div>
