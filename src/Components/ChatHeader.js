@@ -15,6 +15,7 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
     const [isLoading, setLoading] = useState(false)
     const [users, setUsers] = useState([])
     const [visible, setVisible] = useState(false)
+    // const [roomPinMessage, setRoomPinMessage] = useState([])
     const [updateVisible, setUpdateVisible] = useState(false)
     const [pinnedMessage, setPinnedMessage] = useState(false);
     const [showPinnedMessage, setShowPinnedMessage] = useState(false);
@@ -85,20 +86,43 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
         },
 
         pinMessageContainer: {
-            // opacity: showPinnedMessage || room?.pinnedMessages?.length > 0 ? 1 : 0,
+            // backgroundImage: 'linear-gradient(to right, #E3F6FC, #ffff80)',
+            // opacity: '0.5',
             position: 'absolute',
             backgroundColor: '#E3F6FC',
-            bottom: '-67px',
+            // bottom: '-67px',
+            top: '110px',
             left: '0px',
             zIndex: '1',
-            width: '100%',
+            width: '50%',
+            height: '50px',
             display: 'flex',
-            alignItems: 'center',
+            // alignItems: 'center',
             gap: '10px',
         },
 
         pinMessageIcon: {
+            position: 'relative',
+            left: '5px',
+            top: '15px',
+            color: 'rgb(101, 136, 222)',
+            fontSize: '20px',
+        },
 
+        pinMessageInfo: {
+            width: '90%',
+            display: 'flex',
+            flexFlow: 'column',
+            padding: '2px'
+            // justifyContent: 'space-between',
+            // alignItems: 'center',
+        },
+
+        pinMessageContentText: {
+            // fontSize: '14px',
+            width: '80%',
+            height: '100%',
+            // paddingTop: '12px'
         },
 
         chatInfo: {
@@ -584,6 +608,7 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
                                 <div style={style.mediaGrid}>
                                     {
                                         dialogs.map(dialog => {
+                                            // eslint-disable-next-line array-callback-return
                                             return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
                                                 let format = url.split('.').pop().split('?')[0]
                                                 if (format === 'mp4') {
@@ -673,35 +698,30 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
                                 }
                             </div>
 
-                        </TabPane>
-                    </Tabs>
-                }
-                {!updateVisible &&
-                    <div style={style.leaveRoom}>
-                        <Icon style={style.leaveRoomIcon} icon="pepicons:leave" />
-                        <p style={style.leaveRoomText} onClick={() => {
-                            onClose()
-                            leave(room._id)
-                        }
-                        }>Leave Room</p>
-                    </div>
-                }
-            </Drawer>
-            {showPinnedMessage && <div style={style.pinMessageContainer}>
-                <Icon style={style.pinMessageIcon} icon="bi:pin-angle-fill" />
-                <div style={style.pinMessageInfo}>
-                    <div style={style.pinMessageTitle}>Pinned message</div>
-                    <div style={style.pinMessageContent}>
-                        <Avatar style={style.pinMessageAvatar} src={pinnedMessage ? pinnedMessage?.avatar : room?.pinnedMessages?.at(-1)?.avatar}></Avatar>
-                        <div>
-                            <a href={'#' + pinnedMessage.messageId}>
-                                <p style={style.pinMessageName}>{pinnedMessage ? pinnedMessage?.username : room?.pinnedMessages?.at(-1)?.username}</p>
-                                <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
-                            </a>
+                            </TabPane>
+                        </Tabs>
+                    }
+                    {!updateVisible &&
+                        <div style={style.leaveRoom}>
+                            <Icon style={style.leaveRoomIcon} icon="pepicons:leave" />
+                            <p style={style.leaveRoomText} onClick={() => {
+                                onClose()
+                                leave(room._id)
+                            }
+                            }>Leave Room</p>
                         </div>
+                    }
+                </Drawer>
+                {showPinnedMessage && <div style={style.pinMessageContainer}>
+                    <Icon style={style.pinMessageIcon} icon="entypo:pin" />
+                    
+                    <div style={style.pinMessageInfo}>
+                        <b>Pinned Message</b>
+                        <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
+                        {/* <Icon icon="carbon:close-outline"  /> */}
                     </div>
                 </div>
-            </div>
+            
             }
         </div>
     )
