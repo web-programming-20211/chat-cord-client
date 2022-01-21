@@ -15,6 +15,7 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
     const [isLoading, setLoading] = useState(false)
     const [users, setUsers] = useState([])
     const [visible, setVisible] = useState(false)
+    // const [roomPinMessage, setRoomPinMessage] = useState([])
     const [updateVisible, setUpdateVisible] = useState(false)
     const [pinnedMessage, setPinnedMessage] = useState(false);
     const [showPinnedMessage, setShowPinnedMessage] = useState(false);
@@ -85,20 +86,40 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
         },
 
         pinMessageContainer: {
-            // opacity: showPinnedMessage || room?.pinnedMessages?.length > 0 ? 1 : 0,
+            // backgroundImage: 'linear-gradient(to right, #E3F6FC, #ffff80)',
+            // opacity: '0.5',
             position: 'absolute',
             backgroundColor: '#E3F6FC',
-            bottom: '-67px',
+            // bottom: '-67px',
+            top: '110px',
             left: '0px',
             zIndex: '1',
-            width: '100%',
+            width: '30%',
+            height: '40px',
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
         },
 
         pinMessageIcon: {
+            position: 'relative',
+            left: '5px',
+            color: 'rgb(101, 136, 222)',
+            fontSize: '20px',
+        },
 
+        pinMessageInfo: {
+            width: '90%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+        },
+
+        pinMessageContentText: {
+            // fontSize: '14px',
+            width: '80%',
+            height: '100%',
+            paddingTop: '12px'
         },
 
         chatInfo: {
@@ -393,6 +414,7 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
             <Option value="User">User</Option>
         </Select>
     );
+
     useEffect(async () => {
         setLoading(true);
         let res = await roomService.getMembers(room?._id)
@@ -542,6 +564,10 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
 
                         <Form.Item label="Description" rules={[
                             {
+
+                            currentUser === room.creator && <Form.Item label="Mode">
+                                <Switch defaultChecked={room.isPrivate} checkedChildren="Private" unCheckedChildren="Public" onChange={(e) => setRoomUpdateInfo({ ...roomUpdateInfo, isPrivate: !roomUpdateInfo.isPrivate })} />
+
                                 required: true,
                                 message: 'Please input room description!'
                             },
@@ -552,8 +578,52 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
                         {
                             currentUser == room.creator && <Form.Item label="Mode">
                                 <Switch defaultChecked={isPrivate} checkedChildren="Private" unCheckedChildren="Public" onClick={(e) => { setIsPrivate(pre => !pre); setRoomUpdateInfo(prevRoomUpdateInfo => { return ({ ...prevRoomUpdateInfo, isPrivate: !prevRoomUpdateInfo.isPrivate }) }) }} />
+
                             </Form.Item>
                         }
+
+                            <Form.Item wrapperCol={{ offset: 10, span: 16 }}>
+                                <Button type="primary" htmlType="submit">
+                                    Save
+                                </Button>
+                            </Form.Item>
+                        </Form>
+                        :
+                        <Tabs style={{ marginBottom: '25px' }} defaultActiveKey="1">
+                            <TabPane tab="Images" key="1">
+                                <div style={style.media}>
+                                    <div style={style.mediaGrid}>
+                                        {
+                                            dialogs.map(dialog => {
+                                                // eslint-disable-next-line array-callback-return
+                                                return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
+                                                    let format = url.split('.').pop().split('?')[0]
+                                                    if (format === 'jpg' || format === 'png' || format === 'jpeg') {
+                                                        // eslint-disable-next-line jsx-a11y/alt-text
+                                                        return <img src={url} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} />
+                                                    }
+                                                })
+                                            })
+                                        }
+                                    </div>
+                                </div>
+                            </TabPane>
+                            <TabPane tab="Videos" key="2">
+                                <div style={style.media}>
+                                    <div style={style.mediaGrid}>
+                                        {
+                                            dialogs.map(dialog => {
+                                                // eslint-disable-next-line array-callback-return
+                                                return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
+                                                    let format = url.split('.').pop().split('?')[0]
+                                                    if (format === 'mp4') {
+                                                        return (
+                                                            <video key={index} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} controls>
+                                                                <source src={url} type="video/mp4" />
+                                                            </video>
+                                                        )
+                                                    }
+                                                })
 
                         <Form.Item wrapperCol={{ offset: 10, span: 16 }}>
                             <Button type="primary" htmlType="submit">
@@ -573,6 +643,7 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
                                                 if (format === 'jpg' || format === 'png' || format === 'jpeg') {
                                                     return <img key={index} src={url} onClick={(e) => { e.target.classList.toggle("zoom") }} style={{ width: '100%', height: '100px', objectFit: 'cover', marginBottom: '10px', transition: '1s' }} />
                                                 }
+
                                             })
                                         })
                                     }
@@ -584,6 +655,7 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
                                 <div style={style.mediaGrid}>
                                     {
                                         dialogs.map(dialog => {
+                                            // eslint-disable-next-line array-callback-return
                                             return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
                                                 let format = url.split('.').pop().split('?')[0]
                                                 if (format === 'mp4') {
@@ -597,6 +669,55 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
                                         })
                                     }
                                 </div>
+
+                            </TabPane>
+                            <TabPane tab="Members" key="4">
+                                <div style={style.members}>
+                                    {
+                                        ((currentUser === room.creator && room.isPrivate) || !room.isPrivate) &&
+                                        <Form name="add user dynamic form" autoComplete="off" onFinish={onFinish}>
+                                            <Form.List name="usersList">
+                                                {(fields, { add, remove }) => (
+                                                    <>
+                                                        {fields.map(({ key, name, fieldKey, ...restField }) => (
+                                                            <Space key={key} style={{ display: 'flex', marginBottom: 2 }} align="baseline">
+                                                                <Form.Item
+                                                                    {...restField}
+                                                                    name={[name, 'first']}
+                                                                    fieldKey={[fieldKey, 'first']}
+                                                                    rules={[{ type: 'email', required: true, message: 'Email is required!' }]}
+                                                                >
+                                                                    <Input placeholder="Email" />
+                                                                </Form.Item>
+                                                                <Icon style={style.removeIcon} icon="gg:remove" onClick={() => remove(name)} />
+                                                                {/* <MinusCircleOutlined onClick={() => remove(name)} /> */}
+                                                            </Space>
+                                                        ))}
+                                                        <Form.Item>
+                                                            <Button onClick={() => add()} block style={style.plusIconContainer}><Icon style={style.plusIcon} icon="carbon:add" /></Button>
+                                                        </Form.Item>
+                                                    </>
+                                                )}
+                                            </Form.List>
+                                            <Form.Item>
+                                                <Button style={style.submitButton} type='primary' htmlType="submit">
+                                                    Submit
+                                                </Button>
+                                            </Form.Item>
+                                        </Form>
+                                    }
+                                    {
+                                        users?.map((user, index) => {
+                                            return (
+                                                <div key={index} style={style.member}>
+                                                    <div style={style.avatar}>
+                                                        <Avatar style={{ backgroundColor: '#' + user?.color }} size={50} src={user?.avatar}></Avatar>
+                                                        {userOnlines.includes(user?._id) && <span style={style.dot}></span>}
+                                                    </div>
+                                                    <p style={{ fontSize: '16px' }}>{user?.fullname}</p>
+                                                </div>
+                                            )
+
                             </div>
                         </TabPane>
                         <TabPane tab="Files" key="3">
@@ -618,6 +739,7 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
                                                     </a>
                                                 )
                                             }
+
                                         })
                                     })
                                 }
@@ -672,33 +794,27 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
                                     })
                                 }
                             </div>
-
-                        </TabPane>
-                    </Tabs>
-                }
-                {!updateVisible &&
-                    <div style={style.leaveRoom}>
-                        <Icon style={style.leaveRoomIcon} icon="pepicons:leave" />
-                        <p style={style.leaveRoomText} onClick={() => {
-                            onClose()
-                            leave(room._id)
-                        }
-                        }>Leave Room</p>
-                    </div>
-                }
-            </Drawer>
-            {showPinnedMessage && <div style={style.pinMessageContainer}>
-                <Icon style={style.pinMessageIcon} icon="bi:pin-angle-fill" />
-                <div style={style.pinMessageInfo}>
-                    <div style={style.pinMessageTitle}>Pinned message</div>
-                    <div style={style.pinMessageContent}>
-                        <Avatar style={style.pinMessageAvatar} src={pinnedMessage ? pinnedMessage?.avatar : room?.pinnedMessages?.at(-1)?.avatar}></Avatar>
-                        <div>
-                            <a href={'#' + pinnedMessage.messageId}>
-                                <p style={style.pinMessageName}>{pinnedMessage ? pinnedMessage?.username : room?.pinnedMessages?.at(-1)?.username}</p>
-                                <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
-                            </a>
+                            </TabPane>
+                        </Tabs>
+                    }
+                    {!updateVisible &&
+                        <div style={style.leaveRoom}>
+                            <Icon style={style.leaveRoomIcon} icon="pepicons:leave" />
+                            <p style={style.leaveRoomText} onClick={() => {
+                                onClose()
+                                leave(room._id)
+                            }
+                            }>Leave Room</p>
                         </div>
+                    }
+                </Drawer>
+                {showPinnedMessage && <div style={style.pinMessageContainer}>
+                    <Icon style={style.pinMessageIcon} icon="entypo:pin" />
+                    
+                    <div style={style.pinMessageInfo}>
+                        <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.username : room?.pinnedMessages?.at(-1)?.username} {pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
+                        {/* <Icon icon="carbon:close-outline"  /> */}
+
                     </div>
                 </div>
             </div>
