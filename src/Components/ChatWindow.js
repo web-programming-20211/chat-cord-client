@@ -30,8 +30,9 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) 
         }
     }
 
-    useEffect(async () => {
-        if (currentRoom?._id !== -1) {
+    useEffect(() => {
+        async function getDialogs() {
+            if (currentRoom?._id !== -1) {
             setLoading(true)
             let res = await messageService.getMessages(currentRoom?._id)
             if (res.status === 200) {
@@ -39,14 +40,18 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) 
                 setLoading(false)
             }
         }
+        }
+
+        getDialogs()
     }, [currentRoom])
 
     useEffect(() => {
         socket.on('new_message', (dialog, ctRoom) => {
             setLastMsgRoomId(ctRoom)
-            setLastMsgRoomId('')
-            if (ctRoom === currentRoom?._id)
+            // setLastMsgRoomId('')
+            if (ctRoom === currentRoom?._id) {
                 setNewMessage(dialog)
+            }
         })
         socket.on('dialog-deleted', (id) => {
             const temp = [...dialogs]
