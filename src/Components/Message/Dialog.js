@@ -69,6 +69,7 @@ const Dialog = ({ dialog, onDelete, room, socket, kickUser }) => {
             borderRadius: '25px',
             maxWidth: '100%',
             position: 'relative',
+            wordBreak: 'break-word',
         },
 
         avatar: {
@@ -173,8 +174,8 @@ const Dialog = ({ dialog, onDelete, room, socket, kickUser }) => {
             position: 'absolute',
             backgroundColor: 'rgb(227, 246, 252)',
             bottom: '80px',
-            left: !self ? '-11px': 'none',
-            right: self ? '-11px': 'none',
+            left: !self ? '-11px' : 'none',
+            right: self ? '-11px' : 'none',
             display: 'flex',
             flexDirection: 'column',
             gap: '10px',

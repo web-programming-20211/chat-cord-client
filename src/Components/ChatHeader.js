@@ -485,6 +485,15 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
         )
     }
 
+    const colorOfDialog = () => {
+        
+        var element = document.getElementById(pinnedMessage.messageId);
+        console.log(element)
+        element.style.backgroundColor = 'LightBlue'
+       
+        setTimeout (  ()=> { element.style.backgroundColor = 'White' }, 1000)
+    }
+
     return (
 
         !isLoading && <div style={style.chatHeader}>
@@ -698,30 +707,31 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
                                 }
                             </div>
 
-                            </TabPane>
-                        </Tabs>
-                    }
-                    {!updateVisible &&
-                        <div style={style.leaveRoom}>
-                            <Icon style={style.leaveRoomIcon} icon="pepicons:leave" />
-                            <p style={style.leaveRoomText} onClick={() => {
-                                onClose()
-                                leave(room._id)
-                            }
-                            }>Leave Room</p>
-                        </div>
-                    }
-                </Drawer>
-                {showPinnedMessage && <div style={style.pinMessageContainer}>
-                    <Icon style={style.pinMessageIcon} icon="entypo:pin" />
-                    
-                    <div style={style.pinMessageInfo}>
+                        </TabPane>
+                    </Tabs>
+                }
+                {!updateVisible &&
+                    <div style={style.leaveRoom}>
+                        <Icon style={style.leaveRoomIcon} icon="pepicons:leave" />
+                        <p style={style.leaveRoomText} onClick={() => {
+                            onClose()
+                            leave(room._id)
+                        }
+                        }>Leave Room</p>
+                    </div>
+                }
+            </Drawer>
+            {showPinnedMessage && <div style={style.pinMessageContainer}>
+                <Icon style={style.pinMessageIcon} icon="entypo:pin" />
+                <div style={style.pinMessageInfo} onClick={ () => {colorOfDialog() }}>
+                    <a href={'#' + pinnedMessage.messageId}>
                         <b>Pinned Message</b>
                         <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
                         {/* <Icon icon="carbon:close-outline"  /> */}
-                    </div>
+                    </a>
                 </div>
-            
+            </div>
+
             }
         </div>
     )
