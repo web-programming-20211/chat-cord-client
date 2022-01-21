@@ -25,12 +25,20 @@ function App() {
   const [user, setUser] = useState(null)
   const [roomPanel, setPanel] = useState(false)
   const [currentRoom, setCurrentRoom] = useState(null)
-  const [lastMsgRoomId, setLastMsgRoomId] = useState('')
+  const [lastMsgRoomId, setLastMsgRoomId] = useState({
+    roomId: '',
+    msg: '',
+    date: null
+  })
   const [rooms, setRooms] = useState([])
   const [message, setMessage] = useState('')
   const [showSearchRoom, setShowSearchRoom] = useState(false)
   const [updateCurrentRoom, setUpdateCurrentRoom] = useState(false)
-  const [lastMsgRoomId1, setLastMsgRoomId1] = useState('')
+  const [lastMsgRoomId1, setLastMsgRoomId1] = useState({
+    roomId: '',
+    msg: '',
+    date: null
+  })
 
   const socket = io.connect(process.env.REACT_APP_API_URL || 'http://localhost:8080');
 
@@ -223,23 +231,18 @@ function App() {
   }, [currentRoom])
 
   useEffect(() => {
-    async function setLastMsgId() {
-
-      if (lastMsgRoomId) {
-      let res = rooms.find(room => room._id === lastMsgRoomId)
-      if (lastMsgRoomId !== rooms[0]?._id) {
-        setRooms([res, ...rooms.filter(el => el._id !== res._id)])        
-        // setCurrentRoom(currentRoom)
-      } 
+    if (lastMsgRoomId.roomId.length > 0) {
+      let res = rooms.find(room => room._id === lastMsgRoomId.roomId)
+      if (lastMsgRoomId.roomId !== rooms[0]?._id) {
+        setRooms([res, ...rooms.filter(el => el._id !== res._id)])
       }
-
-
     }
-   setLastMsgRoomId1(lastMsgRoomId);
-
-    setLastMsgId()
-    
-  }, [lastMsgRoomId]) 
+    setLastMsgRoomId1({
+      roomId: lastMsgRoomId.roomId,
+      msg: lastMsgRoomId.msg,
+      date: lastMsgRoomId.date
+    })
+  }, [lastMsgRoomId])
 
 
   return (
