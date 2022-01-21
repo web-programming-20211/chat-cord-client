@@ -30,6 +30,7 @@ function App() {
   const [message, setMessage] = useState('')
   const [showSearchRoom, setShowSearchRoom] = useState(false)
   const [updateCurrentRoom, setUpdateCurrentRoom] = useState(false)
+  const [lastMsgRoomId1, setLastMsgRoomId1] = useState('')
 
   const socket = io.connect(process.env.REACT_APP_API_URL || 'http://localhost:8080');
 
@@ -104,7 +105,6 @@ function App() {
   }
 
   const kickUser = async (userId, roomId) => {
-    console.log(userId+ '   ' +roomId)
     socket.emit('kick', userId, roomId)
   }
 
@@ -193,23 +193,27 @@ function App() {
     setPanel(true)
   }
 
-  useEffect(async () => {
-    const token = localStorage.getItem("token")
-    if (token !== null) {
-      let res = await userService.getUser()
-      if (res.status === 200) {
-        localStorage.setItem("userId", res.data.msg._id)
-        setAuthenticated(true)
-        setUser(res.data.msg)
-        res = await roomService.getRooms()
-        if (res.status === 200) setRooms(res.data.msg)
-        socket.emit('login', res.data.msg._id)
-        socket.once('connected', () => setConnect(true))
+  useEffect(() => {
+    async function getUserToken() {
+      const token = localStorage.getItem("token")
+      if (token !== null) {
+        let res = await userService.getUser()
+        if (res.status === 200) {
+          localStorage.setItem("userId", res.data.msg._id)
+          setAuthenticated(true)
+          setUser(res.data.msg)
+          res = await roomService.getRooms()
+          if (res.status === 200) setRooms(res.data.msg)
+          socket.emit('login', res.data.msg._id)
+          socket.once('connected', () => setConnect(true))
+          setLoading(false)
+        }
+      } else {
         setLoading(false)
       }
-    } else {
-      setLoading(false)
     }
+
+    getUserToken()
   }, [])
 
   useEffect(() => {
@@ -218,15 +222,24 @@ function App() {
     }
   }, [currentRoom])
 
-  useEffect(async () => {
-    if (lastMsgRoomId) {
+  useEffect(() => {
+    async function setLastMsgId() {
+
+      if (lastMsgRoomId) {
       let res = rooms.find(room => room._id === lastMsgRoomId)
       if (lastMsgRoomId !== rooms[0]?._id) {
-        setRooms([res, ...rooms.filter(el => el._id !== res._id)])
+        setRooms([res, ...rooms.filter(el => el._id !== res._id)])        
         // setCurrentRoom(currentRoom)
+      } 
       }
+
+
     }
-  }, [lastMsgRoomId])
+   setLastMsgRoomId1(lastMsgRoomId);
+
+    setLastMsgId()
+    
+  }, [lastMsgRoomId]) 
 
 
   return (
@@ -238,7 +251,7 @@ function App() {
               <UserArea user={user} logout={logout}></UserArea>
               {showSearchRoom && <SearchRoom currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} handleSearchRoom={setShowSearchRoom} />}
               {!showSearchRoom && <RoomsHeader joinRoom={joinRoom} findRoom={findRoom} handleSearchRoom={setShowSearchRoom}></RoomsHeader>}
-              {!showSearchRoom && <RoomsList currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} lastMsgRoomId={lastMsgRoomId} setLastMsgRoomId={setLastMsgRoomId} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} />}
+              {!showSearchRoom && <RoomsList currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} lastMsgRoomId={lastMsgRoomId1} setLastMsgRoomId={setLastMsgRoomId1} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} />}
             </div>
             {currentRoom ? <div style={style.right}>
               <ChatWindow socket={socket} currentRoom={currentRoom} setLastMsgRoomId={setLastMsgRoomId} leave={leaveRoom} kickUser={kickUser}></ChatWindow>
