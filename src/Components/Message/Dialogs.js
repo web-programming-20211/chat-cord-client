@@ -1,6 +1,5 @@
 import Dialog from './Dialog'
 import { useEffect, useRef } from 'react'
-// import { padding } from '@mui/system'
 
 const Dialogs = ({socket, room, dialogs, deleteMessage, kickUser}) => {
     const style = {

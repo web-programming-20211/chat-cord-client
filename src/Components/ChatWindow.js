@@ -7,9 +7,9 @@ import { messageService } from "../service/message"
 const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) => {
     const [dialogs, setDialogs] = useState([])
     const [userOnline, setUserOnline] = useState('')
-    const [isLoading, setLoading] = useState(false)
     const [newMessage, setNewMessage] = useState(null)
-
+    const [delMessage, setDeleteMessage] = useState(null)
+    const [prevMessage, setPrevMessage] = useState('')
     const dialogsUpdate = (message, urls) => {
         socket.emit('chat', message, urls, localStorage.getItem('userId'), currentRoom._id)
     }
@@ -30,19 +30,14 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) 
         }
     }
 
-    useEffect(() => {
-        async function getDialogs() {
-            if (currentRoom?._id !== -1) {
-            setLoading(true)
+    useEffect(async () => {
+        if (currentRoom?._id !== -1) {
             let res = await messageService.getMessages(currentRoom?._id)
             if (res.status === 200) {
                 setDialogs(res.data.msg)
-                setLoading(false)
             }
         }
-        }
 
-        getDialogs()
     }, [currentRoom])
 
     useEffect(() => {
@@ -53,20 +48,11 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) 
                 date: dialog.createdAt
             })
             if (ctRoom === currentRoom?._id) {
-                console.log("1")
                 setNewMessage(dialog)
             }
         })
         socket.on('dialog-deleted', (id) => {
-            const temp = [...dialogs]
-            temp.every((d, index) => {
-                if (d._id === id) {
-                    temp.splice(index, 1)
-                    return false
-                }
-                return true
-            })
-            setDialogs([...temp])
+            setDeleteMessage(id)
         })
 
         return () => {
@@ -92,17 +78,33 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) 
     }, [socket])
 
     useEffect(() => {
-        if (newMessage)
+        if (newMessage && prevMessage !== newMessage._id) {
             setDialogs([...dialogs, newMessage])
-
+            setPrevMessage(newMessage._id)
+        }
     }, [newMessage])
 
+    useEffect(() => {
+        if (delMessage) {
+            const temp = [...dialogs]
+            temp.every((d, index) => {
+                if (d._id === delMessage) {
+                    temp.splice(index, 1)
+                    return false
+                }
+                return true
+            })
+
+            setDialogs([...temp])
+        }
+    }, [delMessage])
+
     return (
-        <div>
+        <>
             <ChatHeader userOnline={userOnline} room={currentRoom} dialogs={dialogs} leave={leave} socket={socket} />
-            {!isLoading && <div><Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage} kickUser={kickUser}></Dialogs>
-                < Input setDialogs={dialogsUpdate} /></div>}
-        </div>
+            <Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage} kickUser={kickUser}></Dialogs>
+            < Input setDialogs={dialogsUpdate} />
+        </>
     )
 }
 
