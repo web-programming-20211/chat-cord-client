@@ -1,69 +1,51 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import Input from "./Message/Input"
 import Dialogs from "./Message/Dialogs"
 import ChatHeader from "./ChatHeader"
-import axios from 'axios'
 import { useEffect, useState } from "react"
-import Cookies from "js-cookie"
-// import Snackbar from '@material-ui/core/Snackbar'
-// import MuiAlert from '@material-ui/lab/Alert'
+import { messageService } from "../service/message"
 
-// const Alert = (props) => {
-//     return <MuiAlert elevation={6} variant='filled' {...props} />
-// }
-
-const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) => {
+const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) => {
     const [dialogs, setDialogs] = useState([])
-    const [currentRoom, setRoom] = useState(room)
+    const [userOnline, setUserOnline] = useState('')
+    const [isLoading, setLoading] = useState(false)
     const [newMessage, setNewMessage] = useState(null)
-    const [userOnlines, setUserOnlines] = useState([])
-
-    // const style = {
-    //     container: {
-    //         height: '100vh',
-    //         width: '90%',
-    //         background: '#E3F6FC',
-    //         borderRadius: '10px',
-    //         margin: '50px 50px 50px 30px'
-    //     },
-
-    // }
 
     const dialogsUpdate = (message, urls) => {
-        socket.emit('chat', message, urls, Cookies.get('userId'), room._id)
+        socket.emit('chat', message, urls, localStorage.getItem('userId'), currentRoom._id)
     }
 
     const deleteMessage = (dialog, creator) => {
-        const cookie = Cookies.get('userId')
-        const index = cookie.indexOf('"')
-        let userId = cookie.slice(index + 1, cookie.length - 1)
+        const userId = localStorage.getItem('userId')
         if (dialog.from.userId === userId || creator === userId) {
-            const temp = [...dialogs]
-            temp.every((d, index) => {
-                if (d._id === dialog._id) {
-                    temp.splice(index, 1)
-                    return false
-                }
-                return true
-            })
-            setDialogs([...temp])
-            socket.emit('delete', dialog._id, room)
+            // const temp = [...dialogs]
+            // temp.every((d, index) => {
+            //     if (d._id === dialog._id) {
+            //         temp.splice(index, 1)
+            //         return false
+            //     }
+            //     return true
+            // })
+            // setDialogs([...temp])
+            socket.emit('delete', dialog._id, currentRoom?._id)
         }
     }
 
-    useEffect(() => {
-        setRoom(room)
-        if (room?._id !== -1)
-            axios.get('/message/room/' + room?._id, { withCredentials: true }).then(response => {
-                setDialogs(response.data.msg)
-            })
-    }, [room])
+    useEffect(async () => {
+        if (currentRoom?._id !== -1) {
+            setLoading(true)
+            let res = await messageService.getMessages(currentRoom?._id)
+            if (res.status === 200) {
+                setDialogs(res.data.msg)
+                setLoading(false)
+            }
+        }
+    }, [currentRoom])
 
     useEffect(() => {
-        socket.on('your_new_message', (dialog, ctRoom) => {
+        socket.on('new_message', (dialog, ctRoom) => {
             setLastMsgRoomId(ctRoom)
             setLastMsgRoomId('')
-            if (ctRoom === room?._id)
+            if (ctRoom === currentRoom?._id)
                 setNewMessage(dialog)
         })
         socket.on('dialog-deleted', (id) => {
@@ -77,26 +59,20 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
             })
             setDialogs([...temp])
         })
+
         return () => {
-            // socket.off('logged')
             socket.off('your_new_message')
             socket.off('dialog-deleted')
         }
-    }, [dialogs, socket])
+    }, [socket])
 
     useEffect(() => {
-        if (newMessage) {
-            setDialogs([...dialogs, newMessage])
-        }
-    }, [newMessage])
-
-    useEffect(() => {
-        socket.on('loggedIn', (users) => {
-            setUserOnlines([...users])
+        socket.on('loggedIn', (userId) => {
+            setUserOnline(userId)
         })
 
-        socket.on('loggedOut', (users) => {
-            setUserOnlines([...users])
+        socket.on('loggedOut', (userId) => {
+            setUserOnline(userId)
         })
 
         return () => {
@@ -104,15 +80,20 @@ const ChatWindow = ({ socket, room, setLastMsgRoomId, rooms, setRooms, leave }) 
             socket.off('loggedOut')
         }
 
-    }, [userOnlines,socket])
+    }, [socket])
+
+    useEffect(() => {
+        if (newMessage)
+            setDialogs([...dialogs, newMessage])
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [newMessage])
 
     return (
         <div>
-            <ChatHeader userOnlines={userOnlines} room={room} dialogs={dialogs} leave={leave} socket={socket} />
-            <div>
-                <Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage} ></Dialogs>
-                <Input room={currentRoom} setDialogs={dialogsUpdate} socket={socket}></Input>
-            </div>
+            <ChatHeader userOnline={userOnline} room={currentRoom} dialogs={dialogs} leave={leave} socket={socket} />
+            {!isLoading && <div><Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage} kickUser={kickUser}></Dialogs>
+                < Input setDialogs={dialogsUpdate} /></div>}
         </div>
     )
 }

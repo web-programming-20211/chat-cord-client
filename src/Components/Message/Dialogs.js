@@ -2,13 +2,11 @@ import Dialog from './Dialog'
 import { useEffect, useRef } from 'react'
 // import { padding } from '@mui/system'
 
-const Dialogs = ({socket, room, dialogs, deleteMessage}) => {
+const Dialogs = ({socket, room, dialogs, deleteMessage, kickUser}) => {
     const style = {
         display: 'block',
         width: '100%',
         height: '77vh',
-        // backgroundColor: 'rgb(227, 246, 252)',
-        // borderRadius: '14px',
         overflow: 'auto',
         margin: '10px 0px 0px 10px',
     }
@@ -21,8 +19,8 @@ const Dialogs = ({socket, room, dialogs, deleteMessage}) => {
 
     return (
         <div style={style}>
-            {dialogs.map((dialog) => {
-                return <Dialog key={dialog._id} socket={socket} dialog={dialog} onDelete={deleteMessage} room={room}></Dialog>
+            {dialogs.map((dialog, index) => {
+                return <Dialog key={index} socket={socket} dialog={dialog} onDelete={deleteMessage} room={room} kickUser={kickUser}></Dialog>
             })}
             <div ref={MessEnding} />
         </div>

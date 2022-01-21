@@ -161,7 +161,6 @@ const Input = ({ setDialogs }) => {
         // convert to base64
         for (let i = 0; i < e.target.files.length; i++) {
             const newFile = e.target.files[i]
-            console.log('newFile', newFile.type)
             newFile["id"] = Math.random()
             let fileUrl = ''
             let name = ''
