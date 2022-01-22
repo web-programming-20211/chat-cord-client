@@ -20,6 +20,7 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
     const [pinnedMessage, setPinnedMessage] = useState(false);
     const [showPinnedMessage, setShowPinnedMessage] = useState(false);
     var user = []
+    let typeSearch = 'All'
     const [roomAvatarPreview, setRoomAvatarPreview] = useState(null)
     const [roomAvatar, setRoomAvatar] = useState()
     const currentUser = localStorage.getItem('userId')
@@ -362,12 +363,13 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
             display: 'flex',
             gap: '50px',
             alignItems: 'center',
+            justifyContent: 'center',
         },
 
         searchOption: {
             color: '#fff',
             cursor: 'pointer',
-            fontSize: '16px',
+            fontSize: '20px',
             fontWeight: 'bold',
         },
 
@@ -409,14 +411,7 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
     }
 
 
-    const { Option } = Select;
 
-    const selectBefore = (
-        <Select defaultValue="Message">
-            <Option value="Message">Message</Option>
-            <Option value="User">User</Option>
-        </Select>
-    );
     useEffect(async () => {
         setLoading(true);
         let res = await roomService.getMembers(room?._id)
@@ -467,6 +462,20 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
         }
     }
 
+    const getTypeSearch = (v) => {
+        typeSearch = v
+    }
+    const { Option } = Select;
+
+    const selectBefore = (
+        <Select defaultValue="All" onChange={getTypeSearch}>
+            <Option value="All">All</Option>
+            <Option value="Message">Message</Option>
+            <Option value="User">User</Option>
+        </Select>
+    );
+
+
     const Dialog = ({ dialog }) => {
         return (
             <div style={style.dialogContainer}>
@@ -494,12 +503,20 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
             </div>
             <div style={style.chatTool}>
 
-                <Input style={style.input} autoComplete='off' placeholder="Type user or a message you what to search..." onKeyPress={async (e) => {
+                <Input style={style.input} addonBefore={selectBefore} autoComplete='off' placeholder="Type user or a message you want to search..." onKeyPress={async (e) => {
                     if (e.key === 'Enter') {
-                        setShowDialogResult(true)
                         await roomService.searchMessages(room._id, e.target.value).then(
                             (res) => {
-                                setDialogResult(res.data.msg)
+                                if (res.data.msg.length > 0) {
+                                    setShowDialogResult(true)
+                                    if (typeSearch === 'All')
+                                        setDialogResult(res.data.msg)
+                                    else if (typeSearch === 'Message')
+                                        setDialogResult(res.data.msg.filter(m => m.content.includes(e.target.value)))
+                                    else if (typeSearch === 'User')
+                                        setDialogResult(res.data.msg.filter(m => m.username.includes(e.target.value)))
+                                }
+                                else setShowDialogResult(false)
                             }
                         );
                     }
@@ -509,14 +526,18 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
                     <Icon style={style.closeIcon} onClick={() => setShowDialogResult(false)} icon="ant-design:close-circle-outlined" />
 
                     <div style={style.searchResultOption}>
-                        <Input style={style.input} autoComplete='off' addonBefore={selectBefore} />
-                        <div style={style.searchOption}>Old</div>
-                        <div style={style.searchOption}>New</div>
+                        <div style={style.searchOption} onClick={() => {
+                            var temp = [...dialogResult.sort((a, b) => (a.createdAt > b.createdAt) ? 1 : -1)]
+                            setDialogResult(temp)
+                        }}>Old</div>
+                        <div style={style.searchOption} onClick={() => {
+                            var temp = [...dialogResult.sort((a, b) => (a.createdAt < b.createdAt) ? 1 : -1)]
+                            setDialogResult(temp)
+                        }}>New</div>
                     </div>
-                    <div style={{ overflow: "scroll", maxHeight: "500px" }}>
+                    <div style={{ overflow: "scroll", maxHeight: "500px", overflowX: "hidden" }}>
                         {
                             dialogResult?.map((dialog, i) => {
-                                console.log(dialog)
                                 return (
                                     <Dialog key={i} dialog={dialog}></Dialog>
                                 )
@@ -698,30 +719,30 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
                                 }
                             </div>
 
-                            </TabPane>
-                        </Tabs>
-                    }
-                    {!updateVisible &&
-                        <div style={style.leaveRoom}>
-                            <Icon style={style.leaveRoomIcon} icon="pepicons:leave" />
-                            <p style={style.leaveRoomText} onClick={() => {
-                                onClose()
-                                leave(room._id)
-                            }
-                            }>Leave Room</p>
-                        </div>
-                    }
-                </Drawer>
-                {showPinnedMessage && <div style={style.pinMessageContainer}>
-                    <Icon style={style.pinMessageIcon} icon="entypo:pin" />
-                    
-                    <div style={style.pinMessageInfo}>
-                        <b>Pinned Message</b>
-                        <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
-                        {/* <Icon icon="carbon:close-outline"  /> */}
+                        </TabPane>
+                    </Tabs>
+                }
+                {!updateVisible &&
+                    <div style={style.leaveRoom}>
+                        <Icon style={style.leaveRoomIcon} icon="pepicons:leave" />
+                        <p style={style.leaveRoomText} onClick={() => {
+                            onClose()
+                            leave(room._id)
+                        }
+                        }>Leave Room</p>
                     </div>
+                }
+            </Drawer>
+            {showPinnedMessage && <div style={style.pinMessageContainer}>
+                <Icon style={style.pinMessageIcon} icon="entypo:pin" />
+
+                <div style={style.pinMessageInfo}>
+                    <b>Pinned Message</b>
+                    <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
+                    {/* <Icon icon="carbon:close-outline"  /> */}
                 </div>
-            
+            </div>
+
             }
         </div>
     )

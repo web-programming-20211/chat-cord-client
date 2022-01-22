@@ -296,9 +296,9 @@ const Dialog = ({ dialog, onDelete, room, socket, kickUser }) => {
     return (
         <div id={dialog._id} style={style.dialogDiv} onMouseEnter={() => setShowTime(true)} onMouseLeave={() => setShowTime(false)}>
             {!self &&
-                <div>
-                    <Avatar onMouseEnter={() => setShowInfoUser(!showInfoUser)} size={60} style={style.avatar} src={dialog.from.avatar}></Avatar>
-                    {showInfoUser && <div style={style.subInfo}>
+                <div onMouseLeave={() => setShowInfoUser(false)}>
+                    <Avatar onMouseEnter={() => setShowInfoUser(true)}  size={60} style={style.avatar} src={dialog.from.avatar}></Avatar>
+                    {showInfoUser && <div style={style.subInfo} >
                         <div style={style.subInfoContainer}>
                             <Avatar size={70} style={style.subInfoAvatar} src={dialog.from.avatar}></Avatar>
                             <div style={style.subInfoFullNameandUsername}>
@@ -311,19 +311,9 @@ const Dialog = ({ dialog, onDelete, room, socket, kickUser }) => {
                 </div>
             }
             {self &&
-                <div>
-                    <Avatar onMouseEnter={() => setShowInfoUser(!showInfoUser)} size={60} style={style.avatar} src={dialog.from.avatar}></Avatar>
-                    {showInfoUser && <div style={style.subInfo}>
-                        <div style={style.subInfoContainer}>
-                            <Avatar size={70} style={style.subInfoAvatar} src={dialog.from.avatar}></Avatar>
-                            <div style={style.subInfoFullNameandUsername}>
-                                <div style={style.subInfoFullName}>{dialog.from.fullname}</div>
-                                <div style={style.subInfoUsername}>{dialog.from.username}</div>
-                            </div>
-                        </div>
-                        <p style={style.kick} onClick={() => kickUser(dialog.from.userId, room._id)} >Kick</p>
-                    </div>}
-                </div>
+                // <div onMouseLeave={() => setShowInfoUser(false)}>
+                    <Avatar onMouseEnter={() => setShowInfoUser(true)}  size={60} style={style.avatar} src={dialog.from.avatar}></Avatar>
+     
             }
             <div style={style.container} onMouseEnter={() => setWidget(true)} onMouseLeave={() => setWidget(false)}>
                 {self && <div style={style.dialogDivInfoNameTime}>
