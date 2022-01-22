@@ -19,6 +19,7 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
     const [pinnedMessage, setPinnedMessage] = useState(false);
     const [showPinnedMessage, setShowPinnedMessage] = useState(false);
     var user = []
+    let typeSearch = 'All'
     const [roomAvatarPreview, setRoomAvatarPreview] = useState(null)
     const [roomAvatar, setRoomAvatar] = useState()
     const currentUser = localStorage.getItem('userId')
@@ -93,7 +94,7 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
             top: '110px',
             left: '0px',
             zIndex: '1',
-            width: '50%',
+            width: '68%',
             height: '50px',
             display: 'flex',
             // alignItems: 'center',
@@ -119,9 +120,16 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
 
         pinMessageContentText: {
             // fontSize: '14px',
-            width: '80%',
+            // width: '80%',
             height: '100%',
             // paddingTop: '12px'
+            display: '-webkit-box',
+            WebkitLineClamp: 1,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            width: '107%',
+            workBreak: 'break-word',
         },
 
         chatInfo: {
@@ -361,12 +369,13 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
             display: 'flex',
             gap: '50px',
             alignItems: 'center',
+            justifyContent: 'center',
         },
 
         searchOption: {
             color: '#fff',
             cursor: 'pointer',
-            fontSize: '16px',
+            fontSize: '20px',
             fontWeight: 'bold',
         },
 
@@ -395,6 +404,13 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
         dialogMessage: {
             fontSize: '16px',
             color: 'white',
+            display: '-webkit-box',
+            WebkitLineClamp: 1,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            width: '280px',
+            workBreak: 'break-word',
         },
 
         closeIcon: {
@@ -408,14 +424,7 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
     }
 
 
-    const { Option } = Select;
 
-    const selectBefore = (
-        <Select defaultValue="Message">
-            <Option value="Message">Message</Option>
-            <Option value="User">User</Option>
-        </Select>
-    );
     useEffect(async () => {
         let res = await roomService.getMembers(room?._id)
         if (res.status === 200)
@@ -464,6 +473,20 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
         }
     }
 
+    const getTypeSearch = (v) => {
+        typeSearch = v
+    }
+    const { Option } = Select;
+
+    const selectBefore = (
+        <Select defaultValue="All" onChange={getTypeSearch}>
+            <Option value="All">All</Option>
+            <Option value="Message">Message</Option>
+            <Option value="User">User</Option>
+        </Select>
+    );
+
+
     const Dialog = ({ dialog }) => {
         return (
             <div style={style.dialogContainer}>
@@ -474,20 +497,21 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
                         <span style={style.dialogName}>{dialog.username}</span>
                         <span style={style.dialogTime}>{moment(dialog.createdAt).calendar()}</span>
                     </div>
-                    <span style={style.dialogMessage}>
-                        {dialog.content}
-                    </span>
+                    <div onClick={() => { colorOfDialog(dialog.messageId) }}>
+                        <a href={'#' + dialog.messageId} style={style.dialogMessage}>
+                            {dialog.content}
+                        </a>
+                    </div>
                 </div>
             </div>
         )
     }
 
-    const colorOfDialog = () => {
-
-        var element = document.getElementById(pinnedMessage.messageId);
-        console.log(element)
+    const colorOfDialog = (msgId) => {
+        var element = document.getElementById(msgId);
         element.style.backgroundColor = 'LightBlue'
-
+        element.style.borderRadius='10px'
+        element.style.paddingRight='10px'
         setTimeout(() => { element.style.backgroundColor = 'White' }, 1000)
     }
 
@@ -499,12 +523,20 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
             </div>
             <div style={style.chatTool}>
 
-                <Input style={style.input} autoComplete='off' placeholder="Type user or a message you what to search..." onKeyPress={async (e) => {
+                <Input style={style.input} addonBefore={selectBefore} autoComplete='off' placeholder="Type user or a message you want to search..." onKeyPress={async (e) => {
                     if (e.key === 'Enter') {
-                        setShowDialogResult(true)
                         await roomService.searchMessages(room._id, e.target.value).then(
                             (res) => {
-                                setDialogResult(res.data.msg)
+                                if (res.data.msg.length > 0) {
+                                    setShowDialogResult(true)
+                                    if (typeSearch === 'All')
+                                        setDialogResult(res.data.msg)
+                                    else if (typeSearch === 'Message')
+                                        setDialogResult(res.data.msg.filter(m => m.content.includes(e.target.value)))
+                                    else if (typeSearch === 'User')
+                                        setDialogResult(res.data.msg.filter(m => m.username.includes(e.target.value)))
+                                }
+                                else setShowDialogResult(false)
                             }
                         );
                     }
@@ -514,14 +546,18 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
                     <Icon style={style.closeIcon} onClick={() => setShowDialogResult(false)} icon="ant-design:close-circle-outlined" />
 
                     <div style={style.searchResultOption}>
-                        <Input style={style.input} autoComplete='off' addonBefore={selectBefore} />
-                        <div style={style.searchOption}>Old</div>
-                        <div style={style.searchOption}>New</div>
+                        <div style={style.searchOption} onClick={() => {
+                            var temp = [...dialogResult.sort((a, b) => (a.createdAt > b.createdAt) ? 1 : -1)]
+                            setDialogResult(temp)
+                        }}>Old</div>
+                        <div style={style.searchOption} onClick={() => {
+                            var temp = [...dialogResult.sort((a, b) => (a.createdAt < b.createdAt) ? 1 : -1)]
+                            setDialogResult(temp)
+                        }}>New</div>
                     </div>
-                    <div style={{ overflow: "scroll", maxHeight: "500px" }}>
+                    <div style={{ overflow: "scroll", maxHeight: "500px", overflowX: "hidden" }}>
                         {
                             dialogResult?.map((dialog, i) => {
-                                console.log(dialog)
                                 return (
                                     <Dialog key={i} dialog={dialog}></Dialog>
                                 )
@@ -719,7 +755,7 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
             </Drawer>
             {showPinnedMessage && <div style={style.pinMessageContainer}>
                 <Icon style={style.pinMessageIcon} icon="entypo:pin" />
-                <div style={style.pinMessageInfo} onClick={() => { colorOfDialog() }}>
+                <div style={style.pinMessageInfo} onClick={() => { colorOfDialog(pinnedMessage.messageId) }}>
                     <a href={'#' + pinnedMessage.messageId}>
                         <b>Pinned Message</b>
                         <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
@@ -727,7 +763,6 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
                     </a>
                 </div>
             </div>
-
             }
         </div>
     )
