@@ -12,7 +12,6 @@ const { TabPane } = Tabs;
 
 
 const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
-    const [isLoading, setLoading] = useState(false)
     const [users, setUsers] = useState([])
     const [visible, setVisible] = useState(false)
     // const [roomPinMessage, setRoomPinMessage] = useState([])
@@ -418,7 +417,6 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
         </Select>
     );
     useEffect(async () => {
-        setLoading(true);
         let res = await roomService.getMembers(room?._id)
         if (res.status === 200)
             setUsers(res.data.msg)
@@ -431,7 +429,6 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
         }
         else
             setShowPinnedMessage(false)
-        setLoading(false)
     }, [room])
 
     useEffect(() => {
@@ -486,17 +483,16 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
     }
 
     const colorOfDialog = () => {
-        
+
         var element = document.getElementById(pinnedMessage.messageId);
         console.log(element)
         element.style.backgroundColor = 'LightBlue'
-       
-        setTimeout (  ()=> { element.style.backgroundColor = 'White' }, 1000)
+
+        setTimeout(() => { element.style.backgroundColor = 'White' }, 1000)
     }
 
     return (
-
-        !isLoading && <div style={style.chatHeader}>
+        <div style={style.chatHeader}>
             <div style={style.chatInfo} onClick={showDrawer}>
                 <p style={style.chatName}>{room?.name} <Icon style={style.infoIcon} icon="ant-design:info-circle-outlined" /></p>
                 <p style={style.numberOfUser}>{users?.length + ' members'}</p>
@@ -723,7 +719,7 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
             </Drawer>
             {showPinnedMessage && <div style={style.pinMessageContainer}>
                 <Icon style={style.pinMessageIcon} icon="entypo:pin" />
-                <div style={style.pinMessageInfo} onClick={ () => {colorOfDialog() }}>
+                <div style={style.pinMessageInfo} onClick={() => { colorOfDialog() }}>
                     <a href={'#' + pinnedMessage.messageId}>
                         <b>Pinned Message</b>
                         <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
