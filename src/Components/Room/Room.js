@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const Room = ({ room, onClick, lastMsgRoomId, setLastMsgRoomId, leaveHandle, roomManage, choosen }) => {
+const Room = ({ room, onClick, lastMsgRoomId, choosen }) => {
     const classes = useStyles()
     const [option, setOption] = useState(false)
     const [hover, setHover] = useState(false)
@@ -29,8 +29,6 @@ const Room = ({ room, onClick, lastMsgRoomId, setLastMsgRoomId, leaveHandle, roo
         msg: '',
         date: null
     })
-    const [lastMsgTime, setLastMsgTime] = useState(null)
-    const [updateMsg, setUpdateMsg] = useState(false)
     const limit = useMediaQuery({ maxWidth: 1300 })
 
     const style = {

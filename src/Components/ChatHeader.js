@@ -3,11 +3,10 @@ import { useEffect, useState } from 'react';
 import copy from 'copy-to-clipboard';
 import { toast } from 'react-toastify'
 import { Icon } from '@iconify/react';
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { storage } from "../firebase/index"
 import { roomService } from "../service/room"
 import moment from 'moment';
-
+import curRoom from './Room/CurrentRoom'
 const { TabPane } = Tabs;
 
 
@@ -32,7 +31,6 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
     const [isPrivate, setIsPrivate] = useState(room.isPrivate)
     const [dialogResult, setDialogResult] = useState([])
     const [showDialogResult, setShowDialogResult] = useState(false)
-    const [isOnline, setIsOnline] = useState([])
 
     const showDrawer = () => {
         setVisible(true);
@@ -460,7 +458,7 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
 
     useEffect(() => {
         socket.on('new-pinned-message', (dialog, roomId, r) => {
-            if (roomId === room._id) {
+            if (roomId === curRoom.getCurrentRoom()?._id) {
                 if (r.pinnedMessages.length === 0)
                     setShowPinnedMessage(false)
                 else {
@@ -590,7 +588,9 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
                 visible={visible}
                 extra={
                     <Space>
-                        <button onClick={handleEditInfo} style={style.buttonEditDrawer}>Edit</button>
+                        {
+                        room.isPrivate && localStorage.getItem('userId') === room.creator &&<button onClick={handleEditInfo} style={style.buttonEditDrawer}>Edit</button>}
+                        {!room.isPrivate && <button onClick={handleEditInfo} style={style.buttonEditDrawer}>Edit</button>}
                     </Space>
                 }
             >
