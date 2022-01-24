@@ -34,7 +34,7 @@ const SearchRoom = ({ rooms, joinRoom, leaveRoom, switchRoom, roomManage, curren
 
     const handleChange = (e) => {
         const value = e.target.value;
-        setResultRoom(rooms.filter(room => room.name.toLowerCase().includes(value.toLowerCase())));
+        setResultRoom(rooms.filter(room => room.name.toLowerCase().includes(value.toLowerCase()) || room.lastMessage.toLowerCase().includes(value.toLowerCase())));
     }
 
 
