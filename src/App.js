@@ -15,6 +15,7 @@ import SearchRoom from './Components/List/SearchRoom';
 import { userService } from './service/user';
 import { roomService } from './service/room';
 import { authService } from './service/auth';
+import curRoom from './Components/Room/CurrentRoom'
 require('dotenv').config()
 
 function App() {
@@ -33,7 +34,6 @@ function App() {
   const [rooms, setRooms] = useState([])
   const [message, setMessage] = useState('')
   const [showSearchRoom, setShowSearchRoom] = useState(false)
-  const [updateCurrentRoom, setUpdateCurrentRoom] = useState(false)
   const [lastMsgRoomId1, setLastMsgRoomId1] = useState({
     roomId: '',
     msg: '',
@@ -106,6 +106,7 @@ function App() {
           return true
         })
         setCurrentRoom(null)
+        curRoom.setCurrentRoom(null)
       }
     } else {
       toast.error(`${res.response.data.msg}`)
@@ -134,6 +135,7 @@ function App() {
           })
           setRooms(tmp)
           setCurrentRoom(null)
+          curRoom.setCurrentRoom(null)
         }
       }
     })
@@ -146,8 +148,10 @@ function App() {
       if (res.status === 200) {
         setRooms([res.data.msg, ...rooms])
         setCurrentRoom(res.data.msg)
+        curRoom.setCurrentRoom(res.data.msg)
       } else if (res.status === 400) {
         setCurrentRoom(res.data.msg)
+        curRoom.setCurrentRoom(res.data.msg)
       } else {
         toast.error(`${res.data.msg}`)
       }
@@ -160,14 +164,6 @@ function App() {
         let response = await roomService.createRoom(room)
         const newRoom = response.data.msg
         setRooms([newRoom, ...rooms])
-        // if (!currentRoom) {
-        //   socket.emit('joinRoom', newRoom._id)
-        // }
-        // if (currentRoom && newRoom?._id !== currentRoom?._id) {
-        //   socket.emit('leaveRoom', currentRoom?._id)
-        //   socket.emit('joinRoom', newRoom?._id)
-        // }
-        // setCurrentRoom(newRoom)
         setCurrentRoom(newRoom)
       } catch (err) {
         toast.error(`${err?.response?.data?.msg}`)
@@ -184,7 +180,8 @@ function App() {
       socket.emit('leaveRoom', currentRoom?._id)
       socket.emit('joinRoom', newRoom?._id)
     }
-    setCurrentRoom(newRoom)
+    setCurrentRoom({...newRoom})
+    curRoom.setCurrentRoom({...newRoom})
     setShowSearchRoom(false)
     setLoading(false)
   }
@@ -252,7 +249,7 @@ function App() {
           <div style={{ height: '100%', display: 'flex' }}>
             <div style={style.left}>
               <UserArea user={user} logout={logout}></UserArea>
-              {showSearchRoom && <SearchRoom currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} handleSearchRoom={setShowSearchRoom} />}
+              {showSearchRoom && <SearchRoom currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} handleSearchRoom={setShowSearchRoom} lastMsgRoomId={lastMsgRoomId1} setLastMsgRoomId={setLastMsgRoomId1}/>}
               {!showSearchRoom && <RoomsHeader joinRoom={joinRoom} findRoom={findRoom} handleSearchRoom={setShowSearchRoom}></RoomsHeader>}
               {!showSearchRoom && <RoomsList currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} lastMsgRoomId={lastMsgRoomId1} setLastMsgRoomId={setLastMsgRoomId1} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} />}
             </div>

@@ -3,7 +3,7 @@ import { Icon } from '@iconify/react';
 import RoomsList from "../Rooms/RoomsList";
 import Room from "../Room/Room";
 
-const SearchRoom = ({rooms, joinRoom, leaveRoom, switchRoom, roomManage, currentRoom, handleSearchRoom }) => {
+const SearchRoom = ({ rooms, joinRoom, leaveRoom, switchRoom, roomManage, currentRoom, handleSearchRoom, lastMsgRoomId, setLastMsgRoomId }) => {
     const [resultRoom, setResultRoom] = useState([]);
 
     const styles = {
@@ -29,7 +29,7 @@ const SearchRoom = ({rooms, joinRoom, leaveRoom, switchRoom, roomManage, current
             margin: '2.5px 5px',
             cursor: 'pointer',
         },
-        
+
     }
 
     const handleChange = (e) => {
@@ -42,10 +42,10 @@ const SearchRoom = ({rooms, joinRoom, leaveRoom, switchRoom, roomManage, current
     return (
         <div style={styles.searchRoom}>
             <div style={styles.inputSection}>
-                <Icon style={styles.add} icon="bx:bx-arrow-back" onClick={() => handleSearchRoom()}/>
+                <Icon style={styles.add} icon="bx:bx-arrow-back" onClick={() => handleSearchRoom()} />
                 <input style={styles.input} placeholder="search room" onChange={handleChange} />
             </div>
-            <RoomsList currentRoom={currentRoom} rooms={resultRoom} joinRoom={joinRoom} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} handleSearchRoom={handleSearchRoom} />
+            <RoomsList currentRoom={currentRoom} rooms={resultRoom} joinRoom={joinRoom} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} handleSearchRoom={handleSearchRoom} lastMsgRoomId={lastMsgRoomId} setLastMsgRoomId={setLastMsgRoomId} />
         </div>
     )
 }

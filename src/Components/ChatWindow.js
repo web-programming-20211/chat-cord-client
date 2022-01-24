@@ -1,6 +1,7 @@
 import Input from "./Message/Input"
 import Dialogs from "./Message/Dialogs"
 import ChatHeader from "./ChatHeader"
+import curRoom from './Room/CurrentRoom'
 import { useEffect, useState } from "react"
 import { messageService } from "../service/message"
 
@@ -18,27 +19,15 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) 
     const deleteMessage = (dialog, creator) => {
         const userId = localStorage.getItem('userId')
         if (dialog.from.userId === userId || creator === userId) {
-            // const temp = [...dialogs]
-            // temp.every((d, index) => {
-            //     if (d._id === dialog._id) {
-            //         temp.splice(index, 1)
-            //         return false
-            //     }
-            //     return true
-            // })
-            // setDialogs([...temp])
             socket.emit('delete', dialog._id, currentRoom?._id)
         }
     }
 
     useEffect(async () => {
-        if (currentRoom?._id !== -1) {
-            let res = await messageService.getMessages(currentRoom?._id)
-            if (res.status === 200) {
-                setDialogs(res.data.msg)
-            }
+        let res = await messageService.getMessages(currentRoom?._id)
+        if (res.status === 200) {
+            setDialogs(res.data.msg)
         }
-
     }, [currentRoom])
 
     useEffect(() => {
@@ -48,7 +37,7 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) 
                 msg: dialog.content,
                 date: dialog.createdAt
             })
-            if (ctRoom === currentRoom?._id) {
+            if (ctRoom === curRoom.getCurrentRoom()?._id) {
                 setNewMessage(dialog)
             }
         })
@@ -60,7 +49,7 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) 
             socket.off('your_new_message')
             socket.off('dialog-deleted')
         }
-    }, [socket])
+    }, [currentRoom, socket])
 
     useEffect(() => {
         socket.on('loggedIn', (userId) => {
@@ -102,7 +91,7 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) 
 
     return (
         <>
-            <ChatHeader userOnline={userOnline} userOffline = {userOffline} setUserOnline = {setUserOnline} setUserOffline = {setUserOffline} room={currentRoom} dialogs={dialogs} leave={leave} socket={socket} />
+            <ChatHeader userOnline={userOnline} userOffline={userOffline} setUserOnline={setUserOnline} setUserOffline={setUserOffline} room={currentRoom} dialogs={dialogs} leave={leave} socket={socket} />
             <Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage} kickUser={kickUser}></Dialogs>
             < Input setDialogs={dialogsUpdate} />
         </>
