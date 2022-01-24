@@ -11,7 +11,7 @@ import moment from 'moment';
 const { TabPane } = Tabs;
 
 
-const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
+const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, room, dialogs, leave, socket }) => {
     const [users, setUsers] = useState([])
     const [visible, setVisible] = useState(false)
     // const [roomPinMessage, setRoomPinMessage] = useState([])
@@ -32,6 +32,8 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
     const [isPrivate, setIsPrivate] = useState(room.isPrivate)
     const [dialogResult, setDialogResult] = useState([])
     const [showDialogResult, setShowDialogResult] = useState(false)
+    const [isOnline, setIsOnline] = useState([])
+
     const showDrawer = () => {
         setVisible(true);
     };
@@ -423,7 +425,23 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
         }
     }
 
+    useEffect(() => {
+        let user = users.find(user => user._id === userOnline)
+        if (user) {
+            user.online = true
+            setUsers([...users])
+        }
+        setUserOnline('')
+    }, [userOnline])
 
+    useEffect(() => {
+        let user = users.find(user => user._id === userOffline)
+        if (user) {
+            user.online = false
+            setUsers([...users])
+        }
+        setUserOffline('')
+    }, [userOffline])
 
     useEffect(async () => {
         let res = await roomService.getMembers(room?._id)
@@ -510,8 +528,8 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
     const colorOfDialog = (msgId) => {
         var element = document.getElementById(msgId);
         element.style.backgroundColor = 'LightBlue'
-        element.style.borderRadius='10px'
-        element.style.paddingRight='10px'
+        element.style.borderRadius = '10px'
+        element.style.paddingRight = '10px'
         setTimeout(() => { element.style.backgroundColor = 'White' }, 1000)
     }
 
@@ -730,7 +748,7 @@ const ChatHeader = ({ userOnline, room, dialogs, leave, socket }) => {
                                             <div key={index} style={style.member}>
                                                 <div style={style.avatar}>
                                                     <Avatar style={{ backgroundColor: '#' + user?.color }} size={50} src={user?.avatar}></Avatar>
-                                                    {userOnline && user.online && <span style={style.dot}></span>}
+                                                    {user.online && <span style={style.dot}></span>}
                                                 </div>
                                                 <p style={{ fontSize: '16px' }}>{user?.fullname}</p>
                                             </div>
