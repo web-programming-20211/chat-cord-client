@@ -7,6 +7,7 @@ import { messageService } from "../service/message"
 const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) => {
     const [dialogs, setDialogs] = useState([])
     const [userOnline, setUserOnline] = useState('')
+    const [userOffline, setUserOffline] = useState('')
     const [newMessage, setNewMessage] = useState(null)
     const [delMessage, setDeleteMessage] = useState(null)
     const [prevMessage, setPrevMessage] = useState('')
@@ -67,7 +68,7 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) 
         })
 
         socket.on('loggedOut', (userId) => {
-            setUserOnline(userId)
+            setUserOffline(userId)
         })
 
         return () => {
@@ -101,7 +102,7 @@ const ChatWindow = ({ socket, currentRoom, setLastMsgRoomId, leave, kickUser }) 
 
     return (
         <>
-            <ChatHeader userOnline={userOnline} room={currentRoom} dialogs={dialogs} leave={leave} socket={socket} />
+            <ChatHeader userOnline={userOnline} userOffline = {userOffline} setUserOnline = {setUserOnline} setUserOffline = {setUserOffline} room={currentRoom} dialogs={dialogs} leave={leave} socket={socket} />
             <Dialogs room={currentRoom} socket={socket} dialogs={dialogs} setDialogs={setDialogs} deleteMessage={deleteMessage} kickUser={kickUser}></Dialogs>
             < Input setDialogs={dialogsUpdate} />
         </>
