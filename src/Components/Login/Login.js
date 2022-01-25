@@ -122,6 +122,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
     const registation = async () => {
         try {
             if (user && user.email && user.fullname && user.username && user.password && confirmPassword && user.password === confirmPassword) {
+
                 let result = await authService.register(user)
                 toast.success(`${result.data.msg}`)
                 setFormId('verify')
