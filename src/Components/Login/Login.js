@@ -1,7 +1,5 @@
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import PersonIcon from '@material-ui/icons/Person';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import { useState } from 'react';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Intro from '../Intro/Intro'
@@ -9,7 +7,8 @@ import { useMediaQuery } from 'react-responsive';
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { authService } from '../../service/auth'
-
+import { Icon } from '@iconify/react';
+import { Form, Input } from 'antd';
 toast.configure({
     autoClose: 2000,
     draggable: false,
@@ -20,9 +19,10 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
     const [error, setError] = useState(false)
     const [user, setUser] = useState({ email: '', fullname: '', username: '', password: '' })
     const [hover, setHover] = useState(false)
+    const [hoverLogin, setHoverLogin] = useState(false)
     const [verifyUser, setUserVerify] = useState({ email: '', code: '' })
     const [formId, setFormId] = useState('login')
-
+    const [registerForm] = Form.useForm();
     const limit = useMediaQuery({ maxWidth: 1300 })
     const style = {
         textField: {
@@ -39,8 +39,9 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
 
         button: {
             width: '100%',
-            background: '#000000',
-            color: '#ffffff',
+            backgroundColor: hoverLogin ? '#ffffff' : 'rgb(101, 136, 222)',
+            border: '1px solid rgb(101, 136, 222)',
+            color: hoverLogin ? 'rgb(101, 136, 222)' : '#ffffff',
             height: '3em',
             marginBottom: '1em'
         },
@@ -71,13 +72,14 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
             fontWeight: 'bold',
             fontSize: '40px',
             marginBottom: '1.5em',
-            fontFamily: 'Roboto'
+            color: 'rgb(101, 136, 222)'
         },
 
         createAccount: {
             fontWeight: 'bold',
             cursor: 'pointer',
-            color: hover ? '#555555' : '#000000',
+            // color: 'rgb(101, 136, 222)',
+            color: hover ? 'rgb(101, 136, 222)' : '#000000',
             transition: 'color 300ms'
         },
 
@@ -87,7 +89,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
             margin: 'auto',
             width: '50%',
             paddingTop: '2em',
-            marginBottom: '4em'
+            marginBottom: '4em',
         },
 
         forms: {
@@ -110,6 +112,11 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
             color: '#ff0000',
             opacity: invalid ? 1 : 0,
             transition: 'opacity 250ms'
+        },
+
+        icon: {
+            color: 'rgb(101, 136, 222)',
+
         }
     }
 
@@ -152,7 +159,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <PersonIcon />
+                                    <Icon icon="carbon:email" style={style.icon} />
                                 </InputAdornment>
                             ),
                         }}
@@ -174,20 +181,28 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <LockOutlinedIcon />
+                                    <Icon icon='ant-design:lock-outlined' style={style.icon} />
                                 </InputAdornment>
                             )
                         }}
                     ></TextField>
                     <h4 style={style.alert}>Something went wrong</h4>
                     <div style={style.buttons}>
-                        <Button style={style.button} variant='contained' color='primary' onClick={(e) => {
-                            e.preventDefault()
-                            logIn(user)
-                        }}>Log in</Button>
+                        <Button 
+                            style={style.button} 
+                            variant='contained' 
+                            color='primary' 
+                            onClick={(e) => {
+                                e.preventDefault()
+                                logIn(user)
+                            }}
+                            onMouseEnter={() => setHoverLogin(true)}
+                            onMouseLeave={() => setHoverLogin(false)}
+                        >Log in</Button>
                     </div>
 
                     <p style={style.createAccount}
+                        // style={}
                         onMouseEnter={() => setHover(true)}
                         onMouseLeave={() => setHover(false)}
                         onClick={e => {
@@ -214,7 +229,8 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <PersonIcon />
+                                    <Icon icon="carbon:email" style={style.icon} />
+
                                 </InputAdornment>
                             ),
                         }}
@@ -229,7 +245,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <LockOutlinedIcon />
+                                    <Icon icon='ant-design:lock-outlined' style={style.icon} />
                                 </InputAdornment>
                             )
                         }}
@@ -256,7 +272,9 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                 </form>}
 
                 {/* create account */}
-                {formId === 'signup' && <form autoComplete='off' noValidate style={style.signupForm}>
+                {formId === 'signup' && 
+                
+                <form autoComplete='off' style={style.signupForm}>
                     <h1 style={style.header}>Create account</h1>
 
                     <TextField
@@ -269,7 +287,8 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <PersonIcon />
+                                    <Icon icon="carbon:email" style={style.icon} />
+
                                 </InputAdornment>
                             ),
                         }}
@@ -285,7 +304,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <PersonIcon />
+                                    <Icon style={style.icon} icon='bx:bx-user' />
                                 </InputAdornment>
                             ),
                         }}
@@ -301,7 +320,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <PersonIcon />
+                                    <Icon style={style.icon} icon='carbon:user-avatar' />
                                 </InputAdornment>
                             ),
                         }}
@@ -318,7 +337,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <LockOutlinedIcon />
+                                    <Icon icon='ant-design:lock-outlined' style={style.icon} />
                                 </InputAdornment>
                             )
                         }}
@@ -342,7 +361,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <LockOutlinedIcon />
+                                    <Icon icon='ant-design:lock-outlined' style={style.icon} />
                                 </InputAdornment>
                             )
                         }}
@@ -358,7 +377,8 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                             setFormId('login')
                         }}>Back</Button>
                     </div>
-                </form>}
+                </form>
+                }
 
             </div>
         </div>
