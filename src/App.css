@@ -9,6 +9,10 @@
   font-family: 'Poppins', sans-serif;
 }
 
+.css-1wc848c-MuiFormHelperText-root.Mui-error {
+  margin-left: 62px!important;
+}
+
 .input-room input {
   color: #ffffff;
 }
