@@ -1,23 +1,23 @@
 {
   "files": {
-    "main.css": "/chat-cord-client/static/css/main.f7aa4171.chunk.css",
-    "main.js": "/chat-cord-client/static/js/main.63edc070.chunk.js",
-    "main.js.map": "/chat-cord-client/static/js/main.63edc070.chunk.js.map",
-    "runtime-main.js": "/chat-cord-client/static/js/runtime-main.a71446b2.js",
-    "runtime-main.js.map": "/chat-cord-client/static/js/runtime-main.a71446b2.js.map",
-    "static/css/2.bd2438a8.chunk.css": "/chat-cord-client/static/css/2.bd2438a8.chunk.css",
-    "static/js/2.e3bde44d.chunk.js": "/chat-cord-client/static/js/2.e3bde44d.chunk.js",
-    "static/js/2.e3bde44d.chunk.js.map": "/chat-cord-client/static/js/2.e3bde44d.chunk.js.map",
+    "main.css": "/chat-cord-client/static/css/main.bd3e7316.chunk.css",
+    "main.js": "/chat-cord-client/static/js/main.98340b21.chunk.js",
+    "main.js.map": "/chat-cord-client/static/js/main.98340b21.chunk.js.map",
+    "runtime-main.js": "/chat-cord-client/static/js/runtime-main.64d4c9bc.js",
+    "runtime-main.js.map": "/chat-cord-client/static/js/runtime-main.64d4c9bc.js.map",
+    "static/css/2.e9dde176.chunk.css": "/chat-cord-client/static/css/2.e9dde176.chunk.css",
+    "static/js/2.b44e6b40.chunk.js": "/chat-cord-client/static/js/2.b44e6b40.chunk.js",
+    "static/js/2.b44e6b40.chunk.js.map": "/chat-cord-client/static/js/2.b44e6b40.chunk.js.map",
     "index.html": "/chat-cord-client/index.html",
-    "static/css/2.bd2438a8.chunk.css.map": "/chat-cord-client/static/css/2.bd2438a8.chunk.css.map",
-    "static/css/main.f7aa4171.chunk.css.map": "/chat-cord-client/static/css/main.f7aa4171.chunk.css.map",
-    "static/js/2.e3bde44d.chunk.js.LICENSE.txt": "/chat-cord-client/static/js/2.e3bde44d.chunk.js.LICENSE.txt"
+    "static/css/2.e9dde176.chunk.css.map": "/chat-cord-client/static/css/2.e9dde176.chunk.css.map",
+    "static/css/main.bd3e7316.chunk.css.map": "/chat-cord-client/static/css/main.bd3e7316.chunk.css.map",
+    "static/js/2.b44e6b40.chunk.js.LICENSE.txt": "/chat-cord-client/static/js/2.b44e6b40.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.a71446b2.js",
-    "static/css/2.bd2438a8.chunk.css",
-    "static/js/2.e3bde44d.chunk.js",
-    "static/css/main.f7aa4171.chunk.css",
-    "static/js/main.63edc070.chunk.js"
+    "static/js/runtime-main.64d4c9bc.js",
+    "static/css/2.e9dde176.chunk.css",
+    "static/js/2.b44e6b40.chunk.js",
+    "static/css/main.bd3e7316.chunk.css",
+    "static/js/main.98340b21.chunk.js"
   ]
 }
