@@ -121,6 +121,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
 
     const registation = async () => {
         try {
+
             if (user && user.password === confirmPassword) {
                 let result = await authService.register(user)
                 toast.success(`${result.data.msg}`)
@@ -129,6 +130,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                 toast.error('Please fill all fields')
             }
             
+
         } catch (error) {
             setError(true)
             toast.error(`${error.response.data.msg}`)
