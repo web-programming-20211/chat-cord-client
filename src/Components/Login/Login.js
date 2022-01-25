@@ -22,7 +22,6 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
     const [verifyUser, setUserVerify] = useState({ email: '', code: '' })
     const [formId, setFormId] = useState('login')
     const limit = useMediaQuery({ maxWidth: 1300 })
-    const [confirmPassword, setConfirmPassword] = useState('')
     const style = {
         textField: {
             display: 'block',
@@ -121,16 +120,10 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
 
     const registation = async () => {
         try {
-
-            if (user && user.password === confirmPassword) {
-                let result = await authService.register(user)
-                toast.success(`${result.data.msg}`)
-                setFormId('verify')
-            } else {
-                toast.error('Please fill all fields')
-            }
-            
-
+            console.log(user)
+            let result = await authService.register(user)
+            toast.success(`${result.data.msg}`)
+            setFormId('verify')
         } catch (error) {
             setError(true)
             toast.error(`${error.response.data.msg}`)
@@ -351,9 +344,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                             id={error ? 'standard-error-helper-text' : 'standard-basic'}
                             style={style.textField}
                             type='password'
-                            value={confirmPassword}
                             onChange={(e) => {
-                                setConfirmPassword(e.target.value)
                                 setError(e.target.value !== user.password)
                             }}
                             onKeyUp={(e) => {
@@ -373,7 +364,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
 
                         <div style={style.buttons}>
                             <Button style={style.button} variant='contained' color='primary' onClick={(e) => {
-                                    e.preventDefault()
+                                    // e.preventDefault()
                                     registation()
                                     setUserVerify({ email: user.email })
                             }}>
