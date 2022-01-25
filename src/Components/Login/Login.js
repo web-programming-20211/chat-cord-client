@@ -1,4 +1,3 @@
-import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { useState } from 'react';
 import InputAdornment from '@material-ui/core/InputAdornment';
@@ -8,7 +7,7 @@ import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { authService } from '../../service/auth'
 import { Icon } from '@iconify/react';
-import { Form, Input } from 'antd';
+import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
 toast.configure({
     autoClose: 2000,
     draggable: false,
@@ -22,7 +21,6 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
     const [hoverLogin, setHoverLogin] = useState(false)
     const [verifyUser, setUserVerify] = useState({ email: '', code: '' })
     const [formId, setFormId] = useState('login')
-    const [registerForm] = Form.useForm();
     const limit = useMediaQuery({ maxWidth: 1300 })
     const style = {
         textField: {
@@ -63,7 +61,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
             background: '#ffffff',
             padding: '50px 0px 30px 0px',
             borderRadius: '10px',
-            height: '650px',
+            height: 'fit-content',
             maxWidth: '350px',
             transition: 'max-width 200ms',
         },
@@ -122,6 +120,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
 
     const registation = async () => {
         try {
+            console.log(user)
             let result = await authService.register(user)
             toast.success(`${result.data.msg}`)
             setFormId('verify')
@@ -147,79 +146,84 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
             <Intro />
             <div style={style.forms}>
                 {/* Login Form */}
-                {formId === 'login' && <form autoComplete='off' noValidate style={style.loginForm}>
-                    <h1 style={style.header}>LOGIN</h1>
-                    <TextField
-                        required
-                        value={user.email}
-                        id='input-with-icon-textfield'
-                        style={style.textField}
-                        onChange={(e) => setUser({ ...user, email: e.target.value })}
-                        placeholder='email'
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <Icon icon="carbon:email" style={style.icon} />
-                                </InputAdornment>
-                            ),
-                        }}
-                    ></TextField>
-
-                    <TextField
-                        required
-                        value={user.password}
-                        id='standard-basic'
-                        style={style.textField}
-                        onChange={(e) => setUser({ ...user, password: e.target.value })}
-                        onKeyUp={(e) => {
-                            if (e.key === 'Enter') {
-                                logIn(user)
-                            }
-                        }}
-                        placeholder='password'
-                        type='password'
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <Icon icon='ant-design:lock-outlined' style={style.icon} />
-                                </InputAdornment>
-                            )
-                        }}
-                    ></TextField>
-                    <h4 style={style.alert}>Something went wrong</h4>
-                    <div style={style.buttons}>
-                        <Button 
-                            style={style.button} 
-                            variant='contained' 
-                            color='primary' 
-                            onClick={(e) => {
-                                e.preventDefault()
-                                logIn(user)
+                
+                {formId === 'login' && 
+                    <ValidatorForm
+                        style={style.loginForm}
+                    >
+                        <h1 style={style.header}>LOGIN</h1>
+                        <TextValidator
+                            validators={['required', 'isEmail']}
+                            errorMessages={['email is required', 'email is not valid']}
+                            value={user.email}
+                            id='input-with-icon-textfield'
+                            style={style.textField}
+                            onChange={(e) => setUser({ ...user, email: e.target.value })}
+                            placeholder='email'
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Icon icon="carbon:email" style={style.icon} />
+                                    </InputAdornment>
+                                ),
+                            }} 
+                        />
+                        <TextValidator
+                            validators={['required',]}
+                            errorMessages={['password is required']}
+                            value={user.password}
+                            id='standard-basic-login-password'
+                            style={style.textField}
+                            onChange={(e) => setUser({ ...user, password: e.target.value })}
+                            onKeyUp={(e) => {
+                                if (e.key === 'Enter') {
+                                    logIn(user)
+                                }
                             }}
-                            onMouseEnter={() => setHoverLogin(true)}
-                            onMouseLeave={() => setHoverLogin(false)}
-                        >Log in</Button>
-                    </div>
+                            placeholder='password'
+                            type='password'
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Icon icon='ant-design:lock-outlined' style={style.icon} />
+                                    </InputAdornment>
+                                )
+                            }}
+                        />
+                        <div style={style.buttons}>
+                            <Button 
+                                style={style.button} 
+                                variant='contained' 
+                                color='primary' 
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    logIn(user)
+                                }}
+                                onMouseEnter={() => setHoverLogin(true)}
+                                onMouseLeave={() => setHoverLogin(false)}
+                            >Log in</Button>
+                        </div>
 
-                    <p style={style.createAccount}
-                        // style={}
-                        onMouseEnter={() => setHover(true)}
-                        onMouseLeave={() => setHover(false)}
-                        onClick={e => {
-                            e.preventDefault()
-                            setUser({ email: '', password: '' })
-                            // setAccount(false)
-                            setFormId('signup')
-                            // errorToggle(false)
-                        }}
-                    >Create account ?</p>
-                </form>}
+                        <p style={style.createAccount}
+                            // style={}
+                            onMouseEnter={() => setHover(true)}
+                            onMouseLeave={() => setHover(false)}
+                            onClick={e => {
+                                e.preventDefault()
+                                setUser({ email: '', password: '' })
+                                // setAccount(false)
+                                setFormId('signup')
+                                // errorToggle(false)
+                            }}
+                        >Create account ?</p>
+                    </ValidatorForm>
+                }
 
 
                 {/* verify */}
-                {formId === 'verify' && <form autoComplete='off' noValidate style={style.loginForm}>
+                {formId === 'verify' && <ValidatorForm autoComplete='off' style={style.loginForm}>
                     <h1 style={style.header}>Verify</h1>
-                    <TextField
+                    <TextValidator
                         required
                         value={verifyUser.email}
                         id='input-with-icon-textfield'
@@ -234,9 +238,9 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                                 </InputAdornment>
                             ),
                         }}
-                    ></TextField>
+                    />
 
-                    <TextField
+                    <TextValidator
                         required
                         id='standard-basic'
                         style={style.textField}
@@ -249,7 +253,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                                 </InputAdornment>
                             )
                         }}
-                    ></TextField>
+                    />
 
                     {error ? <h4 style={style.alert}>Something went wrong</h4> : null}
                     <div style={style.buttons}>
@@ -258,126 +262,121 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                             verify()
                         }}>Confirm</Button>
                     </div>
-
-                    {/* <p style={style.createAccount}
-                        onMouseEnter={() => setHover(true)}
-                        onMouseLeave={() => setHover(false)}
-                        onClick={e => {
-                            e.preventDefault()
-                            setUser({ username: '', password: '' })
-                            setAccount(false)
-                            errorToggle(false)
-                        }}
-                    >Create account ?</p> */}
-                </form>}
+                </ValidatorForm>}
 
                 {/* create account */}
                 {formId === 'signup' && 
-                
-                <form autoComplete='off' style={style.signupForm}>
-                    <h1 style={style.header}>Create account</h1>
+                    <ValidatorForm
+                        style={style.signupForm}
+                    >
+                        <h1 style={style.header}>Create account</h1>
+                        <TextValidator
+                            required
+                            value={user.email}
+                            validators={['required', 'isEmail']}
+                            errorMessages={['email is required', 'email is not valid']}
+                            id='standard-basic'
+                            style={style.textField}
+                            onChange={(e) => setUser(user => ({ ...user, email: e.target.value }))}
+                            placeholder='email'
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Icon icon="carbon:email" style={style.icon} />
+    
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
 
-                    <TextField
-                        required
-                        value={user.email}
-                        id='standard-basic'
-                        style={style.textField}
-                        onChange={(e) => setUser(user => ({ ...user, email: e.target.value }))}
-                        placeholder='email'
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <Icon icon="carbon:email" style={style.icon} />
+                        <TextValidator
+                            required
+                            value={user.fullname}
+                            id='standard-basic'
+                            style={style.textField}
+                            onChange={(e) => setUser(user => ({ ...user, fullname: e.target.value }))}
+                            placeholder='fullname'
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Icon style={style.icon} icon='bx:bx-user' />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
 
-                                </InputAdornment>
-                            ),
-                        }}
-                    ></TextField>
+                        <TextValidator
+                            required
+                            value={user.username}
+                            id='standard-basic'
+                            style={style.textField}
+                            onChange={(e) => setUser(user => ({ ...user, username: e.target.value }))}
+                            placeholder='username'
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Icon style={style.icon} icon='carbon:user-avatar' />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                        <TextValidator
+                            validators={['required', 'matchRegexp:(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}']}
+                            errorMessages={['password is required', 'Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters']}
+                            value={user.password}
+                            id='standard-basic'
+                            style={style.textField}
+                            type='password'
+                            onChange={(e) => setUser(user => ({ ...user, password: e.target.value }))}
+                            placeholder='password'
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Icon icon='ant-design:lock-outlined' style={style.icon} />
+                                    </InputAdornment>
+                                )
+                            }}
+                        />
+                        <TextValidator
+                            validators={['isPasswordMatch', 'required']}
+                            errorMessages={['password mismatch', 'confirm password is required']}
+                            error={error}
+                            id={error ? 'standard-error-helper-text' : 'standard-basic'}
+                            style={style.textField}
+                            type='password'
+                            onChange={(e) => {
+                                setError(e.target.value !== user.password)
+                            }}
+                            onKeyUp={(e) => {
+                                if (e.key === 'Enter') {
+                                    registation()
+                                }
+                            }}
+                            placeholder='confirm password'
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Icon icon='ant-design:lock-outlined' style={style.icon} />
+                                    </InputAdornment>
+                                )
+                            }}
+                        />
 
-                    <TextField
-                        required
-                        value={user.fullname}
-                        id='standard-basic'
-                        style={style.textField}
-                        onChange={(e) => setUser(user => ({ ...user, fullname: e.target.value }))}
-                        placeholder='fullname'
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <Icon style={style.icon} icon='bx:bx-user' />
-                                </InputAdornment>
-                            ),
-                        }}
-                    ></TextField>
+                        <div style={style.buttons}>
+                            <Button style={style.button} variant='contained' color='primary' onClick={(e) => {
+                                    // e.preventDefault()
+                                    registation()
+                                    setUserVerify({ email: user.email })
+                            }}>
+                                Create Account
+                            </Button>
+                            <Button style={{ background: '#ffffff', color: '#000000', border: '3px solid black' }} variant='contained' color='primary' onClick={(e) => {
+                                e.preventDefault()
+                                setFormId('login')
+                            }}>Back</Button>
+                        </div>
 
-                    <TextField
-                        required
-                        value={user.username}
-                        id='standard-basic'
-                        style={style.textField}
-                        onChange={(e) => setUser(user => ({ ...user, username: e.target.value }))}
-                        placeholder='username'
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <Icon style={style.icon} icon='carbon:user-avatar' />
-                                </InputAdornment>
-                            ),
-                        }}
-                    ></TextField>
-
-                    <TextField
-                        required
-                        value={user.password}
-                        id='standard-basic'
-                        style={style.textField}
-                        type='password'
-                        onChange={(e) => setUser(user => ({ ...user, password: e.target.value }))}
-                        placeholder='password'
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <Icon icon='ant-design:lock-outlined' style={style.icon} />
-                                </InputAdornment>
-                            )
-                        }}
-                    ></TextField>
-
-                    <TextField
-                        required
-                        error={error}
-                        id={error ? 'standard-error-helper-text' : 'standard-basic'}
-                        style={style.textField}
-                        type='password'
-                        onChange={(e) => {
-                            setError(e.target.value !== user.password)
-                        }}
-                        onKeyUp={(e) => {
-                            if (e.key === 'Enter') {
-                                registation()
-                            }
-                        }}
-                        placeholder='confirm password'
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <Icon icon='ant-design:lock-outlined' style={style.icon} />
-                                </InputAdornment>
-                            )
-                        }}
-                    ></TextField>
-                    <div style={style.buttons}>
-                        <Button style={style.button} variant='contained' color='primary' onClick={(e) => {
-                            e.preventDefault()
-                            registation()
-                            setUserVerify({ email: user.email })
-                        }}>Create Account</Button>
-                        <Button style={{ background: '#ffffff', color: '#000000', border: '3px solid black' }} variant='contained' color='primary' onClick={(e) => {
-                            e.preventDefault()
-                            setFormId('login')
-                        }}>Back</Button>
-                    </div>
-                </form>
+                    </ValidatorForm>
                 }
 
             </div>
