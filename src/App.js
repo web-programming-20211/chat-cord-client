@@ -18,6 +18,9 @@ import { authService } from './service/auth';
 import curRoom from './Components/Room/CurrentRoom'
 require('dotenv').config()
 
+const socket = io.connect(process.env.REACT_APP_API_URL || 'http://localhost:8080');
+
+
 function App() {
   const [connected, setConnect] = useState(false)
   const [error, setError] = useState(false)
@@ -39,8 +42,6 @@ function App() {
     msg: '',
     date: null
   })
-
-  const socket = io.connect(process.env.REACT_APP_API_URL || 'http://localhost:8080');
 
   const limit = useMediaQuery({ maxWidth: 1300 })
   const style = {
@@ -162,9 +163,11 @@ function App() {
     if (room) {
       try {
         let response = await roomService.createRoom(room)
-        const newRoom = response.data.msg
-        setRooms([newRoom, ...rooms])
-        setCurrentRoom(newRoom)
+        if (response.status === 200) {
+          const newRoom = response.data.msg
+          setRooms([newRoom, ...rooms])
+          setCurrentRoom(newRoom)
+        }
       } catch (err) {
         toast.error(`${err?.response?.data?.msg}`)
       }
@@ -180,8 +183,8 @@ function App() {
       socket.emit('leaveRoom', currentRoom?._id)
       socket.emit('joinRoom', newRoom?._id)
     }
-    setCurrentRoom({...newRoom})
-    curRoom.setCurrentRoom({...newRoom})
+    setCurrentRoom({ ...newRoom })
+    curRoom.setCurrentRoom({ ...newRoom })
     setShowSearchRoom(false)
     setLoading(false)
   }
@@ -207,9 +210,9 @@ function App() {
           localStorage.setItem("userId", res.data.msg._id)
           setAuthenticated(true)
           setUser(res.data.msg)
+          socket.emit('login', res.data.msg._id)
           res = await roomService.getRooms()
           if (res.status === 200) setRooms(res.data.msg)
-          socket.emit('login', res.data.msg._id)
           socket.once('connected', () => setConnect(true))
           setLoading(false)
         }
@@ -230,7 +233,7 @@ function App() {
   useEffect(() => {
     if (lastMsgRoomId.roomId.length > 0) {
       let res = rooms.find(room => room._id === lastMsgRoomId.roomId)
-      if (lastMsgRoomId.roomId !== rooms[0]?._id) {
+      if (res && lastMsgRoomId.roomId !== rooms[0]?._id) {
         setRooms([res, ...rooms.filter(el => el._id !== res._id)])
       }
     }
@@ -249,7 +252,7 @@ function App() {
           <div style={{ height: '100%', display: 'flex' }}>
             <div style={style.left}>
               <UserArea user={user} logout={logout}></UserArea>
-              {showSearchRoom && <SearchRoom currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} handleSearchRoom={setShowSearchRoom} lastMsgRoomId={lastMsgRoomId1} setLastMsgRoomId={setLastMsgRoomId1}/>}
+              {showSearchRoom && <SearchRoom currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} handleSearchRoom={setShowSearchRoom} lastMsgRoomId={lastMsgRoomId1} setLastMsgRoomId={setLastMsgRoomId1} />}
               {!showSearchRoom && <RoomsHeader joinRoom={joinRoom} findRoom={findRoom} handleSearchRoom={setShowSearchRoom}></RoomsHeader>}
               {!showSearchRoom && <RoomsList currentRoom={currentRoom} rooms={rooms} joinRoom={joinRoom} lastMsgRoomId={lastMsgRoomId1} setLastMsgRoomId={setLastMsgRoomId1} leaveRoom={leaveRoom} switchRoom={switchRoom} roomManage={roomManage} />}
             </div>

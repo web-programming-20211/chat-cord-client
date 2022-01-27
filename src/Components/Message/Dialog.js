@@ -6,7 +6,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import moment from 'moment';
 import { reactionService } from "../../service/reaction"
-import { Avatar, Tooltip } from 'antd';
+import { Avatar } from 'antd';
 
 
 const Icons = ({ reactions, self }) => {
@@ -41,7 +41,6 @@ const Icons = ({ reactions, self }) => {
 
 const Dialog = ({ dialog, onDelete, room, socket, kickUser }) => {
     const [widget, setWidget] = useState(false)
-    const [enter, setEnter] = useState(false)
     const [reactions, setReaction] = useState([])
     const [self, setSelf] = useState(null)
     const [showTime, setShowTime] = useState(false)
@@ -85,7 +84,6 @@ const Dialog = ({ dialog, onDelete, room, socket, kickUser }) => {
             transition: 'opacity 250ms',
             display: 'flex',
             flexDirection: self ? 'row-reverse' : 'flex',
-            flexShrink: 0,
         },
 
         widgetItem: {

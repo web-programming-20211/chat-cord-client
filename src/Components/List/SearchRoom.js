@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Icon } from '@iconify/react';
 import RoomsList from "../Rooms/RoomsList";
-import Room from "../Room/Room";
 
 const SearchRoom = ({ rooms, joinRoom, leaveRoom, switchRoom, roomManage, currentRoom, handleSearchRoom, lastMsgRoomId, setLastMsgRoomId }) => {
     const [resultRoom, setResultRoom] = useState([]);

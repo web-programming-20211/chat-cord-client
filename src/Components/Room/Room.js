@@ -1,27 +1,10 @@
-// import Avatar from '@material-ui/core/Avatar';
-import { makeStyles } from '@material-ui/core';
 import { useEffect, useState } from 'react';
 import { useMediaQuery } from 'react-responsive'
 import moment from 'moment';
 import { Avatar } from 'antd';
 import { Icon } from '@iconify/react';
-import { roomService } from "../../service/room"
-
-
-const useStyles = makeStyles((theme) => ({
-    large: {
-        width: theme.spacing(10),
-        height: theme.spacing(10)
-    },
-
-    small: {
-        width: theme.spacing(6),
-        height: theme.spacing(6)
-    }
-}))
 
 const Room = ({ room, onClick, lastMsgRoomId, choosen }) => {
-    const classes = useStyles()
     const [option, setOption] = useState(false)
     const [hover, setHover] = useState(false)
     const [lastMsg, setLastMsg] = useState({
