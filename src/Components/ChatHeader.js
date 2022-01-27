@@ -55,18 +55,23 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
 
     const handleUpdateRoomInfo = async () => {
         let roomUpdateInfo_ = roomUpdateInfo
-        if (roomAvatar) {
-            const metadata = {
-                contentType: roomAvatar.type
+        try {
+            if (roomAvatar) {
+                const metadata = {
+                    contentType: roomAvatar.type
+                }
+                const storageRef = storage.ref(`roomAvatars/${roomAvatar.name}`)
+                const snapshot = await storageRef.put(roomAvatar, metadata)
+                const url = await snapshot.ref.getDownloadURL()
+                roomUpdateInfo_.avatar = url
             }
-            const storageRef = storage.ref(`roomAvatars/${roomAvatar.name}`)
-            const snapshot = await storageRef.put(roomAvatar, metadata)
-            const url = await snapshot.ref.getDownloadURL()
-            roomUpdateInfo_.avatar = url
+            let res = await roomService.updateRoom(room?._id, roomUpdateInfo_)
+            
+            if (res.status === 200)
+                toast.success(res?.data?.msg)
+        } catch (err) {
+            toast.error(err?.response?.data?.msg)
         }
-        let res = await roomService.updateRoom(room?._id, roomUpdateInfo_)
-        if (res.status === 200)
-            toast.success(res?.data?.msg)
         setRoomAvatarPreview(roomUpdateInfo.avatar)
         setRoomAvatar(null)
         setUpdateVisible(false)
@@ -457,7 +462,8 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
     }, [room])
 
     useEffect(() => {
-        socket.on('new-pinned-message', (dialog, roomId, r) => {
+        socket.on('new-pinned-message', (roomId, r) => {
+            // console.log(dialog)
             if (roomId === curRoom.getCurrentRoom()?._id) {
                 if (r.pinnedMessages.length === 0)
                     setShowPinnedMessage(false)
@@ -589,7 +595,7 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
                 extra={
                     <Space>
                         {
-                        room.isPrivate && localStorage.getItem('userId') === room.creator &&<button onClick={handleEditInfo} style={style.buttonEditDrawer}>Edit</button>}
+                            room.isPrivate && localStorage.getItem('userId') === room.creator && <button onClick={handleEditInfo} style={style.buttonEditDrawer}>Edit</button>}
                         {!room.isPrivate && <button onClick={handleEditInfo} style={style.buttonEditDrawer}>Edit</button>}
                     </Space>
                 }

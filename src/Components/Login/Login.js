@@ -7,7 +7,7 @@ import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { authService } from '../../service/auth'
 import { Icon } from '@iconify/react';
-import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
+import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 toast.configure({
     autoClose: 2000,
     draggable: false,
@@ -128,7 +128,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
             } else {
                 toast.error('Please fill all fields')
             }
-            
+
         } catch (error) {
             setError(true)
             toast.error(`${error.response.data.msg}`)
@@ -136,12 +136,13 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
     }
 
     const verify = async () => {
-        let result = await authService.verify(verifyUser)
-        if (result.status === 200) {
-            toast.success(`${result.data.msg}`)
-            setFormId('login')
-        }
-        else {
+        try {
+            let result = await authService.verify(verifyUser)
+            if (result.status === 200) {
+                toast.success(`${result.data.msg}`)
+                setFormId('login')
+            }
+        } catch (error) {
             toast.error(`${error.response.data.msg}`,)
         }
     }
@@ -151,8 +152,8 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
             <Intro />
             <div style={style.forms}>
                 {/* Login Form */}
-                
-                {formId === 'login' && 
+
+                {formId === 'login' &&
                     <ValidatorForm
                         style={style.loginForm}
                     >
@@ -171,7 +172,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                                         <Icon icon="carbon:email" style={style.icon} />
                                     </InputAdornment>
                                 ),
-                            }} 
+                            }}
                         />
                         <TextValidator
                             validators={['required',]}
@@ -196,10 +197,10 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                             }}
                         />
                         <div style={style.buttons}>
-                            <Button 
-                                style={style.button} 
-                                variant='contained' 
-                                color='primary' 
+                            <Button
+                                style={style.button}
+                                variant='contained'
+                                color='primary'
                                 onClick={(e) => {
                                     e.preventDefault()
                                     logIn(user)
@@ -270,7 +271,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                 </ValidatorForm>}
 
                 {/* create account */}
-                {formId === 'signup' && 
+                {formId === 'signup' &&
                     <ValidatorForm
                         style={style.signupForm}
                     >
@@ -288,7 +289,7 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                                 startAdornment: (
                                     <InputAdornment position="start">
                                         <Icon icon="carbon:email" style={style.icon} />
-    
+
                                     </InputAdornment>
                                 ),
                             }}
@@ -371,9 +372,9 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
 
                         <div style={style.buttons}>
                             <Button style={style.button} variant='contained' color='primary' onClick={(e) => {
-                                    e.preventDefault()
-                                    registation()
-                                    setUserVerify({ email: user.email })
+                                e.preventDefault()
+                                registation()
+                                setUserVerify({ email: user.email })
                             }}>
                                 Create Account
                             </Button>

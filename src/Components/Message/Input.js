@@ -1,4 +1,3 @@
-import SendIcon from '@material-ui/icons/Send'
 import { useState } from 'react'
 import { useMediaQuery } from 'react-responsive'
 import { TextField, FormControl, InputAdornment } from "@material-ui/core"

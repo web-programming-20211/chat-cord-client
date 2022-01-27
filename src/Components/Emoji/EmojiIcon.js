@@ -19,6 +19,8 @@ const EmojiIcon = ({emojiIndex}) => {
                 return <div style={style}>😠</div>
             case 6:
                 return <div style={style}>👍</div>
+            default:
+                return 
         }
     }
     return (
