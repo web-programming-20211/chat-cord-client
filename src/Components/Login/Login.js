@@ -77,7 +77,6 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
         createAccount: {
             fontWeight: 'bold',
             cursor: 'pointer',
-            // color: 'rgb(101, 136, 222)',
             color: hover ? 'rgb(101, 136, 222)' : '#000000',
             transition: 'color 300ms'
         },
@@ -211,15 +210,12 @@ const Login = ({ logIn, invalid, errorToggle, message }) => {
                         </div>
 
                         <p style={style.createAccount}
-                            // style={}
                             onMouseEnter={() => setHover(true)}
                             onMouseLeave={() => setHover(false)}
                             onClick={e => {
                                 e.preventDefault()
                                 setUser({ email: '', password: '' })
-                                // setAccount(false)
                                 setFormId('signup')
-                                // errorToggle(false)
                             }}
                         >Create account ?</p>
                     </ValidatorForm>

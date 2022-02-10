@@ -1,6 +1,5 @@
 import Avatar from '@material-ui/core/Avatar'
 import { makeStyles } from "@material-ui/core"
-// import { useMediaQuery } from 'react-responsive'
 import { Icon } from '@iconify/react'
 import { useState } from 'react'
 import { Modal, Form, Input, Avatar as UserAvatar, Button } from 'antd'
@@ -31,7 +30,6 @@ const UserArea = ({ user, logout }) => {
     setUpdateVisible(!updateVisible)
   }
 
-  // TODO: update user info
   const handleUpdateUserInfo = async () => {
     let userInfoToUpdate = userInfo
     if (userAvatar) {
@@ -95,8 +93,6 @@ const UserArea = ({ user, logout }) => {
       alignItems: 'start',
     },
     fullname: isRowBased => ({
-      fontFamily: 'Poppins',
-      fontStyle: 'normal',
       fontWeight: '600',
       fontSize: isRowBased ? '18px' : '12px',
       color: '#52585D',
@@ -104,8 +100,6 @@ const UserArea = ({ user, logout }) => {
       width: '100%'
     }),
     username: {
-      fontStyle: 'normal',
-      fontFamily: 'Poppins',
       padding: '5px 8px',
       backgroundColor: '#6588DE',
       borderRadius: '14px',

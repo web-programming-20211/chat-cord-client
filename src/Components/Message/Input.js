@@ -21,9 +21,6 @@ const Input = ({ setDialogs }) => {
         input: {
             display: 'block',
             position: 'relative',
-            // right: '-16px',
-            // bottom: '16px',
-            // borderSizing: 'border-box',
             left: '10px',
             top: '20px',
             width: '108%',
@@ -32,7 +29,6 @@ const Input = ({ setDialogs }) => {
 
         textField: {
             width: limit2 ? '60%' : limit ? '70%' : '90%',
-            // width: '90%',
             fontSize: 'x-large',
             outline: 'none',
             paddingLeft: '20px',
@@ -77,7 +73,6 @@ const Input = ({ setDialogs }) => {
             position: 'absolute',
             cursor: 'pointer',
             right: 45,
-            // left: 12,
             bottom: 14
         },
 
@@ -87,7 +82,6 @@ const Input = ({ setDialogs }) => {
             position: 'absolute',
             cursor: 'pointer',
             right: 50,
-            // left: 12,
             bottom: 14
         },
 
@@ -103,7 +97,6 @@ const Input = ({ setDialogs }) => {
             borderRadius: '14px',
             padding: '20px',
             display: 'flex',
-            // justifyContent: 'center',
             alignItems: 'center',
         },
 
@@ -139,7 +132,6 @@ const Input = ({ setDialogs }) => {
             borderRadius: '10px',
             border: '1px dashed #F9FBFB',
             boxSizing: 'border-box',
-            // bottom: '10px'
         },
 
         addIcon: {
@@ -152,18 +144,15 @@ const Input = ({ setDialogs }) => {
 
     const deletePreview = (id) => {
         setPreviewImage(previewImage.filter(item => item.id !== id))
-        // setPreviewFile(previewFile.filter(item => item.id !== id))
         setFiles(files.filter(item => item.id !== id))
     }
 
     const handleImageChange = (e) => {
-        // convert to base64
         for (let i = 0; i < e.target.files.length; i++) {
             const newFile = e.target.files[i]
             newFile["id"] = Math.random()
             let fileUrl = ''
             let name = ''
-            // check file type is not image
             if (newFile.type.split('/')[0] !== 'image') {
                 fileUrl = 'file.png'
                 name = `file ${i + 1}`
@@ -171,8 +160,6 @@ const Input = ({ setDialogs }) => {
                 fileUrl = null
                 name = `image ${i + 1}`
             }
-
-
             const reader = new FileReader()
             reader.readAsDataURL(newFile)
             reader.onloadend = () => {
@@ -204,7 +191,6 @@ const Input = ({ setDialogs }) => {
                 setDialogs(message, urls)
             })
         }
-        // setPreviewFile([])
         setPreviewImage([])
         setFiles([])
     }

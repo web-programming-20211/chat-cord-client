@@ -80,7 +80,10 @@ function App() {
         setUser(res.data.msg)
         socket.emit('login', res.data.msg._id)
         res = await roomService.getRooms()
-        if (res.status === 200) setRooms(res.data.msg)
+        if (res.status === 200) {
+          var temp = [...res.data.msg.sort((a, b) => (a.lastMessageDate < b.lastMessageDate) ? 1 : -1)]
+          setRooms(temp)
+        }
         socket.once('connected', () => setConnect(true))
       }
       setAuthenticated(true)
@@ -143,19 +146,18 @@ function App() {
   }, [socket])
 
   const findRoom = async (shortId) => {
-    const index = rooms.findIndex(room => room.shortId === shortId)
-    if (index === -1) {
+    try {
       let res = await roomService.attendRoom(shortId)
       if (res.status === 200) {
-        setRooms([res.data.msg, ...rooms])
+        const index = rooms.findIndex(room => room.shortId === res.data.msg.shortId)
+        if (index === -1) {
+          setRooms([res.data.msg, ...rooms])
+        }
         setCurrentRoom(res.data.msg)
         curRoom.setCurrentRoom(res.data.msg)
-      } else if (res.status === 400) {
-        setCurrentRoom(res.data.msg)
-        curRoom.setCurrentRoom(res.data.msg)
-      } else {
-        toast.error(`${res.data.msg}`)
       }
+    } catch (err) {
+      toast.error(`${err?.response?.data?.msg}`)
     }
   }
 
@@ -212,7 +214,10 @@ function App() {
           setUser(res.data.msg)
           socket.emit('login', res.data.msg._id)
           res = await roomService.getRooms()
-          if (res.status === 200) setRooms(res.data.msg)
+          if (res.status === 200) {
+            var temp = [...res.data.msg.sort((a, b) => (a.lastMessageDate < b.lastMessageDate) ? 1 : -1)]
+            setRooms(temp)
+          }
           socket.once('connected', () => setConnect(true))
           setLoading(false)
         }

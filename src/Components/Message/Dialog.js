@@ -1,4 +1,3 @@
-// import Avatar from '@material-ui/core/Avatar'
 import { useState, useEffect } from 'react'
 import Emoji from '../Emoji/Emoji';
 import EmojiIcon from '../Emoji/EmojiIcon';
@@ -124,14 +123,12 @@ const Dialog = ({ dialog, onDelete, room, socket, kickUser }) => {
             marginBottom: '-10px',
         },
         dialogDivInfoName: {
-            fontFamily: 'Poppins',
             color: '#52585D',
             fontSize: '20px',
             fontWeight: '600',
             marginLeft: self ? '10px' : '0px',
         },
         dialogDivInfoTime: {
-            fontFamily: 'Poppins',
             opacity: showTime ? 1 : 0,
             transition: 'opacity 250ms',
             color: '#52585D',

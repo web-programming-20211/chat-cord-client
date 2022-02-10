@@ -13,7 +13,6 @@ const { TabPane } = Tabs;
 const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, room, dialogs, leave, socket }) => {
     const [users, setUsers] = useState([])
     const [visible, setVisible] = useState(false)
-    // const [roomPinMessage, setRoomPinMessage] = useState([])
     const [updateVisible, setUpdateVisible] = useState(false)
     const [pinnedMessage, setPinnedMessage] = useState(false);
     const [showPinnedMessage, setShowPinnedMessage] = useState(false);
@@ -91,18 +90,14 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
         },
 
         pinMessageContainer: {
-            // backgroundImage: 'linear-gradient(to right, #E3F6FC, #ffff80)',
-            // opacity: '0.5',
             position: 'absolute',
             backgroundColor: '#E3F6FC',
-            // bottom: '-67px',
             top: '110px',
             left: '0px',
             zIndex: '1',
             width: '68%',
             height: '50px',
             display: 'flex',
-            // alignItems: 'center',
             gap: '10px',
         },
 
@@ -119,15 +114,10 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
             display: 'flex',
             flexFlow: 'column',
             padding: '2px'
-            // justifyContent: 'space-between',
-            // alignItems: 'center',
         },
 
         pinMessageContentText: {
-            // fontSize: '14px',
-            // width: '80%',
             height: '100%',
-            // paddingTop: '12px'
             display: '-webkit-box',
             WebkitLineClamp: 1,
             WebkitBoxOrient: 'vertical',
@@ -361,12 +351,12 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
 
         searchResultContainer: {
             position: 'absolute',
-            top: '58px',
+            top: '76px',
             left: '0px',
             right: '0px',
-            backgroundColor: 'rgb(101, 136, 222)',
+            backgroundColor: 'rgb(227, 246, 252)',
             padding: '10px',
-            borderRadius: '10px',
+            borderRadius: '0px 0px 10px 10px',
             zIndex: '1',
         },
 
@@ -378,52 +368,18 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
         },
 
         searchOption: {
-            color: '#fff',
+            color: 'rgb(82, 88, 93)',
             cursor: 'pointer',
             fontSize: '20px',
             fontWeight: 'bold',
         },
 
-        dialogContainer: {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            marginTop: '15px',
-        },
-
-        dialogNameAndTime: {
-            display: 'flex',
-            gap: '10px',
-            alignItems: 'center',
-        },
-
-        dialogName: {
-            color: 'white',
-            fontSize: '20px',
-        },
-
-        dialogTime: {
-            color: 'white'
-        },
-
-        dialogMessage: {
-            fontSize: '16px',
-            color: 'white',
-            display: '-webkit-box',
-            WebkitLineClamp: 1,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            width: '280px',
-            workBreak: 'break-word',
-        },
-
         closeIcon: {
             fontSize: '24px',
             position: 'absolute',
-            top: '-19px',
+            top: '2px',
             right: '6px',
-            color: 'white',
+            color: 'rgb(82, 88, 93)',
             cursor: 'pointer',
         }
     }
@@ -463,7 +419,6 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
 
     useEffect(() => {
         socket.on('new-pinned-message', (roomId, r) => {
-            // console.log(dialog)
             if (roomId === curRoom.getCurrentRoom()?._id) {
                 if (r.pinnedMessages.length === 0)
                     setShowPinnedMessage(false)
@@ -510,8 +465,52 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
 
 
     const Dialog = ({ dialog }) => {
+        const [search, setSearch] = useState(false)
+
+        const style = {
+            dialogContainer: {
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                marginTop: '15px',
+                backgroundColor: search ? 'rgb(101, 136, 222)' : '',
+                padding: '10px',
+                borderRadius: '10px',
+            },
+    
+            dialogNameAndTime: {
+                display: 'flex',
+                gap: '10px',
+                alignItems: 'center',
+            },
+    
+            dialogName: {
+                color: search ? 'white': 'rgb(82, 88, 93)',
+                fontSize: '20px',
+                fontWeight: '600',
+            },
+    
+            dialogTime: {
+                color: search ? 'white': 'rgb(82, 88, 93)',
+                fontWeight: '600',
+            },
+    
+            dialogMessage: {
+                fontSize: '16px',
+                color: search ? 'white': 'rgb(82, 88, 93)',
+                fontWeight: '600',
+                display: '-webkit-box',
+                WebkitLineClamp: 1,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                width: '280px',
+                workBreak: 'break-word',
+            },
+        }
         return (
-            <div style={style.dialogContainer}>
+            <a href={'#' + dialog.messageId} onClick={() => { colorOfDialog(dialog.messageId) }} >
+            <div style={style.dialogContainer} onMouseEnter={() => setSearch(true)} onMouseLeave={() => setSearch(false)}>
                 <Avatar src={dialog.avatar} size={60} style={style.dialogContainerAvatar} />
 
                 <div style={style.dialogContainerInfo}>
@@ -519,17 +518,20 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
                         <span style={style.dialogName}>{dialog.username}</span>
                         <span style={style.dialogTime}>{moment(dialog.createdAt).calendar()}</span>
                     </div>
-                    <div onClick={() => { colorOfDialog(dialog.messageId) }}>
+                    {/* <div onClick={() => { colorOfDialog(dialog.messageId) }}>
                         <a href={'#' + dialog.messageId} style={style.dialogMessage}>
                             {dialog.content}
                         </a>
-                    </div>
+                    </div> */}
+                    <span style={style.dialogMessage}>{dialog.content}</span>
                 </div>
             </div>
+            </a>
         )
     }
 
     const colorOfDialog = (msgId) => {
+        setShowDialogResult(false)
         var element = document.getElementById(msgId);
         element.style.backgroundColor = 'LightBlue'
         element.style.borderRadius = '10px'
@@ -673,7 +675,6 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
                                 <div style={style.mediaGrid}>
                                     {
                                         dialogs.map(dialog => {
-                                            // eslint-disable-next-line array-callback-return
                                             return dialog.urls.length > 0 && dialog.urls.map((url, index) => {
                                                 let format = url.split('.').pop().split('?')[0]
                                                 if (format === 'mp4') {
@@ -732,7 +733,6 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
                                                                 <Input placeholder="Email" />
                                                             </Form.Item>
                                                             <Icon style={style.removeIcon} icon="gg:remove" onClick={() => remove(name)} />
-                                                            {/* <MinusCircleOutlined onClick={() => remove(name)} /> */}
                                                         </Space>
                                                     ))}
                                                     <Form.Item>
@@ -756,7 +756,7 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
                                                     <Avatar style={{ backgroundColor: '#' + user?.color }} size={50} src={user?.avatar}></Avatar>
                                                     {user.online && <span style={style.dot}></span>}
                                                 </div>
-                                                <p style={{ fontSize: '16px' }}>{user?.fullname}</p>
+                                                <p style={{ fontSize: '16px' }}>{user?.username}</p>
                                             </div>
                                         )
                                     })
@@ -783,7 +783,6 @@ const ChatHeader = ({ userOnline, userOffline, setUserOnline, setUserOffline, ro
                     <a href={'#' + pinnedMessage.messageId}>
                         <b>Pinned Message</b>
                         <p style={style.pinMessageContentText}>{pinnedMessage ? pinnedMessage?.message : room?.pinnedMessages?.at(-1)?.message}</p>
-                        {/* <Icon icon="carbon:close-outline"  /> */}
                     </a>
                 </div>
             </div>
