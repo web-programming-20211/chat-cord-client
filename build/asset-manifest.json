@@ -1,23 +1,23 @@
 {
   "files": {
     "main.css": "/chat-cord-client/static/css/main.a4b61de0.chunk.css",
-    "main.js": "/chat-cord-client/static/js/main.427346d0.chunk.js",
-    "main.js.map": "/chat-cord-client/static/js/main.427346d0.chunk.js.map",
+    "main.js": "/chat-cord-client/static/js/main.53649238.chunk.js",
+    "main.js.map": "/chat-cord-client/static/js/main.53649238.chunk.js.map",
     "runtime-main.js": "/chat-cord-client/static/js/runtime-main.64d4c9bc.js",
     "runtime-main.js.map": "/chat-cord-client/static/js/runtime-main.64d4c9bc.js.map",
     "static/css/2.44a47bbe.chunk.css": "/chat-cord-client/static/css/2.44a47bbe.chunk.css",
-    "static/js/2.3b388cfb.chunk.js": "/chat-cord-client/static/js/2.3b388cfb.chunk.js",
-    "static/js/2.3b388cfb.chunk.js.map": "/chat-cord-client/static/js/2.3b388cfb.chunk.js.map",
+    "static/js/2.cf2a3154.chunk.js": "/chat-cord-client/static/js/2.cf2a3154.chunk.js",
+    "static/js/2.cf2a3154.chunk.js.map": "/chat-cord-client/static/js/2.cf2a3154.chunk.js.map",
     "index.html": "/chat-cord-client/index.html",
     "static/css/2.44a47bbe.chunk.css.map": "/chat-cord-client/static/css/2.44a47bbe.chunk.css.map",
     "static/css/main.a4b61de0.chunk.css.map": "/chat-cord-client/static/css/main.a4b61de0.chunk.css.map",
-    "static/js/2.3b388cfb.chunk.js.LICENSE.txt": "/chat-cord-client/static/js/2.3b388cfb.chunk.js.LICENSE.txt"
+    "static/js/2.cf2a3154.chunk.js.LICENSE.txt": "/chat-cord-client/static/js/2.cf2a3154.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.64d4c9bc.js",
     "static/css/2.44a47bbe.chunk.css",
-    "static/js/2.3b388cfb.chunk.js",
+    "static/js/2.cf2a3154.chunk.js",
     "static/css/main.a4b61de0.chunk.css",
-    "static/js/main.427346d0.chunk.js"
+    "static/js/main.53649238.chunk.js"
   ]
 }
